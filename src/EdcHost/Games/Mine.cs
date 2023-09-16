@@ -20,6 +20,23 @@ public class Mine : IMine
     /// </summary>
     public IPosition<float> Position { get; }
 
+    public TimeSpan AccumulateOreInterval
+    {
+        get => OreKind switch
+        {
+            IMine.OreKindType.IronIngot => TimeSpan.FromSeconds(1),
+            IMine.OreKindType.GoldIngot => TimeSpan.FromSeconds(4),
+            IMine.OreKindType.Diamond => TimeSpan.FromSeconds(16),
+            _ => throw new ArgumentOutOfRangeException(
+                nameof(OreKind), $"No ore kind {OreKind}")
+        };
+    }
+
+    /// <summary>
+    /// Last time ore generated.
+    /// </summary>
+    public DateTime LastOreGeneratedTime { get; private set; }
+
     /// <summary>
     /// Constructor
     /// </summary>
@@ -30,6 +47,7 @@ public class Mine : IMine
         AccumulatedOreCount = 0;
         OreKind = oreKind;
         Position = position;
+        LastOreGeneratedTime = DateTime.Now;
     }
 
     /// <summary>
@@ -45,9 +63,10 @@ public class Mine : IMine
     /// <summary>
     /// Generate ore automaticly.
     /// </summary>
-    public void Generate()
+    public void GenerateOre()
     {
         AccumulatedOreCount++;
+        LastOreGeneratedTime = DateTime.Now;
     }
 
 }
