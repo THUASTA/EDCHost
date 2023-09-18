@@ -19,10 +19,14 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Moq" Version="4.20.69" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\EdcHost\EdcHost.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="Moq.dll" />
+  </ItemGroup>
 </Project>
