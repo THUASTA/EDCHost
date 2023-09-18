@@ -24,18 +24,22 @@ public class GameTests
             Assert.Equal(i%8,map.Chunks[i].Position.Y);
         }
     }
-
+    
     [Theory]
     [InlineData(0, 0)]
     [InlineData(1, 1)]
     [InlineData(2, 2)]
     [InlineData(3, 3)]
     [InlineData(7, 7)]
-    public void GetChunkAt_ReturnsCorrectChunkPositionX(int y, int expectedY)
+    [InlineData(9, 9)]
+    public void GetChunkAt_DoNothing_ReturnsCorrectChunkPosition(int x, int y)
     {
+        MockPosition expectedPosition = new MockPosition{X=x, Y=y};
         Map map = new Map();
-        IChunk chunk= map.GetChunkAt(new MockPosition(0,y));
-        Assert.Equal(expectedY,chunk.Position.Y);
+        IChunk chunk= map.GetChunkAt(expectedPosition);
+        Assert.NotNull(chunk);
+        Assert.Equal(expectedPosition,chunk.Position);
     }
+
 
 }
