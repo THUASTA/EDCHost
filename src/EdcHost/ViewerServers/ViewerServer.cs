@@ -1,3 +1,4 @@
+using System.Net.Mime;
 using System.Text;
 using System.Text.Json;
 
@@ -17,7 +18,7 @@ public class ViewerServer
     private readonly WebSocketServer _webSocketServer;
     private readonly ILogger _logger = Log.Logger.ForContext<ViewerServer>();
     private IWebSocketConnection? _socket = null;
-    private readonly Updater _updater = new Updater();
+    public Updater CompetitionUpdater { get; } = new Updater();
 
     public ViewerServer(int port)
     {
@@ -26,17 +27,15 @@ public class ViewerServer
             RestartAfterListenError = true
         };
     }
+
     /// <summary>
     /// Starts the server.
     /// </summary>
     public void Start()
     {
         WebSocketServerStart();
+        CompetitionUpdater.StartUpdate();
         _logger.Information("Server started.");
-
-        _updater.SendCaller += (sender, args) => Send(args.Message);
-
-        _updater.StartUpdate();
     }
     /// <summary>
     /// Stops the server.
@@ -45,9 +44,14 @@ public class ViewerServer
     {
         _webSocketServer.Dispose();
         _socket?.Close();
-        _updater.End();
+        CompetitionUpdater.End();
+        _logger.Information("Server stopped.");
     }
 
+    /// <summary>
+    /// Sends the message to the viewer.
+    /// </summary>
+    /// <param name="message">the message to send.</param>
     public void Send(IMessage message)
     {
         try
@@ -65,6 +69,9 @@ public class ViewerServer
         }
     }
 
+    /// <summary>
+    /// Starts the WebSocket server.
+    /// </summary>
     private void WebSocketServerStart()
     {
         _webSocketServer.Start(socket =>
@@ -118,6 +125,11 @@ public class ViewerServer
         });
     }
 
+    /// <summary>
+    /// Deserializes the message and calls the appropriate method.
+    /// </summary>
+    /// <param name="text"></param>
+    /// <exception cref="InvalidDataException"></exception>
     private void DeserializeMessage(string text)
     {
         IMessage message = JsonSerializer.Deserialize<Message>(text)!;
@@ -126,11 +138,13 @@ public class ViewerServer
             case "COMPETITION_CONTROL_COMMAND":
                 ICompetitionControlCommand command
                     = JsonSerializer.Deserialize<CompetitionControlCommand>(text)!;
+                //TODO: change the game stage.
                 break;
 
             case "HOST_CONFIGURATION_FROM_CLIENT":
                 IHostConfigurationFromClient hostConfiguration
                     = JsonSerializer.Deserialize<HostConfigurationFromClient>(text)!;
+                //TODO: change the configuration
                 break;
 
             default:
