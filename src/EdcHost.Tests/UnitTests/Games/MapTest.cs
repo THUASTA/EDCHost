@@ -6,8 +6,8 @@ public class GameTests
 {
     public class MockPosition : IPosition<int>
     {
-        public int X { get; set;}
-        public int Y { get; set;}
+        public int X { get; set; }
+        public int Y { get; set; }
     }
 
     [Fact]
@@ -15,12 +15,12 @@ public class GameTests
     {
         Map map = new Map();
         Assert.NotNull(map.Chunks);
-        Assert.Equal(64,map.Chunks.Count);
-        for(int i = 0; i < 64; i++)
+        Assert.Equal(64, map.Chunks.Count);
+        for (int i = 0; i < 64; i++)
         {
             Assert.Equal(0, map.Chunks[i].Height);
-            Assert.Equal(i/8, map.Chunks[i].Position.X);
-            Assert.Equal(i%8, map.Chunks[i].Position.Y);
+            Assert.Equal(i / 8, map.Chunks[i].Position.X);
+            Assert.Equal(i % 8, map.Chunks[i].Position.Y);
         }
     }
     
@@ -35,10 +35,8 @@ public class GameTests
     {
         MockPosition expectedPosition = new MockPosition { X = x, Y = y };
         Map map = new Map();
-        IChunk chunk= map.GetChunkAt(expectedPosition);
+        IChunk chunk = map.GetChunkAt(expectedPosition);
         Assert.NotNull(chunk);
         Assert.Equal(expectedPosition, chunk.Position);
     }
-    
-
 }
