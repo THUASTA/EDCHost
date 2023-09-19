@@ -65,7 +65,7 @@ public class MineTest
         {
             mine.Generate();
         }
-        int count = 30;
+        int count = 64;
         int expectedValue = 136;
         mine.PickUpOre(count);
         Assert.Equal(expectedValue,mine.AccumulatedOreCount);
