@@ -1,3 +1,4 @@
+using System.ComponentModel.Design.Serialization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -25,6 +26,17 @@ public class CompetitionUpdate : ICompetitionUpdate
 
     [JsonPropertyName("players")]
     public List<object> Players { get; }
+
+    public CompetitionUpdate()
+    {
+        MessageType = "COMPETITION_UPDATE";
+        Cameras = new List<object>();
+        Chunks = new List<object>();
+        Events = new List<object>();
+        Info = new List<object>();
+        Mines = new List<object>();
+        Players = new List<object>();
+    }
 
     [JsonConstructor]
     public CompetitionUpdate(

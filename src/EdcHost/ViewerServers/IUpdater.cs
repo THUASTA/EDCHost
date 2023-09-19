@@ -4,10 +4,14 @@ namespace EdcHost.ViewerServers;
 
 public interface IUpdater
 {
-    public IMessage? CachedMessage { get; }
-    public bool EndTag { get; }
+    public ICompetitionUpdate? CachedMessage { get; }
 
-    public void UpdateMessage(IMessage message);
     public void StartUpdate();
     public void End();
+    public void UpdateCameras(object[]? cameras);
+    public void UpdatePlayers(object[]? players);
+    public void UpdateInfo(object[]? infos);
+    public void UpdateChunks(object[]? chunks);
+    public void UpdateMines(object[]? mines);
+    public void AddEvent(object newEvent);
 }
