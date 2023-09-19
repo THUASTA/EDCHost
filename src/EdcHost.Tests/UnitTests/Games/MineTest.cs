@@ -51,7 +51,7 @@ public class MineTest
     public void Generate_AccumulatedOreCountAdd_ReturnsCorrectValue(int generate, int expectedValue)
     {
         Mine mine = new Mine(IMine.OreKindType.Diamond, new MockPosition { X = 0f, Y = 0f });
-        for(int i = 0; i < generate; i++)
+        for (int i = 0; i < generate; i++)
         {
             mine.Generate();
         }
@@ -74,7 +74,7 @@ public class MineTest
     [Fact]
     public void PickUpOre_CountMoreThanAccumulatedOreCount_ReturnsCorrctValue()
     {
-        Mine mine = new Mine(IMine.OreKindType.Diamond ,new MockPosition { X = 0f, Y = 0f });
+        Mine mine = new Mine(IMine.OreKindType.Diamond, new MockPosition { X = 0f, Y = 0f });
         for (int i = 0; i < 30; i++)
         {
             mine.Generate();

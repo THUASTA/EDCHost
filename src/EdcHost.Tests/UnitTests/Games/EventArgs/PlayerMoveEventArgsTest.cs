@@ -1,6 +1,6 @@
 using EdcHost.Games;
-using Xunit;
 using Moq;
+using Xunit;
 
 namespace EdcHost.Tests.UnitTests.Games.EventArgs;
 
@@ -18,5 +18,4 @@ public class PlayerMoveEventArgsTests
         Assert.Equal(positionBeforeMovementMock.Object, args.PositionBeforeMovement);
         Assert.Equal(positionMock.Object, args.Position);
     }
-    
 }
