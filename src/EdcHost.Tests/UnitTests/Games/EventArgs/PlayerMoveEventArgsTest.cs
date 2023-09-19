@@ -18,4 +18,5 @@ public class PlayerMoveEventArgsTests
         Assert.Equal(positionBeforeMovementMock.Object, args.PositionBeforeMovement);
         Assert.Equal(positionMock.Object, args.Position);
     }
+    
 }

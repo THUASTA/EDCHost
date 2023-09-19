@@ -25,7 +25,7 @@ public class Mine : IMine
     /// </summary>
     /// <param name="oreKind">The ore kind</param>
     /// <param name="position">THe position</param>
-    public Mine(IMine.OreKindType oreKind, Position<float> position)
+    public Mine(IMine.OreKindType oreKind, IPosition<float> position)
     {
         AccumulatedOreCount = 0;
         OreKind = oreKind;
