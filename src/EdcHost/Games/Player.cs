@@ -22,11 +22,11 @@ public class Player : IPlayer
 
     public void Move(float newX, float newY)
     {
+        /// Trigger the OnMove event to notify other parts that the player has moved
+        OnMove?.Invoke(this, new PlayerMoveEventArgs(this, PlayerPosition, new Position<float>(newX, newY)));
         /// Update the player's position information
         PlayerPosition.X = newX;
         PlayerPosition.Y = newY;
-        /// Trigger the OnMove event to notify other parts that the player has moved
-        OnMove?.Invoke(this, new PlayerMoveEventArgs(this, PlayerPosition, new Position<float>(newX, newY)));
     }
 
     public void Attack(float newX, float newY)
