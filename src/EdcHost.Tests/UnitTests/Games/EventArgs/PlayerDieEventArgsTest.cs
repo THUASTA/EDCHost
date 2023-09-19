@@ -10,7 +10,7 @@ public class PlayerMoveEventArgsTests
     public void PlayerDieEventArgs_CorrectlyInitialized()
     {
         var playerMock = new Mock<IPlayer>();
-        var args = new PlayerMoveEventArgs(playerMock.Object);
+        var args = new PlayerDieEventArgs(playerMock.Object);
         Assert.NotNull(args);
         Assert.Equal(playerMock.Object, args.Player);
     }
