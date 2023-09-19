@@ -1,5 +1,4 @@
 using EdcHost.Games;
-using Moq;
 using Xunit;
 
 namespace EdcHost.Tests.UnitTests.Games;
@@ -17,11 +16,11 @@ public class GameTests
         Map map = new Map();
         Assert.NotNull(map.Chunks);
         Assert.Equal(64,map.Chunks.Count);
-        for(int i=0;i<64;i++)
+        for(int i = 0; i < 64; i++)
         {
-            Assert.Equal(0,map.Chunks[i].Height);
-            Assert.Equal(i/8,map.Chunks[i].Position.X);
-            Assert.Equal(i%8,map.Chunks[i].Position.Y);
+            Assert.Equal(0, map.Chunks[i].Height);
+            Assert.Equal(i/8, map.Chunks[i].Position.X);
+            Assert.Equal(i%8, map.Chunks[i].Position.Y);
         }
     }
     
@@ -34,12 +33,12 @@ public class GameTests
     [InlineData(9, 9)]
     public void GetChunkAt_DoNothing_ReturnsCorrectChunkPosition(int x, int y)
     {
-        MockPosition expectedPosition = new MockPosition{X=x, Y=y};
+        MockPosition expectedPosition = new MockPosition { X = x, Y = y };
         Map map = new Map();
         IChunk chunk= map.GetChunkAt(expectedPosition);
         Assert.NotNull(chunk);
-        Assert.Equal(expectedPosition,chunk.Position);
+        Assert.Equal(expectedPosition, chunk.Position);
     }
-
+    
 
 }
