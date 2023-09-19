@@ -23,7 +23,7 @@ public class GameTests
             Assert.Equal(i % 8, map.Chunks[i].Position.Y);
         }
     }
-    
+
     [Theory]
     [InlineData(0, 0)]
     [InlineData(1, 1)]
