@@ -4,7 +4,7 @@ using Xunit;
 
 namespace EdcHost.Tests.UnitTests.Games.EventArgs;
 
-public class PlayerMoveEventArgsTests
+public class PlayerDieEventArgsTests
 {
     [Fact]
     public void PlayerDieEventArgs_CorrectlyInitialized()
