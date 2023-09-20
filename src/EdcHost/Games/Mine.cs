@@ -41,8 +41,8 @@ public class Mine : IMine
     /// Constructor
     /// </summary>
     /// <param name="oreKind">The ore kind</param>
-    /// <param name="position">THe position</param>
-    public Mine(IMine.OreKindType oreKind, Position<float> position)
+    /// <param name="position">The position</param>
+    public Mine(IMine.OreKindType oreKind, IPosition<float> position)
     {
         AccumulatedOreCount = 0;
         OreKind = oreKind;
@@ -56,8 +56,11 @@ public class Mine : IMine
     /// <param name="count">The count of ore to pick up.</param>
     public void PickUpOre(int count)
     {
-        //TODO: Handle case AccumulatedOreCount < count
-        AccumulatedOreCount = Math.Max(0, AccumulatedOreCount - count);
+        if(AccumulatedOreCount < count)
+        {
+            throw new InvalidOperationException("No enough ore.");
+        }
+        AccumulatedOreCount -= count;
     }
 
     /// <summary>

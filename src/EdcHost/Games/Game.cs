@@ -86,18 +86,28 @@ public partial class Game : IGame
         _lastTickTime = null;
 
         _map = new Map();
+
         _players = new(2);
+        //TODO: Set player's initial position and spawnpoint
+        for (int i = 0; i < 2; i++)
+        {
+            _players[i] = new Player(i, 0f, 0f, 0f, 0f);
+        }
+        _playerLastAttackTime = new(2);
+        for (int i = 0; i < 2; i++)
+        {
+            _playerLastAttackTime[i] = DateTime.Now - TimeSpan.FromSeconds(20);
+        }
+        _playerDeathTime = new(2);
+        for (int i = 0; i < 2; i++)
+        {
+            _playerDeathTime[i] = null;
+        }
+
         _mines = new();
         GenerateMines();
 
-        _lastAttacks = new();
-        _lastMovements = new();
-        _lastPlaceActions = new();
-        _lastTradeActions = new();
-
         _tickTask = new(Tick);
-        //TODO: Add players
-        //TODO: Subscribe player events
     }
 
     /// <summary>
@@ -112,6 +122,29 @@ public partial class Game : IGame
 
         //TODO: Start game after all players are ready
 
+        foreach (Mine mine in _mines)
+        {
+            mine.GenerateOre();
+        }
+
+        for (int i = 0; i < 2; i++)
+        {
+            _players[i].OnMove += HandlePlayerMoveEvent;
+            _players[i].OnAttack += HandlePlayerAttackEvent;
+            _players[i].OnPlace += HandlePlayerPlaceEvent;
+            _players[i].OnDie += HandlePlayerDieEvent;
+        }
+
+        for (int i = 0; i < 2; i++)
+        {
+            _playerLastAttackTime[i] = DateTime.Now - TimeSpan.FromSeconds(20);
+        }
+
+        for (int i = 0; i < 2; i++)
+        {
+            _playerDeathTime[i] = null;
+        }
+
         CurrentStage = IGame.Stage.Running;
         Winner = null;
         CurrentTick = 0;
@@ -120,11 +153,6 @@ public partial class Game : IGame
         _startTime = initTime;
         _lastTickTime = initTime;
         ElapsedTime = TimeSpan.FromSeconds(0);
-
-        foreach (Mine mine in _mines)
-        {
-            mine.GenerateOre();
-        }
 
         _tickTask.Start();
 
@@ -146,6 +174,24 @@ public partial class Game : IGame
 
             _startTime = null;
             _lastTickTime = null;
+
+            for (int i = 0; i < 2; i++)
+            {
+                _players[i].OnMove -= HandlePlayerMoveEvent;
+                _players[i].OnAttack -= HandlePlayerAttackEvent;
+                _players[i].OnPlace -= HandlePlayerPlaceEvent;
+                _players[i].OnDie -= HandlePlayerDieEvent;
+            }
+
+            for (int i = 0; i < 2; i++)
+            {
+                _playerLastAttackTime[i] = DateTime.Now - TimeSpan.FromSeconds(20);
+            }
+
+            for (int i = 0; i < 2; i++)
+            {
+                _playerDeathTime[i] = null;
+            }
 
             ElapsedTime = TimeSpan.FromSeconds(0);
             CurrentTick = 0;
@@ -171,14 +217,16 @@ public partial class Game : IGame
 
                     DateTime currentTime = DateTime.Now;
                     ElapsedTime = currentTime - (DateTime)_startTime;
+
+                    Update();
+
+                    if (CurrentStage == IGame.Stage.Finished)
+                    {
+                        Stop();
+                    }
+
                     if (currentTime - _lastTickTime >= TickInterval)
                     {
-                        Update();
-
-                        if (CurrentStage == IGame.Stage.Finished)
-                        {
-                            Stop();
-                        }
 
                         _lastTickTime = currentTime;
                         CurrentTick++;
@@ -300,17 +348,5 @@ public partial class Game : IGame
 
         AfterJudgementEvent?.Invoke(this, new AfterJudgementEventArgs(this, Winner));
     }
-
-    /// <summary>
-    /// Handle PlayerMoveEvent
-    /// </summary>
-    /// <param name="sender">Sender of the event</param>
-    /// <param name="e">Event args</param>
-    private void HandlePlayerMoveEvent(object? sender, PlayerMoveEventArgs e)
-    {
-        //TODO: Handle PlayerMoveEvent
-    }
-
-    //TODO: Add more player event handler
 
 }

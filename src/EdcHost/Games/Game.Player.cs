@@ -18,24 +18,14 @@ public partial class Game : IGame
     private readonly List<IPlayer> _players;
 
     /// <summary>
-    /// PlayerMovementAction of last tick.
+    /// Last attack time of each player.
     /// </summary>
-    private readonly Queue<PlayerMoveAction> _lastMovements;
+    private readonly List<DateTime> _playerLastAttackTime;
 
     /// <summary>
-    /// PlayerAttackAction of last tick.
+    /// Last time a player dies.
     /// </summary>
-    private readonly Queue<PlayerAttackAction> _lastAttacks;
-
-    /// <summary>
-    /// PlayerPlaceBlockAction of last tick.
-    /// </summary>
-    private readonly Queue<PlayerPlaceBlockAction> _lastPlaceActions;
-
-    /// <summary>
-    /// PlayerTradeAction of last tick.
-    /// </summary>
-    private readonly Queue<PlayerTradeAction> _lastTradeActions;
+    private readonly List<DateTime?> _playerDeathTime;
 
     /// <summary>
     /// Cauculate commodity value.
@@ -47,11 +37,9 @@ public partial class Game : IGame
     private int CommodityValue(
         IPlayer player, IPlayer.CommodityKindType commodityKind) => commodityKind switch
         {
-            //TODO: Calculate value of Boosts accoding to player's property
-            IPlayer.CommodityKindType.AgilityBoost => 0,
-            IPlayer.CommodityKindType.HealthBoost => 0,
-            IPlayer.CommodityKindType.StrengthBoost => 0,
-
+            IPlayer.CommodityKindType.AgilityBoost => (int)Math.Pow(2, player.ActionPoints),
+            IPlayer.CommodityKindType.HealthBoost => player.MaxHealth - 20,
+            IPlayer.CommodityKindType.StrengthBoost => (int)Math.Pow(2, player.Strength),
             IPlayer.CommodityKindType.Wool => 1,
             IPlayer.CommodityKindType.HealthPotion => 4,
             _ => throw new ArgumentOutOfRangeException(
@@ -65,8 +53,18 @@ public partial class Game : IGame
     /// <returns>Time interval</returns>
     private TimeSpan AttackTimeInterval(IPlayer player)
     {
-        //TODO: Cauculate time interval according to agility
-        return TimeSpan.FromSeconds(0);
+        return TimeSpan.FromSeconds((double)10.0d / (double)player.ActionPoints);
+    }
+
+    /// <summary>
+    /// Gets the opponent of a player.
+    /// </summary>
+    /// <param name="player">The player</param>
+    /// <returns>Opponent of the player</returns>
+    private IPlayer Opponent(IPlayer player)
+    {
+        //0^1=1, 1^1=0, 0^0=0
+        return _players[player.PlayerId ^ 1];
     }
 
 }
