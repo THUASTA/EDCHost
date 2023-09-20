@@ -11,7 +11,8 @@ public partial class Game : IGame
     {
         if (_startTime is null)
         {
-            Serilog.Log.Warning("The game is not started yet. Action rejected.");
+            Serilog.Log.Warning(@"The game is not started yet.
+                Please make sure every player is at its spawnpoint.");
             return;
         }
 

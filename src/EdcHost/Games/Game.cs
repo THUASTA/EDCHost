@@ -5,10 +5,6 @@ namespace EdcHost.Games;
 /// </summary>
 public partial class Game : IGame
 {
-    //TODO: Seperate class Game
-
-    //TODO: Add other fields and properties
-
     /// <summary>
     /// Time interval between two ticks.
     /// </summary>
@@ -88,7 +84,9 @@ public partial class Game : IGame
         _map = new Map();
 
         _players = new(2);
+
         //TODO: Set player's initial position and spawnpoint
+
         for (int i = 0; i < 2; i++)
         {
             _players[i] = new Player(i, 0f, 0f, 0f, 0f);
@@ -102,6 +100,14 @@ public partial class Game : IGame
         for (int i = 0; i < 2; i++)
         {
             _playerDeathTime[i] = null;
+        }
+
+        for (int i = 0; i < 2; i++)
+        {
+            _players[i].OnMove += HandlePlayerMoveEvent;
+            _players[i].OnAttack += HandlePlayerAttackEvent;
+            _players[i].OnPlace += HandlePlayerPlaceEvent;
+            _players[i].OnDie += HandlePlayerDieEvent;
         }
 
         _mines = new();
@@ -125,14 +131,6 @@ public partial class Game : IGame
         foreach (Mine mine in _mines)
         {
             mine.GenerateOre();
-        }
-
-        for (int i = 0; i < 2; i++)
-        {
-            _players[i].OnMove += HandlePlayerMoveEvent;
-            _players[i].OnAttack += HandlePlayerAttackEvent;
-            _players[i].OnPlace += HandlePlayerPlaceEvent;
-            _players[i].OnDie += HandlePlayerDieEvent;
         }
 
         for (int i = 0; i < 2; i++)
@@ -177,14 +175,6 @@ public partial class Game : IGame
 
             for (int i = 0; i < 2; i++)
             {
-                _players[i].OnMove -= HandlePlayerMoveEvent;
-                _players[i].OnAttack -= HandlePlayerAttackEvent;
-                _players[i].OnPlace -= HandlePlayerPlaceEvent;
-                _players[i].OnDie -= HandlePlayerDieEvent;
-            }
-
-            for (int i = 0; i < 2; i++)
-            {
                 _playerLastAttackTime[i] = DateTime.Now - TimeSpan.FromSeconds(20);
             }
 
@@ -219,6 +209,8 @@ public partial class Game : IGame
                     ElapsedTime = currentTime - (DateTime)_startTime;
 
                     Update();
+
+                    //TODO: Destroy all beds when battling
 
                     if (CurrentStage == IGame.Stage.Finished)
                     {
@@ -271,9 +263,8 @@ public partial class Game : IGame
             throw new InvalidOperationException("The game is not running.");
         }
 
-        UpdateMap();
-        UpdateMines();
         UpdatePlayerInfo();
+        UpdateMines();
         UpdateGameStage();
     }
 
@@ -299,9 +290,28 @@ public partial class Game : IGame
     /// <summary>
     /// Update player infomation.
     /// </summary>
+    /// <remarks>
+    /// Similar things are done by player event handlers.
+    /// But this function is still called in case there are
+    /// something player event handlers can't do.
+    /// </remarks>
     private void UpdatePlayerInfo()
     {
-        //TODO: Update player infomation
+        for (int i = 0; i < 2; i++)
+        {
+            //TODO: Break a player's bed if the chunk is void
+
+            if (_players[i].IsAlive == true && IsValidPosition(
+                ToIntPosition(_players[i].PlayerPosition)) == false)
+            {
+                _players[i].Hurt(InstantDeathDamage);
+            }
+            else if (_players[i].IsAlive == true && _map.GetChunkAt(
+                ToIntPosition(_players[i].PlayerPosition)).IsVoid == true)
+            {
+                _players[i].Hurt(InstantDeathDamage);
+            }
+        }
     }
 
     /// <summary>
@@ -322,20 +332,18 @@ public partial class Game : IGame
     }
 
     /// <summary>
-    /// Update game map
-    /// </summary>
-    private void UpdateMap()
-    {
-        //TODO: Update game map
-    }
-
-    /// <summary>
-    /// Whether the game is finished or not
+    /// Whether the game is finished or not.
     /// </summary>
     /// <returns>True if finished, false otherwise.</returns>
     private bool IsFinished()
     {
-        //TODO: Check whether the game is finished or not
+        for (int i = 0; i < 2; i++)
+        {
+            if (_players[i].IsAlive == false && _players[i].HasBed == false)
+            {
+                return true;
+            }
+        }
         return false;
     }
 
@@ -344,9 +352,31 @@ public partial class Game : IGame
     /// </summary>
     private void Judge()
     {
-        //TODO: Judge the game
+        int remainingPlayers = 0;
+        for (int i = 0; i < 2; i++)
+        {
+            if (_players[i].IsAlive == true || _players[i].HasBed == true)
+            {
+                remainingPlayers++;
+            }
+        }
+
+        if (remainingPlayers == 0 || remainingPlayers == 2)
+        {
+            Winner = null;
+        }
+        else
+        {
+            for (int i = 0; i < 2; i++)
+            {
+                if (_players[i].IsAlive == true || _players[i].HasBed == true)
+                {
+                    Winner = _players[i];
+                    break;
+                }
+            }
+        }
 
         AfterJudgementEvent?.Invoke(this, new AfterJudgementEventArgs(this, Winner));
     }
-
 }
