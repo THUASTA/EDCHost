@@ -56,7 +56,7 @@ public class Mine : IMine
     /// <param name="count">The count of ore to pick up.</param>
     public void PickUpOre(int count)
     {
-        if(AccumulatedOreCount < count)
+        if (AccumulatedOreCount < count)
         {
             throw new InvalidOperationException("No enough ore.");
         }
