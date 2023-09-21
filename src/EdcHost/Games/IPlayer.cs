@@ -35,10 +35,14 @@ public interface IPlayer
     event EventHandler<PlayerPlaceEventArgs> OnPlace;
     event EventHandler<PlayerDieEventArgs> OnDie;
 
+    public void EmeraldAdd(int count);
     public void Move(float newX, float newY);
     public void Attack(float newX, float newY);
     public void Place(float newX, float newY);
     public void Hurt(int EnemyStrength);
+    public void Spawn(int EnemyStrength);
+    public void DestroyBed();
+    public void DecreaseWoolCount();
     /// <summary>
     /// The Id of  the player 
     /// </summary>
