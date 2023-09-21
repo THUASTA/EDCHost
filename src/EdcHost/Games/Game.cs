@@ -5,20 +5,10 @@ namespace EdcHost.Games;
 /// </summary>
 public partial class Game : IGame
 {
-    //TODO: Seperate class Game
-
-    //TODO: Add events to Game
-    //TODO: Add other fields and properties
-
     /// <summary>
-    /// How many seconds one tick takes.
+    /// Time interval between two ticks.
     /// </summary>
-    private const decimal SecondsPerTick = 0.05M;
-
-    /// <summary>
-    /// Maximum count of same type of items a player can hold.
-    /// </summary>
-    private const int MaximumItemCount = 64;
+    private readonly TimeSpan TickInterval = TimeSpan.FromSeconds(0.05d);
 
     /// <summary>
     /// When will Battling stage start.
@@ -31,11 +21,6 @@ public partial class Game : IGame
     private readonly TimeSpan RespawnTimeInterval = TimeSpan.FromSeconds(15);
 
     /// <summary>
-    /// How much time required to generate ore.
-    /// </summary>
-    private readonly TimeSpan AccumulateOreInterval = TimeSpan.FromSeconds(10);
-
-    /// <summary>
     /// Current stage of the game.
     /// </summary>
     public IGame.Stage CurrentStage { get; private set; }
@@ -46,10 +31,15 @@ public partial class Game : IGame
     public TimeSpan ElapsedTime { get; private set; }
 
     /// <summary>
+    /// Current tick of game.
+    /// </summary>
+    public int CurrentTick { get; private set; }
+
+    /// <summary>
     /// Winner of the game.
     /// </summary>
     /// <remarks>
-    /// Winner can be null in case there are no winner.
+    /// Winner can be null in case there is no winner.
     /// </remarks>
     public IPlayer? Winner { get; private set; }
 
@@ -64,19 +54,9 @@ public partial class Game : IGame
     private DateTime? _lastTickTime;
 
     /// <summary>
-    /// Last time ore generated.
-    /// </summary>
-    private DateTime? _lastOreGeneratedTime;
-
-    /// <summary>
     /// The game map.
     /// </summary>
     private readonly IMap _map;
-
-    /// <summary>
-    /// All players.
-    /// </summary>
-    private readonly List<IPlayer> _players;
 
     /// <summary>
     /// All mines.
@@ -96,19 +76,44 @@ public partial class Game : IGame
         CurrentStage = IGame.Stage.Ready;
         ElapsedTime = TimeSpan.FromSeconds(0);
         Winner = null;
+        CurrentTick = 0;
 
         _startTime = null;
         _lastTickTime = null;
-        _lastOreGeneratedTime = null;
 
         _map = new Map();
+
         _players = new(2);
+
+        //TODO: Set player's initial position and spawnpoint
+
+        for (int i = 0; i < 2; i++)
+        {
+            _players[i] = new Player(i, 0f, 0f, 0f, 0f);
+        }
+        _playerLastAttackTime = new(2);
+        for (int i = 0; i < 2; i++)
+        {
+            _playerLastAttackTime[i] = DateTime.Now - TimeSpan.FromSeconds(20);
+        }
+        _playerDeathTime = new(2);
+        for (int i = 0; i < 2; i++)
+        {
+            _playerDeathTime[i] = null;
+        }
+
+        for (int i = 0; i < 2; i++)
+        {
+            _players[i].OnMove += HandlePlayerMoveEvent;
+            _players[i].OnAttack += HandlePlayerAttackEvent;
+            _players[i].OnPlace += HandlePlayerPlaceEvent;
+            _players[i].OnDie += HandlePlayerDieEvent;
+        }
+
         _mines = new();
         GenerateMines();
 
         _tickTask = new(Tick);
-        //TODO: Add players
-        //TODO: Subscribe player events
     }
 
     /// <summary>
@@ -123,18 +128,33 @@ public partial class Game : IGame
 
         //TODO: Start game after all players are ready
 
+        foreach (Mine mine in _mines)
+        {
+            mine.GenerateOre();
+        }
+
+        for (int i = 0; i < 2; i++)
+        {
+            _playerLastAttackTime[i] = DateTime.Now - TimeSpan.FromSeconds(20);
+        }
+
+        for (int i = 0; i < 2; i++)
+        {
+            _playerDeathTime[i] = null;
+        }
+
         CurrentStage = IGame.Stage.Running;
         Winner = null;
+        CurrentTick = 0;
 
         DateTime initTime = DateTime.Now;
         _startTime = initTime;
         _lastTickTime = initTime;
-        _lastOreGeneratedTime = initTime;
         ElapsedTime = TimeSpan.FromSeconds(0);
 
         _tickTask.Start();
 
-        //TODO: Invoke game events
+        AfterGameStartEvent?.Invoke(this, new AfterGameStartEventArgs(this, _startTime));
     }
 
     /// <summary>
@@ -149,10 +169,22 @@ public partial class Game : IGame
         lock (this)
         {
             Judge();
+
             _startTime = null;
             _lastTickTime = null;
-            _lastOreGeneratedTime = null;
+
+            for (int i = 0; i < 2; i++)
+            {
+                _playerLastAttackTime[i] = DateTime.Now - TimeSpan.FromSeconds(20);
+            }
+
+            for (int i = 0; i < 2; i++)
+            {
+                _playerDeathTime[i] = null;
+            }
+
             ElapsedTime = TimeSpan.FromSeconds(0);
+            CurrentTick = 0;
         }
         _tickTask.Wait();
     }
@@ -173,17 +205,27 @@ public partial class Game : IGame
                         break;
                     }
 
-                    //TODO: Handle time and ticks
-                    ElapsedTime = DateTime.Now - (DateTime)_startTime;
+                    DateTime currentTime = DateTime.Now;
+                    ElapsedTime = currentTime - (DateTime)_startTime;
 
                     Update();
+
+                    //TODO: Destroy all beds when battling
 
                     if (CurrentStage == IGame.Stage.Finished)
                     {
                         Stop();
                     }
 
-                    //TODO: Invoke game events
+                    if (currentTime - _lastTickTime >= TickInterval)
+                    {
+
+                        _lastTickTime = currentTime;
+                        CurrentTick++;
+
+                        AfterGameTickEvent?.Invoke(
+                            this, new AfterGameTickEventArgs(this, CurrentTick));
+                    }
                 }
             }
             catch (Exception e)
@@ -220,9 +262,9 @@ public partial class Game : IGame
         {
             throw new InvalidOperationException("The game is not running.");
         }
-        UpdateMap();
-        UpdateMines();
+
         UpdatePlayerInfo();
+        UpdateMines();
         UpdateGameStage();
     }
 
@@ -248,9 +290,28 @@ public partial class Game : IGame
     /// <summary>
     /// Update player infomation.
     /// </summary>
+    /// <remarks>
+    /// Similar things are done by player event handlers.
+    /// But this function is still called in case there are
+    /// something player event handlers can't do.
+    /// </remarks>
     private void UpdatePlayerInfo()
     {
-        //TODO: Update player infomation
+        for (int i = 0; i < 2; i++)
+        {
+            //TODO: Break a player's bed if the chunk is void
+
+            if (_players[i].IsAlive == true && IsValidPosition(
+                ToIntPosition(_players[i].PlayerPosition)) == false)
+            {
+                _players[i].Hurt(InstantDeathDamage);
+            }
+            else if (_players[i].IsAlive == true && _map.GetChunkAt(
+                ToIntPosition(_players[i].PlayerPosition)).IsVoid == true)
+            {
+                _players[i].Hurt(InstantDeathDamage);
+            }
+        }
     }
 
     /// <summary>
@@ -258,39 +319,31 @@ public partial class Game : IGame
     /// </summary>
     private void UpdateMines()
     {
-        if (_lastOreGeneratedTime is null)
-        {
-            throw new NullReferenceException("_lastOreGeneratedTime is null");
-        }
-
         DateTime currentTime = DateTime.Now;
-        if (currentTime - (DateTime)_lastOreGeneratedTime >= AccumulateOreInterval)
+        foreach (Mine mine in _mines)
         {
-            foreach (Mine mine in _mines)
+            if (currentTime - mine.LastOreGeneratedTime >= mine.AccumulateOreInterval)
             {
-                mine.Generate();
+                mine.GenerateOre();
             }
-            _lastOreGeneratedTime = currentTime;
         }
 
         //TODO: Update AccumulatedOreCount when a player collects ore
     }
 
     /// <summary>
-    /// Update game map
-    /// </summary>
-    private void UpdateMap()
-    {
-        //TODO: Update game map
-    }
-
-    /// <summary>
-    /// Whether the game is finished or not
+    /// Whether the game is finished or not.
     /// </summary>
     /// <returns>True if finished, false otherwise.</returns>
     private bool IsFinished()
     {
-        //TODO: Check whether the game is finished or not
+        for (int i = 0; i < 2; i++)
+        {
+            if (_players[i].IsAlive == false && _players[i].HasBed == false)
+            {
+                return true;
+            }
+        }
         return false;
     }
 
@@ -299,20 +352,31 @@ public partial class Game : IGame
     /// </summary>
     private void Judge()
     {
-        //TODO: Judge the game
+        int remainingPlayers = 0;
+        for (int i = 0; i < 2; i++)
+        {
+            if (_players[i].IsAlive == true || _players[i].HasBed == true)
+            {
+                remainingPlayers++;
+            }
+        }
+
+        if (remainingPlayers == 0 || remainingPlayers == 2)
+        {
+            Winner = null;
+        }
+        else
+        {
+            for (int i = 0; i < 2; i++)
+            {
+                if (_players[i].IsAlive == true || _players[i].HasBed == true)
+                {
+                    Winner = _players[i];
+                    break;
+                }
+            }
+        }
+
+        AfterJudgementEvent?.Invoke(this, new AfterJudgementEventArgs(this, Winner));
     }
-
-    /// <summary>
-    /// Handle PlayerMoveEvent
-    /// </summary>
-    /// <param name="sender">Sender of the event</param>
-    /// <param name="e">Event args</param>
-    private void HandlePlayerMoveEvent(object? sender, PlayerMoveEventArgs e)
-    {
-        //TODO: Handle PlayerMoveEvent
-    }
-
-    //TODO: Add more player event handler
-    //TODO: Add methods to calculate values based on players' properties
-
 }

@@ -19,14 +19,26 @@ public interface IMine
     /// The count of accumulated ores.
     /// </summary>
     public int AccumulatedOreCount { get; }
+
     /// <summary>
     /// The kind of the ore.
     /// </summary>
     public OreKindType OreKind { get; }
+
     /// <summary>
     /// The position of the mine.
     /// </summary>
     public IPosition<float> Position { get; }
+
+    /// <summary>
+    /// How much time required to generate ore.
+    /// </summary>
+    public TimeSpan AccumulateOreInterval { get; }
+
+    /// <summary>
+    /// Last time ore generated.
+    /// </summary>
+    public DateTime LastOreGeneratedTime { get; }
 
     /// <summary>
     /// Picks up some ore.
@@ -37,5 +49,5 @@ public interface IMine
     /// <summary>
     /// Generate ore automaticly.
     /// </summary>
-    public void Generate();
+    public void GenerateOre();
 }
