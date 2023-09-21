@@ -24,8 +24,7 @@ public class Player : IPlayer
     {
         /// update the player's Emeraldcount
         EmeraldCount += count;
-    }
-
+    } 
     public void Move(float newX, float newY)
     {
         /// Update the player's position information
@@ -63,6 +62,25 @@ public class Player : IPlayer
             OnDie?.Invoke(this, new PlayerDieEventArgs(this));
         }
     }
+    public void Spawn(int EnemyStrength)
+    {
+        /// Implement the logic for being hurt
+        if (HasBed == true)
+        {
+            IsAlive = true;
+        }
+    }    
+    public void DestroyBed()
+    {
+        /// Destroy a player's bed.
+        HasBed = false;
+    }    
+    public void DecreaseWoolCount()
+    {
+        /// Decrease wool count by 1.
+        WoolCount -= 1;
+    }
+    
     public Player()
     {
         PlayerId = 1;
