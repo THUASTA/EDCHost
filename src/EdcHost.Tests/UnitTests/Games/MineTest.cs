@@ -53,7 +53,7 @@ public class MineTest
         Mine mine = new Mine(IMine.OreKindType.Diamond, new MockPosition { X = 0f, Y = 0f });
         for (int i = 0; i < generate; i++)
         {
-            mine.Generate();
+            mine.GenerateOre();
         }
         Assert.Equal(expectedValue, mine.AccumulatedOreCount);
     }
@@ -64,7 +64,7 @@ public class MineTest
         Mine mine = new Mine(IMine.OreKindType.Diamond, new MockPosition { X = 0f, Y = 0f });
         for (int i = 0; i < 200; i++)
         {
-            mine.Generate();
+            mine.GenerateOre();
         }
         int count = 64;
         int expectedValue = 136;
@@ -77,7 +77,7 @@ public class MineTest
         Mine mine = new Mine(IMine.OreKindType.Diamond, new MockPosition { X = 0f, Y = 0f });
         for (int i = 0; i < 30; i++)
         {
-            mine.Generate();
+            mine.GenerateOre();
         }
         int count = 60;
         int expectedValue = 0;
