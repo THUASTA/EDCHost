@@ -20,13 +20,19 @@ public class Player : IPlayer
     public event EventHandler<PlayerPlaceEventArgs> OnPlace = delegate { };
     public event EventHandler<PlayerDieEventArgs> OnDie = delegate { };
 
+    public void EmeraldAdd(int count)
+    {
+        /// update the player's Emeraldcount
+        EmeraldCount += count;
+    }
+
     public void Move(float newX, float newY)
     {
-        /// Trigger the OnMove event to notify other parts that the player has moved
-        OnMove?.Invoke(this, new PlayerMoveEventArgs(this, PlayerPosition, new Position<float>(newX, newY)));
         /// Update the player's position information
         PlayerPosition.X = newX;
         PlayerPosition.Y = newY;
+        /// Trigger the OnMove event to notify other parts that the player has moved
+        OnMove?.Invoke(this, new PlayerMoveEventArgs(this, PlayerPosition, new Position<float>(newX, newY)));
     }
 
     public void Attack(float newX, float newY)
@@ -122,9 +128,9 @@ public class Player : IPlayer
                 }
                 break;
             case IPlayer.CommodityKindType.HealthBoost:
-                if (EmeraldCount >= (20 - MaxHealth))
+                if (EmeraldCount >= (MaxHealth - 19))
                 {
-                    EmeraldCount -= 20 - MaxHealth;
+                    EmeraldCount -= MaxHealth - 19;
                     MaxHealth += 1;
                     return true;
                 }
