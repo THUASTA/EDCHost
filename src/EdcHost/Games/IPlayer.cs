@@ -40,6 +40,9 @@ public interface IPlayer
     public void Attack(float newX, float newY);
     public void Place(float newX, float newY);
     public void Hurt(int EnemyStrength);
+    public void Spawn(int EnemyStrength);
+    public void DestroyBed();
+    public void DecreaseWoolCount();
     /// <summary>
     /// The Id of  the player 
     /// </summary>
