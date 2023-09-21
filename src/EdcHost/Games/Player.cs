@@ -81,7 +81,6 @@ public class Player : IPlayer
         /// Decrease wool count by 1.
         WoolCount -= 1;
     }
-    
     public Player()
     {
         PlayerId = 1;
