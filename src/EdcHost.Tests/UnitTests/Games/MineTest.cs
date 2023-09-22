@@ -91,6 +91,7 @@ public class MineTest
             mine.PickUpOre(count);
         }catch(Exception e){
             output.WriteLine(e.Message);
+            Assert.Equal("No enough ore.",e.Message);
         }
         Assert.Equal(expectedValue, mine.AccumulatedOreCount);
     }
