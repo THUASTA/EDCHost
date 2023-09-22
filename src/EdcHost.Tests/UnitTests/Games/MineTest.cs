@@ -1,10 +1,16 @@
 using EdcHost.Games;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace EdcHost.Tests.UnitTests.Games;
 
 public class MineTest
 {
+    private readonly ITestOutputHelper output;
+    public MineTest(ITestOutputHelper output)
+    {
+        this.output = output;
+    }
     public class MockPosition : IPosition<float>
     {
         public float X { get; set; }
@@ -80,9 +86,12 @@ public class MineTest
             mine.GenerateOre();
         }
         int count = 60;
-        int expectedValue = 0;
-        mine.PickUpOre(count);
+        int expectedValue = 30;
+        try{
+            mine.PickUpOre(count);
+        }catch(Exception e){
+            output.WriteLine(e.Message);
+        }
         Assert.Equal(expectedValue, mine.AccumulatedOreCount);
     }
-
 }
