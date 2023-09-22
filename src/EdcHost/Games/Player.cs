@@ -122,9 +122,9 @@ public class Player : IPlayer
                 }
                 break;
             case IPlayer.CommodityKindType.HealthBoost:
-                if (EmeraldCount >= (20 - MaxHealth))
+                if (EmeraldCount >= (MaxHealth-20))
                 {
-                    EmeraldCount -= 20 - MaxHealth;
+                    EmeraldCount -= MaxHealth-20;
                     MaxHealth += 1;
                     return true;
                 }
