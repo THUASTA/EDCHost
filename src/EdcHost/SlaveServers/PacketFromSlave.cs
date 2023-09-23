@@ -1,6 +1,6 @@
 namespace EdcHost.SlaveServers;
 
-public class PacketFromSlave : IPacket
+public class PacketFromSlave : IPacketFromSlave
 {
     public int ActionType { get; }
     public int Param { get; }

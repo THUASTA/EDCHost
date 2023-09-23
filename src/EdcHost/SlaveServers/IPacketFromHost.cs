@@ -1,10 +1,10 @@
 namespace EdcHost.SlaveServers;
 
-public class PacketFromHost : IPacketFromHost
+public interface IPacketFromHost : IPacket
 {
     public int GameStage { get; }
     public int ElapsedTime { get; }
-    public List<int> HeightOfChunks { get; } = new List<int>();
+    public List<int> HeightOfChunks { get; }
     public bool HasBed { get; }
     public float PositionX { get; }
     public float PositionY { get; }
@@ -16,15 +16,4 @@ public class PacketFromHost : IPacketFromHost
     public int Strength { get; }
     public int EmeraldCount { get; }
     public int WoolCount { get; }
-
-    public byte[] MakePacket()
-    {
-        // TODO: add a serializer
-        throw new NotImplementedException();
-    }
-
-    public void ExtractPacketData(byte[] bytes)
-    {
-        // TODO: add a deserializer
-    }
 }
