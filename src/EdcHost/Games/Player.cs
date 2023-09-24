@@ -85,8 +85,8 @@ public class Player : IPlayer
         PlayerPosition = new Position<float>(initialX2, initialY2);
         WoolCount = 0;
 
-        Health = 25; /// Initial health
-        MaxHealth = 25; /// Initial max health
+        Health = 20; /// Initial health
+        MaxHealth = 20; /// Initial max health
         Strength = 1; /// Initial strength
         ActionPoints = 1; /// Initial action points
         ActionPoints = 1;
@@ -122,9 +122,9 @@ public class Player : IPlayer
                 }
                 break;
             case IPlayer.CommodityKindType.HealthBoost:
-                if (EmeraldCount >= (20 - MaxHealth))
+                if (EmeraldCount >= (MaxHealth - 20))
                 {
-                    EmeraldCount -= 20 - MaxHealth;
+                    EmeraldCount -= MaxHealth - 20;
                     MaxHealth += 1;
                     return true;
                 }

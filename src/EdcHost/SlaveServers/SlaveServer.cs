@@ -1,5 +1,8 @@
 using System.IO.Ports;
 
+using EdcHost.Games;
+using EdcHost.SlaveServers.EventArgs;
+
 namespace EdcHost.SlaveServers;
 
 public class SlaveServer : ISlaveServer
@@ -11,8 +14,10 @@ public class SlaveServer : ISlaveServer
     private readonly Thread _receiveThread;
     private bool _isRunning = false;
     private readonly IPacket?[] _packetsToSend = { null, null };
-    private readonly IPacket?[] _packetsReceived = { null, null };
-    public event EventHandler<EventArgs>? OnPacketReceived;
+    private readonly IPacketFromSlave[] _packetsReceived = new IPacketFromSlave[PLAYER_NUM];
+    public event EventHandler<AttackPackEventArgs>? PerformAttack;
+    public event EventHandler<PlacePackEventArgs>? PerformPlace;
+    public event EventHandler<TradePackEventArgs>? PerformTrade;
 
     public SlaveServer(string[] PortNameList, int[] BaudRateList, Parity[] ParityList, int DataBits, StopBits StopBits)
     {
@@ -36,6 +41,7 @@ public class SlaveServer : ISlaveServer
         _sendThread = new Thread(Send);
         _receiveThread = new Thread(Receive);
     }
+
     public void Start()
     {
         _isRunning = true;
@@ -83,7 +89,6 @@ public class SlaveServer : ISlaveServer
     {
         while (_isRunning)
         {
-            Task.Delay(10).Wait();
             for (int i = 0; i < 2; i++)
             {
                 if (_serialPorts[i].BytesToRead > 0)
@@ -91,6 +96,9 @@ public class SlaveServer : ISlaveServer
                     byte[] message = new byte[_serialPorts[i].BytesToRead];
                     _serialPorts[i].Read(message, 0, message.Length);
                     _packetsReceived[i]?.ExtractPacketData(message);
+
+                    //Execute the event
+                    PerformAction(i, _packetsReceived[i]);
                 }
             }
         }
@@ -148,5 +156,35 @@ public class SlaveServer : ISlaveServer
     private void SetStopBits(int id, StopBits stopBits)
     {
         _serialPorts[id].StopBits = stopBits;
+    }
+
+    private void PerformAction(int id, IPacketFromSlave packet)
+    {
+        switch (packet.ActionType)
+        {
+            case (int)ActionTypes.Attack:
+                if (Enum.IsDefined(typeof(Directions), packet.Param))
+                {
+                    PerformAttack?.Invoke(this, new AttackPackEventArgs(id, packet.Param));
+                }
+                break;
+
+            case (int)ActionTypes.Place:
+                if (Enum.IsDefined(typeof(Directions), packet.Param))
+                {
+                    PerformAttack?.Invoke(this, new AttackPackEventArgs(id, packet.Param));
+                }
+                break;
+
+            case (int)ActionTypes.Trade:
+                if (Enum.IsDefined(typeof(ItemList), packet.Param))
+                {
+                    PerformTrade?.Invoke(this, new TradePackEventArgs(id, packet.Param));
+                }
+                break;
+
+            default:
+                break;
+        }
     }
 }
