@@ -11,7 +11,7 @@ public class AfterGameTickEventArgsTest
     {
         var gameMock = new Mock<IGame>();
         int expTick = 0;
-        var args = new AfterGameStartEventArgs(gameMock.Object, expTick);
+        var args = new AfterGameTickEventArgs(gameMock.Object, expTick);
         Assert.NotNull(args);
         Assert.Equal(gameMock.Object, args.Game);
         Assert.Equal(expTick, args.CurrentTick);
