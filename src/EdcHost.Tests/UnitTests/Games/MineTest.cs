@@ -91,7 +91,7 @@ public class MineTest
         mine.PickUpOre(count);
         Assert.Equal(expectedValue, mine.AccumulatedOreCount);
     }
-    
+
     [Fact]
     public void PickUpOre_CountMoreThanAccumulatedOreCount_ReturnsCorrctValue()
     {
@@ -101,7 +101,7 @@ public class MineTest
             mine.GenerateOre();
         }
         int count = 60;
-        InvalidOperationException ex = Assert.Throws <InvalidOperationException> (()=>{mine.PickUpOre(count);});
+        InvalidOperationException ex = Assert.Throws<InvalidOperationException>(() => { mine.PickUpOre(count); });
         Assert.Equal("No enough ore.", ex.Message);
     }
 

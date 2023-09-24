@@ -1,6 +1,6 @@
+using System.Reflection;
 using EdcHost.Games;
 using Xunit;
-using System.Reflection;
 
 namespace EdcHost.Tests.UnitTests.Games;
 
@@ -25,10 +25,10 @@ public class Game_PositionTest
         MethodInfo? toIntPositionMethod = typeof(Game).GetMethod("ToIntPosition", BindingFlags.NonPublic | BindingFlags.Instance);
         IPosition<float> fPosition = new MockFloatPosition { X = 2.5f, Y = 2.5f };
         IPosition<int> actualPosition = (IPosition<int>)toIntPositionMethod.Invoke(game, new object[] { fPosition });
-        IPosition<int> expPosition = new MockIntPosition { X= 2, Y = 2 };
+        IPosition<int> expPosition = new MockIntPosition { X = 2, Y = 2 };
         Assert.Equal(expPosition, actualPosition);
     }
-    
+
     [Theory]
     [InlineData(0, 0)]
     [InlineData(1, 1)]
@@ -112,10 +112,10 @@ public class Game_PositionTest
     {
         Game game = new Game();
         MethodInfo? eucilidDistanceMethod = typeof(Game).GetMethod("EucilidDistance", BindingFlags.NonPublic | BindingFlags.Instance);
-        IPosition<float> position1 = new MockFloatPosition{ X = x1, Y = y1 };
-        IPosition<float> position2 = new MockFloatPosition{ X = x2, Y = y2 };
+        IPosition<float> position1 = new MockFloatPosition { X = x1, Y = y1 };
+        IPosition<float> position2 = new MockFloatPosition { X = x2, Y = y2 };
         double expValue = (double)eucilidDistanceMethod.Invoke(game, new object[] { position1, position2 });
-        double actualValue = Math.Sqrt(( x1 - x2 ) * ( x1 - x2 ) + ( y1-y2 ) * ( y1-y2 ));
+        double actualValue = Math.Sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
         Assert.True(Math.Abs(actualValue - expValue) < 0.00001);
     }
 }
