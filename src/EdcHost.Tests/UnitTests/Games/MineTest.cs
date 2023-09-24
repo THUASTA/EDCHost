@@ -48,20 +48,30 @@ public class MineTest
         Assert.Equal(expected, actual);
     }
 
+    [Fact]
+    public void LastOreGeneratedTime_DoNothing_ReturnsCorrectTime()
+    {
+        Mine mine = new Mine(IMine.OreKindType.Diamond, new MockPosition { X = 0f, Y = 0f });
+        TimeSpan timeDifference = DateTime.Now - mine.LastOreGeneratedTime;
+        Assert.True(timeDifference.TotalSeconds < 0.01);
+    }
+
     [Theory]
     [InlineData(3, 3)]
     [InlineData(4, 4)]
     [InlineData(30, 30)]
     [InlineData(100, 100)]
     [InlineData(200, 200)]
-    public void Generate_AccumulatedOreCountAdd_ReturnsCorrectValue(int generate, int expectedValue)
+    public void GenerateOre_AccumulatedOreCountAdd_ReturnsCorrectValue(int generate, int expectedValue)
     {
         Mine mine = new Mine(IMine.OreKindType.Diamond, new MockPosition { X = 0f, Y = 0f });
         for (int i = 0; i < generate; i++)
         {
             mine.GenerateOre();
         }
+        TimeSpan timeDifference = DateTime.Now - mine.LastOreGeneratedTime;
         Assert.Equal(expectedValue, mine.AccumulatedOreCount);
+        Assert.True(timeDifference.TotalSeconds < 0.01);
     }
 
     [Fact]
@@ -77,6 +87,7 @@ public class MineTest
         mine.PickUpOre(count);
         Assert.Equal(expectedValue, mine.AccumulatedOreCount);
     }
+    
     [Fact]
     public void PickUpOre_CountMoreThanAccumulatedOreCount_ReturnsCorrctValue()
     {
@@ -86,16 +97,7 @@ public class MineTest
             mine.GenerateOre();
         }
         int count = 60;
-        int expectedValue = 30;
-        try
-        {
-            mine.PickUpOre(count);
-        }
-        catch (Exception e)
-        {
-            output.WriteLine(e.Message);
-            Assert.Equal("No enough ore.", e.Message);
-        }
-        Assert.Equal(expectedValue, mine.AccumulatedOreCount);
+        InvalidOperationException ex = Assert.Throws<InvalidOperationException>(()=>{mine.PickUpOre(count);});
+        Assert.Equal("No enough ore.", ex.Message);
     }
 }
