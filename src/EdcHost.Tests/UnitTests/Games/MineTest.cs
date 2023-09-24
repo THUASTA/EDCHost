@@ -60,7 +60,7 @@ public class MineTest
         mockMine.Object.GenerateOre();
         Assert.Equal(1, mockMine.Object.AccumulatedOreCount);
         Assert.Equal(currentTime, mockMine.Object.LastOreGeneratedTime);
-    } 
+    }
 
     [Theory]
     [InlineData(3, 3)]
