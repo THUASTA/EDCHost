@@ -13,7 +13,7 @@ public class AfterJudgementEventArgsTest
         var playerMock = new Mock<IPlayer>();
         var args = new AfterJudgementEventArgs(gameMock.Object, playerMock.Object);
         Assert.NotNull(args);
-        Assert.Equal(playerMock.Object, args.Player);
+        Assert.Equal(playerMock.Object, args.Winner);
         Assert.Equal(gameMock.Object, args.Game);
     }
 }
