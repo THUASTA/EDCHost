@@ -39,10 +39,10 @@ public class Map : IMap
     /// </summary>
     public Map()
     {
-        Chunks = new(TotalChunkCount);
+        Chunks = new();
         for (int i = 0; i < TotalChunkCount; i++)
         {
-            Chunks[i] = new Chunk(0, new Position<int>(i / 8, i % 8));
+            Chunks.Add(new Chunk(0, new Position<int>(i / 8, i % 8)));
         }
     }
 
