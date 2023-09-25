@@ -20,6 +20,12 @@ public class Player : IPlayer
     public event EventHandler<PlayerPlaceEventArgs> OnPlace = delegate { };
     public event EventHandler<PlayerDieEventArgs> OnDie = delegate { };
 
+    public void EmeraldAdd(int count)
+    {
+        /// update the player's Emeraldcount
+        EmeraldCount += count;
+    }
+
     public void Move(float newX, float newY)
     {
         /// Trigger the OnMove event to notify other parts that the player has moved
@@ -56,6 +62,24 @@ public class Player : IPlayer
             IsAlive = false;
             OnDie?.Invoke(this, new PlayerDieEventArgs(this));
         }
+    }
+    public void Spawn(int EnemyStrength)
+    {
+        /// Implement the logic for being hurt
+        if (HasBed == true)
+        {
+            IsAlive = true;
+        }
+    }
+    public void DestroyBed()
+    {
+        /// Destroy a player's bed.
+        HasBed = false;
+    }
+    public void DecreaseWoolCount()
+    {
+        /// Decrease wool count by 1.
+        WoolCount -= 1;
     }
     public Player()
     {
@@ -122,9 +146,9 @@ public class Player : IPlayer
                 }
                 break;
             case IPlayer.CommodityKindType.HealthBoost:
-                if (EmeraldCount >= (MaxHealth - 20))
+                if (EmeraldCount >= (MaxHealth - 19))
                 {
-                    EmeraldCount -= MaxHealth - 20;
+                    EmeraldCount -= MaxHealth - 19;
                     MaxHealth += 1;
                     return true;
                 }
