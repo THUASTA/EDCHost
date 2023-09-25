@@ -69,7 +69,7 @@ public partial class Game : IGame
     private readonly Task _tickTask;
 
     /// <summary>
-    /// Constructor
+    /// Construct a Game object.
     /// </summary>
     public Game()
     {
@@ -91,11 +91,13 @@ public partial class Game : IGame
         {
             _players.Add(new Player(i, 0f, 0f, 0f, 0f));
         }
+
         _playerLastAttackTime = new();
         for (int i = 0; i < 2; i++)
         {
             _playerLastAttackTime.Add(DateTime.Now - TimeSpan.FromSeconds(20));
         }
+
         _playerDeathTime = new();
         for (int i = 0; i < 2; i++)
         {
@@ -112,6 +114,8 @@ public partial class Game : IGame
 
         _mines = new();
         GenerateMines();
+
+        _allBedsDestroyed = false;
 
         _tickTask = new(Tick);
     }
@@ -152,6 +156,8 @@ public partial class Game : IGame
         _lastTickTime = initTime;
         ElapsedTime = TimeSpan.FromSeconds(0);
 
+        _allBedsDestroyed = false;
+
         _tickTask.Start();
 
         AfterGameStartEvent?.Invoke(this, new AfterGameStartEventArgs(this, _startTime));
@@ -185,7 +191,10 @@ public partial class Game : IGame
 
             ElapsedTime = TimeSpan.FromSeconds(0);
             CurrentTick = 0;
+
+            _allBedsDestroyed = false;
         }
+
         _tickTask.Wait();
     }
 
@@ -208,14 +217,21 @@ public partial class Game : IGame
                     DateTime currentTime = DateTime.Now;
                     ElapsedTime = currentTime - (DateTime)_startTime;
 
-                    Update();
-
-                    //TODO: Destroy all beds when battling
-
                     if (CurrentStage == IGame.Stage.Finished)
                     {
                         Stop();
                     }
+
+                    if (CurrentStage == IGame.Stage.Battling && _allBedsDestroyed == false)
+                    {
+                        for (int i = 0; i < 2; i++)
+                        {
+                            _players[i].DestroyBed();
+                        }
+                        _allBedsDestroyed = true;
+                    }
+
+                    Update();
 
                     if (currentTime - _lastTickTime >= TickInterval)
                     {
@@ -299,7 +315,27 @@ public partial class Game : IGame
     {
         for (int i = 0; i < 2; i++)
         {
-            //TODO: Break a player's bed if the chunk is void
+            if (_players[i].HasBed == true
+                && _map.GetChunkAt(ToIntPosition(_players[i].SpawnPoint)).IsVoid == true)
+            {
+                _players[i].DestroyBed();
+            }
+
+            /// <remarks>
+            /// Now Spawn() doesn't set a Player's Health to MaxHealth.
+            /// But there is no other way to heal a Player.
+            /// Waiting for resolving this issue.
+            /// </remarks>
+            if (_players[i].IsAlive == false && _players[i].HasBed == true
+                && DateTime.Now - _playerDeathTime[i] > RespawnTimeInterval
+                && IsSamePosition(
+                    ToIntPosition(_players[i].PlayerPosition), ToIntPosition(_players[i].SpawnPoint)
+                    ) == true)
+            {
+                _players[i].Spawn(_players[i].MaxHealth);
+                _playerDeathTime[i] = null;
+
+            }
 
             if (_players[i].IsAlive == true && IsValidPosition(
                 ToIntPosition(_players[i].PlayerPosition)) == false)
@@ -326,9 +362,33 @@ public partial class Game : IGame
             {
                 mine.GenerateOre();
             }
-        }
+            for (int i = 0; i < 2; i++)
+            {
+                if (_players[i].IsAlive == true
+                    && IsSamePosition(
+                        ToIntPosition(_players[i].PlayerPosition), ToIntPosition(mine.Position)
+                        ) == true)
+                {
+                    //Remaining capacity of a player
+                    int capacity = MaximumItemCount - _players[i].EmeraldCount;
 
-        //TODO: Update AccumulatedOreCount when a player collects ore
+                    //Value of an ore
+                    int value = mine.OreKind switch
+                    {
+                        IMine.OreKindType.IronIngot => 1,
+                        IMine.OreKindType.GoldIngot => 4,
+                        IMine.OreKindType.Diamond => 16,
+                        _ => throw new ArgumentOutOfRangeException(nameof(mine.OreKind), "No such ore kind.")
+                    };
+
+                    //Collected ore count
+                    int collectedOre = Math.Min(capacity / value, mine.AccumulatedOreCount);
+
+                    _players[i].EmeraldAdd(collectedOre * value);
+                    mine.PickUpOre(collectedOre);
+                }
+            }
+        }
     }
 
     /// <summary>
