@@ -83,23 +83,23 @@ public partial class Game : IGame
 
         _map = new Map();
 
-        _players = new(2);
+        _players = new();
 
         //TODO: Set player's initial position and spawnpoint
 
         for (int i = 0; i < 2; i++)
         {
-            _players[i] = new Player(i, 0f, 0f, 0f, 0f);
+            _players.Add(new Player(i, 0f, 0f, 0f, 0f));
         }
-        _playerLastAttackTime = new(2);
+        _playerLastAttackTime = new();
         for (int i = 0; i < 2; i++)
         {
-            _playerLastAttackTime[i] = DateTime.Now - TimeSpan.FromSeconds(20);
+            _playerLastAttackTime.Add(DateTime.Now - TimeSpan.FromSeconds(20));
         }
-        _playerDeathTime = new(2);
+        _playerDeathTime = new();
         for (int i = 0; i < 2; i++)
         {
-            _playerDeathTime[i] = null;
+            _playerDeathTime.Add(null);
         }
 
         for (int i = 0; i < 2; i++)
