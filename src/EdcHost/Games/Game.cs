@@ -91,13 +91,11 @@ public partial class Game : IGame
         {
             _players.Add(new Player(i, 0f, 0f, 0f, 0f));
         }
-
         _playerLastAttackTime = new();
         for (int i = 0; i < 2; i++)
         {
             _playerLastAttackTime.Add(DateTime.Now - TimeSpan.FromSeconds(20));
         }
-
         _playerDeathTime = new();
         for (int i = 0; i < 2; i++)
         {
