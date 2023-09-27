@@ -168,7 +168,7 @@ public class ViewerServer : IViewerServer
                         {
                             Controller.GetHostConfiguration();
                         }
-                        catch(Exception e)
+                        catch (Exception e)
                         {
                             RaiseError((int)ErrorCode.NoDeviceAvailable, e.Message);
                             throw new Exception(e.Message);
@@ -188,7 +188,7 @@ public class ViewerServer : IViewerServer
                 foreach (object player in hostConfiguration.Players)
                 {
                     int playerId = -1;
-                    foreach(PropertyInfo property in playerProperties)
+                    foreach (PropertyInfo property in playerProperties)
                     {
                         if (property.Name == "id")
                         {
@@ -232,7 +232,7 @@ public class ViewerServer : IViewerServer
                                 RaiseError((int)ErrorCode.InvalidPort, "Invalid port configuration.");
                                 throw new Exception("Invalid port configuration.");
                             }
-                            SetPortEvent?.Invoke(this, new SetPortEventArgs(playerId,  portName, baudRate));
+                            SetPortEvent?.Invoke(this, new SetPortEventArgs(playerId, portName, baudRate));
                         }
                     }
                 }
