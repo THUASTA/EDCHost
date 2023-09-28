@@ -7,7 +7,7 @@ public class Updater : IUpdater
 {
     public ICompetitionUpdate CachedMessage { get; private set; } = new CompetitionUpdate();
     private bool _isRunning = false;
-    public event EventHandler<MessageTransferEventArgs>? SendCaller = null;
+    public event EventHandler<MessageTransferEventArgs>? SendEvent;
     private readonly Thread _sendThread;
     private bool _playerUpdate = false;
     private bool _infoUpdate = false;
@@ -26,7 +26,7 @@ public class Updater : IUpdater
                 if (!ReadyToSend())
                     continue;
 
-                SendCaller?.Invoke(this, new MessageTransferEventArgs(CachedMessage));
+                SendEvent?.Invoke(this, new MessageTransferEventArgs(CachedMessage));
                 Clear();
             }
         });
@@ -35,7 +35,6 @@ public class Updater : IUpdater
     public void StartUpdate()
     {
         _isRunning = true;
-        Thread.CurrentThread.Name = "SendThread";
         _sendThread.Start();
     }
 

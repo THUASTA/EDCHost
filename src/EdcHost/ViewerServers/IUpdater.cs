@@ -1,3 +1,4 @@
+using EdcHost.ViewerServers.EventArgs;
 using EdcHost.ViewerServers.Messages;
 
 namespace EdcHost.ViewerServers;
@@ -5,6 +6,7 @@ namespace EdcHost.ViewerServers;
 public interface IUpdater
 {
     public ICompetitionUpdate? CachedMessage { get; }
+    public event EventHandler<MessageTransferEventArgs>? SendEvent;
 
     public void StartUpdate();
     public void End();

@@ -18,6 +18,9 @@ public class Error : IError
     public Error(string messageType, int errorCode, string message)
         => (MessageType, ErrorCode, Message) = (messageType, errorCode, message);
 
+    public Error(int errorCode, string message)
+        => (MessageType, ErrorCode, Message) = (new string("ERROR"), errorCode, message);
+
     public byte[] SerializeToUtf8Bytes() => JsonSerializer.SerializeToUtf8Bytes(this);
 
     public string SerializeToString() => JsonSerializer.Serialize(this);
