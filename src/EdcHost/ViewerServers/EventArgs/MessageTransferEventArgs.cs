@@ -1,5 +1,5 @@
-using System;
 using EdcHost.ViewerServers.Messages;
+
 namespace EdcHost.ViewerServers.EventArgs;
 
 public class MessageTransferEventArgs : System.EventArgs
