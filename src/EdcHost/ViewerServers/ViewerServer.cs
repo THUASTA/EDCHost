@@ -253,9 +253,4 @@ public class ViewerServer : IViewerServer
     {
         Send(new Error(errorCode, errorMessage));
     }
-
-    public void SendDeviceInfo(string[] portsInfo, string[] cameraInfo)
-    {
-        Send(new HostConfigurationFromServer(cameraInfo.ToList<object>(), portsInfo.ToList<object>()));
-    }
 }
