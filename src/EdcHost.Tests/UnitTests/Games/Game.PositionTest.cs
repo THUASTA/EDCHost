@@ -26,7 +26,8 @@ public class Game_PositionTest
         IPosition<float> fPosition = new MockFloatPosition { X = 2.5f, Y = 2.5f };
         IPosition<int> actualPosition = (IPosition<int>)toIntPositionMethod.Invoke(game, new object[] { fPosition });
         IPosition<int> expPosition = new MockIntPosition { X = 2, Y = 2 };
-        Assert.Equal(expPosition, actualPosition);
+        Assert.Equal(expPosition.X, actualPosition.X);
+        Assert.Equal(expPosition.Y, actualPosition.Y);
     }
 
     [Theory]
@@ -79,7 +80,7 @@ public class Game_PositionTest
         IPosition<int> position1 = new MockIntPosition { X = 0, Y = 0 };
         IPosition<int> position2 = new MockIntPosition { X = 2, Y = 2 };
         bool isAdjacent = (bool)isAdjacentMethod.Invoke(game, new object[] { position1, position2 });
-        Assert.True(isAdjacent);
+        Assert.False(isAdjacent);
     }
 
     [Fact]
@@ -101,7 +102,7 @@ public class Game_PositionTest
         IPosition<int> position1 = new MockIntPosition { X = 0, Y = 0 };
         IPosition<int> position2 = new MockIntPosition { X = 2, Y = 0 };
         bool isAdjacent = (bool)isSamePositionMethod.Invoke(game, new object[] { position1, position2 });
-        Assert.True(isAdjacent);
+        Assert.False(isAdjacent);
     }
 
     [Theory]
