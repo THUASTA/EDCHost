@@ -65,7 +65,7 @@ public class Game_PositionTest
     public void IsAdjacent_ReturnsTrue(int x1, int y1, int x2, int y2)
     {
         Game game = new Game();
-        MethodInfo? isAdjacentMethod = typeof(Game).GetMethod("IsAdjacentPosition", BindingFlags.NonPublic | BindingFlags.Instance);
+        MethodInfo? isAdjacentMethod = typeof(Game).GetMethod("IsAdjacent", BindingFlags.NonPublic | BindingFlags.Instance);
         IPosition<int> position1 = new MockIntPosition { X = x1, Y = y1 };
         IPosition<int> position2 = new MockIntPosition { X = x2, Y = y2 };
         bool isAdjacent = (bool)isAdjacentMethod.Invoke(game, new object[] { position1, position2 });
@@ -76,7 +76,7 @@ public class Game_PositionTest
     public void IsAdjacent_ReturnsFalse()
     {
         Game game = new Game();
-        MethodInfo? isAdjacentMethod = typeof(Game).GetMethod("IsAdjacentPosition", BindingFlags.NonPublic | BindingFlags.Instance);
+        MethodInfo? isAdjacentMethod = typeof(Game).GetMethod("IsAdjacent", BindingFlags.NonPublic | BindingFlags.Instance);
         IPosition<int> position1 = new MockIntPosition { X = 0, Y = 0 };
         IPosition<int> position2 = new MockIntPosition { X = 2, Y = 2 };
         bool isAdjacent = (bool)isAdjacentMethod.Invoke(game, new object[] { position1, position2 });
