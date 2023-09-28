@@ -55,7 +55,7 @@ public class MineTest
         var position = new MockPosition { X = 0f, Y = 0f };
         var mockMine = new Mock<Mine>(oreKind, position) { CallBase = true };
         var currentTime = new DateTime(2023, 9, 22, 0, 0, 0);
-        mockMine.SetupGet(m => m.LastOreGeneratedTime).Returns(currentTime);
+        mockMine.Setup(m => m.LastOreGeneratedTime).Returns(currentTime);
         Assert.Equal(currentTime, mockMine.Object.LastOreGeneratedTime);
         mockMine.Object.GenerateOre();
         Assert.Equal(1, mockMine.Object.AccumulatedOreCount);

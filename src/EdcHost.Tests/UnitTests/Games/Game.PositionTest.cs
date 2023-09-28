@@ -59,8 +59,8 @@ public class Game_PositionTest
     }
 
     [Theory]
-    [InlineData(0, 0, 1, 2)]
-    [InlineData(0, 0, 2, 0)]
+    [InlineData(0, 0, 1, 0)]
+    [InlineData(0, 0, 0, 0)]
     [InlineData(0, 0, 1, 1)]
     public void IsAdjacent_ReturnsTrue(int x1, int y1, int x2, int y2)
     {
