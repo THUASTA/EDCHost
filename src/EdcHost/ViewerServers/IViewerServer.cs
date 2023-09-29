@@ -1,3 +1,5 @@
+using EdcHost.ViewerServers.EventArgs;
+
 namespace EdcHost.ViewerServers;
 
 /// <summary>
@@ -5,6 +7,11 @@ namespace EdcHost.ViewerServers;
 /// </summary>
 public interface IViewerServer
 {
+    public IUpdater CompetitionUpdater { get; }
+    public IGameController Controller { get; }
+    public event EventHandler<SetPortEventArgs>? SetPortEvent;
+    public event EventHandler<SetCameraEventArgs>? SetCameraEvent;
+
     /// <summary>
     /// Starts the server.
     /// </summary>
@@ -13,4 +20,16 @@ public interface IViewerServer
     /// Stops the server.
     /// </summary>
     public void Stop();
+    /// <summary>
+    /// Sends the device information to the viewer.
+    /// </summary>
+    /// <param name="portsInfo"></param>
+    /// <param name="camerasInfo"></param>
+    public void SendDeviceInfo(string[] portsInfo, string[] camerasInfo);
+    /// <summary>
+    /// Raise an error to the viewer.
+    /// </summary>
+    /// <param name="errorCode"></param>
+    /// <param name="message"></param>
+    public void RaiseError(int errorCode, string message);
 }

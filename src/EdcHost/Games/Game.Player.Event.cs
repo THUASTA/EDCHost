@@ -61,7 +61,7 @@ public partial class Game : IGame
                 Action rejected.");
             return;
         }
-        if (IsAdjacant(ToIntPosition(e.Player.PlayerPosition), ToIntPosition(e.Position)) == false)
+        if (IsAdjacent(ToIntPosition(e.Player.PlayerPosition), ToIntPosition(e.Position)) == false)
         {
             Serilog.Log.Warning(@$"Position ({e.Position.X}, {e.Position.Y})
                 is not adjacant to player {e.Player.PlayerId}. Action rejected.");
@@ -131,7 +131,7 @@ public partial class Game : IGame
             Serilog.Log.Warning($"Player {e.Player.PlayerId} is dead. Action rejected.");
             return;
         }
-        if (IsAdjacant(ToIntPosition(e.Player.PlayerPosition), ToIntPosition(e.Position)) == false)
+        if (IsAdjacent(ToIntPosition(e.Player.PlayerPosition), ToIntPosition(e.Position)) == false)
         {
             Serilog.Log.Warning(@$"Position ({e.Position.X}, {e.Position.Y})
                 is not adjacant to player {e.Player.PlayerId}. Action rejected.");

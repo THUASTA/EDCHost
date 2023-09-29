@@ -1,6 +1,5 @@
 using System.IO.Ports;
 
-using EdcHost.Games;
 using EdcHost.SlaveServers.EventArgs;
 
 namespace EdcHost.SlaveServers;
@@ -15,27 +14,23 @@ public class SlaveServer : ISlaveServer
     private bool _isRunning = false;
     private readonly IPacket?[] _packetsToSend = { null, null };
     private readonly IPacketFromSlave[] _packetsReceived = new IPacketFromSlave[PLAYER_NUM];
-    public event EventHandler<AttackPackEventArgs>? PerformAttack;
-    public event EventHandler<PlacePackEventArgs>? PerformPlace;
-    public event EventHandler<TradePackEventArgs>? PerformTrade;
+    public event EventHandler<PlayerTryAttackEventArgs>? PlayerTryAttackEvent;
+    public event EventHandler<PlayerTryUseEventArgs>? PlayerTryUseEvent;
+    public event EventHandler<PlayerTryTradeEventArgs>? PlayerTryTradeEvent;
 
-    public SlaveServer(string[] PortNameList, int[] BaudRateList, Parity[] ParityList, int DataBits, StopBits StopBits)
+    public SlaveServer(string[] portNames, int[] baudRates)
     {
-        if (PortNameList.Length != PLAYER_NUM
-            || BaudRateList.Length != PLAYER_NUM
-            || ParityList.Length != PLAYER_NUM)
+        if (portNames.Length != PLAYER_NUM
+            || baudRates.Length != PLAYER_NUM)
         {
-            throw new ArgumentException($"PortNameList, BaudRateList, ParityList, DataBitsList, StopBitsList must have length {PLAYER_NUM}");
+            throw new ArgumentException($"portNameList, BaudRateList, ParityList, DataBitsList, StopBitsList must have length {PLAYER_NUM}");
         }
 
         for (int i = 0; i < PLAYER_NUM; i++)
         {
             _serialPorts[i] = new SerialPort();
-            SetPortName(i, PortNameList[i]);
-            SetPortBaudRate(i, BaudRateList[i]);
-            SetPortParity(i, ParityList[i]);
-            SetPortDataBits(i, DataBits);
-            SetStopBits(i, StopBits);
+            SetPortName(i, portNames[i]);
+            SetPortBaudRate(i, baudRates[i]);
         }
 
         _sendThread = new Thread(Send);
@@ -106,15 +101,17 @@ public class SlaveServer : ISlaveServer
 
     private void SetPortName(int id, string portName)
     {
+        string[] ports = SerialPort.GetPortNames();
         foreach (string s in SerialPort.GetPortNames())
         {
-            if (portName.ToLower().StartsWith("com"))
+            string UpperName = s.ToUpper();
+            if (ports.Contains(UpperName))
             {
-                _serialPorts[id].PortName = portName.ToUpper();
+                _serialPorts[id].PortName = UpperName;
             }
             else
             {
-                throw new ArgumentException("Port name must start with 'COM'");
+                throw new ArgumentException("Port name not available.");
             }
         }
     }
@@ -165,21 +162,21 @@ public class SlaveServer : ISlaveServer
             case (int)ActionTypes.Attack:
                 if (Enum.IsDefined(typeof(Directions), packet.Param))
                 {
-                    PerformAttack?.Invoke(this, new AttackPackEventArgs(id, packet.Param));
+                    PlayerTryAttackEvent?.Invoke(this, new PlayerTryAttackEventArgs(id, packet.Param));
                 }
                 break;
 
-            case (int)ActionTypes.Place:
+            case (int)ActionTypes.Use:
                 if (Enum.IsDefined(typeof(Directions), packet.Param))
                 {
-                    PerformAttack?.Invoke(this, new AttackPackEventArgs(id, packet.Param));
+                    PlayerTryUseEvent?.Invoke(this, new PlayerTryUseEventArgs(id, packet.Param));
                 }
                 break;
 
             case (int)ActionTypes.Trade:
                 if (Enum.IsDefined(typeof(ItemList), packet.Param))
                 {
-                    PerformTrade?.Invoke(this, new TradePackEventArgs(id, packet.Param));
+                    PlayerTryTradeEvent?.Invoke(this, new PlayerTryTradeEventArgs(id, packet.Param));
                 }
                 break;
 
