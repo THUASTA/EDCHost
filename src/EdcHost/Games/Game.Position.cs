@@ -23,12 +23,12 @@ public partial class Game : IGame
     }
 
     /// <summary>
-    /// Whether two positions is adjacant or not.
+    /// Whether two positions is adjacent or not.
     /// </summary>
     /// <param name="position1">First position</param>
     /// <param name="position2">Second position</param>
-    /// <returns>True if adjacant, false otherwise</returns>
-    private bool IsAdjacant(IPosition<int> position1, IPosition<int> position2)
+    /// <returns>True if adjacent, false otherwise</returns>
+    private bool IsAdjacent(IPosition<int> position1, IPosition<int> position2)
     {
         return (Math.Abs(position1.X - position2.X) <= 1
             && Math.Abs(position1.Y - position2.Y) <= 1);
