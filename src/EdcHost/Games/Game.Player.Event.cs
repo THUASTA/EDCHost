@@ -18,7 +18,7 @@ public partial class Game : IGame
 
         try
         {
-            if(e.Player.IsAlive == false && e.Player.HasBed == true
+            if (e.Player.IsAlive == false && e.Player.HasBed == true
                 && DateTime.Now - _playerDeathTime[e.Player.PlayerId] > RespawnTimeInterval
                 && IsSamePosition(
                     ToIntPosition(e.Position), ToIntPosition(e.Player.SpawnPoint)
