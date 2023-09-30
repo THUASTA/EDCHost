@@ -120,5 +120,3 @@ public class Game_PositionTests
         Assert.True(Math.Abs(actualValue - expValue) < 0.00001);
     }
 }
-
-
