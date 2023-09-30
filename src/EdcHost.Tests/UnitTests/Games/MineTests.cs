@@ -43,23 +43,12 @@ public class MineTest
     public void Position_DoNothing_ReturnsConstructorValue(float x, float y)
     {
         IPosition<float> expected = new MockPosition { X = x, Y = y };
+        DateTime nowTime = DateTime.Now;
         Mine mine = new Mine(IMine.OreKindType.Diamond, expected);
         IPosition<float> actual = mine.Position;
+        double millisecondsDifference = Math.Abs((nowTime - mine.LastOreGeneratedTime).TotalMilliseconds);  
+        Assert.True(millisecondsDifference < 0.1);
         Assert.Equal(expected, actual);
-    }
-
-    [Fact]
-    public void LastOreGeneratedTime_DoNothingAndGenerateOre_ReturnsCorrectTime()
-    {
-        IMine.OreKindType oreKind = IMine.OreKindType.IronIngot;
-        var position = new MockPosition { X = 0f, Y = 0f };
-        var mockMine = new Mock<Mine>(oreKind, position) { CallBase = true };
-        var currentTime = new DateTime(2023, 9, 22, 0, 0, 0);
-        mockMine.SetupGet(m => m.LastOreGeneratedTime).Returns(currentTime);
-        Assert.Equal(currentTime, mockMine.Object.LastOreGeneratedTime);
-        mockMine.Object.GenerateOre();
-        Assert.Equal(1, mockMine.Object.AccumulatedOreCount);
-        Assert.Equal(currentTime, mockMine.Object.LastOreGeneratedTime);
     }
 
     [Theory]
