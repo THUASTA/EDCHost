@@ -46,7 +46,7 @@ public class MineTest
         DateTime nowTime = DateTime.Now;
         Mine mine = new Mine(IMine.OreKindType.Diamond, expected);
         IPosition<float> actual = mine.Position;
-        double millisecondsDifference = Math.Abs((nowTime - mine.LastOreGeneratedTime).TotalMilliseconds);  
+        double millisecondsDifference = Math.Abs((nowTime - mine.LastOreGeneratedTime).TotalMilliseconds);
         Assert.True(millisecondsDifference < 0.1);
         Assert.Equal(expected, actual);
     }
