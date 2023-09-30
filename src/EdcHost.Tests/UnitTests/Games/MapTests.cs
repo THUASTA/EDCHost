@@ -5,6 +5,12 @@ using Xunit;
 namespace EdcHost.Tests.UnitTests.Games;
 public class MapTests
 {
+    public class MockPosition : IPosition<int>
+    {
+        public int X { get; set; }
+        public int Y { get; set; }
+    }
+
     [Fact]
     public void Map_CorrectyInitialized()
     {
@@ -23,11 +29,9 @@ public class MapTests
     public void GetChunkAt_DoNothing_ReturnsCorrectChunkPosition()
     {
         Map map = new Map();
-        var positionMock = new Mock<IPosition<int>>();
-        positionMock.Setup(p => p.X).Returns(2);
-        positionMock.Setup(p => p.Y).Returns(3);
-        IChunk expectedChunk = new Mock<IChunk>().Object;
-        IChunk actualChunk = map.GetChunkAt(positionMock.Object);
+        MockPosition positionMock = new MockPosition { X = 2, Y = 3 };
+        IChunk expectedChunk = map.Chunks[19];
+        IChunk actualChunk = map.GetChunkAt(positionMock);
         Assert.Equal(expectedChunk, actualChunk);
     }
 
