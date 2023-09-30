@@ -13,6 +13,11 @@ public partial class Game : IGame
     private const int InstantDeathDamage = 255;
 
     /// <summary>
+    /// Whether all beds are destroyed or not.
+    /// </summary>
+    private bool _allBedsDestroyed;
+
+    /// <summary>
     /// All players.
     /// </summary>
     private readonly List<IPlayer> _players;
