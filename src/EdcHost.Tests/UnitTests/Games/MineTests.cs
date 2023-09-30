@@ -51,15 +51,15 @@ public class MineTest
     [Fact]
     public void LastOreGeneratedTime_DoNothingAndGenerateOre_ReturnsCorrectTime()
     {
-            IMine.OreKindType oreKind = IMine.OreKindType.IronIngot;
-            var position = new MockPosition { X = 0f, Y = 0f };
-            var mockMine = new Mock<Mine>(oreKind, position) { CallBase = true };
-            var currentTime = new DateTime(2023, 9, 22, 0, 0, 0);
-            mockMine.SetupGet(m => m.LastOreGeneratedTime).Returns(currentTime);
-            Assert.Equal(currentTime, mockMine.Object.LastOreGeneratedTime);
-            mockMine.Object.GenerateOre();
-            Assert.Equal(1, mockMine.Object.AccumulatedOreCount);
-            Assert.Equal(currentTime, mockMine.Object.LastOreGeneratedTime);
+        IMine.OreKindType oreKind = IMine.OreKindType.IronIngot;
+        var position = new MockPosition { X = 0f, Y = 0f };
+        var mockMine = new Mock<Mine>(oreKind, position) { CallBase = true };
+        var currentTime = new DateTime(2023, 9, 22, 0, 0, 0);
+        mockMine.SetupGet(m => m.LastOreGeneratedTime).Returns(currentTime);
+        Assert.Equal(currentTime, mockMine.Object.LastOreGeneratedTime);
+        mockMine.Object.GenerateOre();
+        Assert.Equal(1, mockMine.Object.AccumulatedOreCount);
+        Assert.Equal(currentTime, mockMine.Object.LastOreGeneratedTime);
     }
 
     [Theory]
@@ -91,7 +91,7 @@ public class MineTest
         mine.PickUpOre(count);
         Assert.Equal(expectedValue, mine.AccumulatedOreCount);
     }
-    
+
     [Fact]
     public void PickUpOre_CountMoreThanAccumulatedOreCount_ReturnsCorrctValue()
     {
@@ -101,7 +101,7 @@ public class MineTest
             mine.GenerateOre();
         }
         int count = 60;
-        InvalidOperationException ex = Assert.Throws<InvalidOperationException>(()=>{mine.PickUpOre(count);});
+        InvalidOperationException ex = Assert.Throws<InvalidOperationException>(() => { mine.PickUpOre(count); });
         Assert.Equal("No enough ore.", ex.Message);
     }
 
