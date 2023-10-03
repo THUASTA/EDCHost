@@ -18,17 +18,30 @@ public partial class Game : IGame
 
         try
         {
-            //TODO: Respawn dead player
+            if (e.Player.IsAlive == false && e.Player.HasBed == true
+                && DateTime.Now - _playerDeathTime[e.Player.PlayerId] > RespawnTimeInterval
+                && IsSamePosition(
+                    ToIntPosition(e.Position), ToIntPosition(e.Player.SpawnPoint)
+                    ) == true)
+            {
+                /// <remarks>
+                /// Now Spawn() doesn't set a Player's Health to MaxHealth.
+                /// But there is no other way to heal a Player.
+                /// Waiting for resolving this issue.
+                /// </remarks>
+                _players[e.Player.PlayerId].Spawn(e.Player.MaxHealth);
+                _playerDeathTime[e.Player.PlayerId] = null;
+            }
 
-            //Kill fallen player
+            //Kill fallen player. Use 'if' instead of 'else if' to avoid fake spawn.
             if (e.Player.IsAlive == true && IsValidPosition(ToIntPosition(e.Position)) == false)
             {
-                e.Player.Hurt(InstantDeathDamage);
+                _players[e.Player.PlayerId].Hurt(InstantDeathDamage);
                 return;
             }
             if (e.Player.IsAlive == true && _map.GetChunkAt(ToIntPosition(e.Position)).IsVoid == true)
             {
-                e.Player.Hurt(InstantDeathDamage);
+                _players[e.Player.PlayerId].Hurt(InstantDeathDamage);
                 return;
             }
         }
@@ -64,13 +77,19 @@ public partial class Game : IGame
         if (IsAdjacent(ToIntPosition(e.Player.PlayerPosition), ToIntPosition(e.Position)) == false)
         {
             Serilog.Log.Warning(@$"Position ({e.Position.X}, {e.Position.Y})
-                is not adjacant to player {e.Player.PlayerId}. Action rejected.");
+                is not adjacent to player {e.Player.PlayerId}. Action rejected.");
             return;
         }
         if (IsValidPosition(ToIntPosition(e.Position)) == false)
         {
             Serilog.Log.Warning(@$"Position ({e.Position.X}, {e.Position.Y}) is not valid.
                 Action rejected.");
+            return;
+        }
+        if (IsAdjacent(ToIntPosition(e.Player.PlayerPosition), ToIntPosition(e.Position)) == false)
+        {
+            Serilog.Log.Warning(@$"Position ({e.Position.X}, {e.Position.Y})
+                is not adjacent to player {e.Player.PlayerId}. Action rejected.");
             return;
         }
 
@@ -93,7 +112,9 @@ public partial class Game : IGame
             try
             {
                 _map.GetChunkAt(ToIntPosition(e.Position)).RemoveBlock();
+                _players[e.Player.PlayerId].DecreaseWoolCount();
                 _playerLastAttackTime[e.Player.PlayerId] = DateTime.Now;
+
                 if (_map.GetChunkAt(ToIntPosition(e.Position)).IsVoid == true)
                 {
                     for (int i = 0; i < 2; i++)
@@ -101,7 +122,7 @@ public partial class Game : IGame
                         if (_players[i].HasBed == true && IsSamePosition(
                             ToIntPosition(_players[i].SpawnPoint), ToIntPosition(e.Position)) == true)
                         {
-                            //TODO: Destroy the player's bed
+                            _players[i].DestroyBed();
                         }
                     }
                 }
@@ -134,13 +155,19 @@ public partial class Game : IGame
         if (IsAdjacent(ToIntPosition(e.Player.PlayerPosition), ToIntPosition(e.Position)) == false)
         {
             Serilog.Log.Warning(@$"Position ({e.Position.X}, {e.Position.Y})
-                is not adjacant to player {e.Player.PlayerId}. Action rejected.");
+                is not adjecant to player {e.Player.PlayerId}. Action rejected.");
             return;
         }
         if (IsValidPosition(ToIntPosition(e.Position)) == false)
         {
             Serilog.Log.Warning(@$"Position ({e.Position.X}, {e.Position.Y}) is not valid.
                 Action rejected.");
+            return;
+        }
+        if (IsAdjacent(ToIntPosition(e.Player.PlayerPosition), ToIntPosition(e.Position)) == false)
+        {
+            Serilog.Log.Warning(@$"Position ({e.Position.X}, {e.Position.Y})
+                is not adjacent to player {e.Player.PlayerId}. Action rejected.");
             return;
         }
 

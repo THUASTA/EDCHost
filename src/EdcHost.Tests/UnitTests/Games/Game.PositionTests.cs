@@ -4,7 +4,7 @@ using Xunit;
 
 namespace EdcHost.Tests.UnitTests.Games;
 
-public class Game_PositionTest
+public class Game_PositionTests
 {
     public class MockIntPosition : IPosition<int>
     {
@@ -120,5 +120,3 @@ public class Game_PositionTest
         Assert.True(Math.Abs(actualValue - expValue) < 0.00001);
     }
 }
-
-
