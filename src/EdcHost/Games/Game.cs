@@ -81,7 +81,7 @@ public partial class Game : IGame
         _startTime = null;
         _lastTickTime = null;
 
-        GameMap = new Map();
+        GameMap = new Map(new IPosition<int>[] { new Position<int>(0, 0), new Position<int>(7, 7) });
 
         Players = new();
 
@@ -91,6 +91,8 @@ public partial class Game : IGame
         {
             Players.Add(new Player(i, 0f, 0f, 0f, 0f));
         }
+        Players[0] = new Player(0, 0.4f, 0.4f, 0.4f, 0.4f);
+        Players[1] = new Player(1, 7.4f, 7.4f, 7.4f, 7.4f);
 
         _playerLastAttackTime = new();
         for (int i = 0; i < 2; i++)
@@ -193,6 +195,8 @@ public partial class Game : IGame
             CurrentTick = 0;
 
             _allBedsDestroyed = false;
+
+            Serilog.Log.Information("Game stopped.");
         }
 
         _tickTask.Wait();
