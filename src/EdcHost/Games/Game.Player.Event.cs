@@ -29,19 +29,19 @@ public partial class Game : IGame
                 /// But there is no other way to heal a Player.
                 /// Waiting for resolving this issue.
                 /// </remarks>
-                _players[e.Player.PlayerId].Spawn(e.Player.MaxHealth);
+                Players[e.Player.PlayerId].Spawn(e.Player.MaxHealth);
                 _playerDeathTime[e.Player.PlayerId] = null;
             }
 
             //Kill fallen player. Use 'if' instead of 'else if' to avoid fake spawn.
             if (e.Player.IsAlive == true && IsValidPosition(ToIntPosition(e.Position)) == false)
             {
-                _players[e.Player.PlayerId].Hurt(InstantDeathDamage);
+                Players[e.Player.PlayerId].Hurt(InstantDeathDamage);
                 return;
             }
-            if (e.Player.IsAlive == true && _map.GetChunkAt(ToIntPosition(e.Position)).IsVoid == true)
+            if (e.Player.IsAlive == true && GameMap.GetChunkAt(ToIntPosition(e.Position)).IsVoid == true)
             {
-                _players[e.Player.PlayerId].Hurt(InstantDeathDamage);
+                Players[e.Player.PlayerId].Hurt(InstantDeathDamage);
                 return;
             }
         }
@@ -97,13 +97,13 @@ public partial class Game : IGame
             ToIntPosition(e.Position), ToIntPosition(Opponent(e.Player).PlayerPosition)) == true)
         {
             //Attack opponent
-            _players[Opponent(e.Player).PlayerId].Hurt(e.Player.Strength);
+            Players[Opponent(e.Player).PlayerId].Hurt(e.Player.Strength);
             _playerLastAttackTime[e.Player.PlayerId] = DateTime.Now;
             return;
         }
         else
         {
-            if (_map.GetChunkAt(ToIntPosition(e.Position)).CanRemoveBlock == false)
+            if (GameMap.GetChunkAt(ToIntPosition(e.Position)).CanRemoveBlock == false)
             {
                 Serilog.Log.Warning("Target chunk is empty. Action rejected.");
                 return;
@@ -111,18 +111,18 @@ public partial class Game : IGame
 
             try
             {
-                _map.GetChunkAt(ToIntPosition(e.Position)).RemoveBlock();
-                _players[e.Player.PlayerId].DecreaseWoolCount();
+                GameMap.GetChunkAt(ToIntPosition(e.Position)).RemoveBlock();
+                Players[e.Player.PlayerId].DecreaseWoolCount();
                 _playerLastAttackTime[e.Player.PlayerId] = DateTime.Now;
 
-                if (_map.GetChunkAt(ToIntPosition(e.Position)).IsVoid == true)
+                if (GameMap.GetChunkAt(ToIntPosition(e.Position)).IsVoid == true)
                 {
                     for (int i = 0; i < 2; i++)
                     {
-                        if (_players[i].HasBed == true && IsSamePosition(
-                            ToIntPosition(_players[i].SpawnPoint), ToIntPosition(e.Position)) == true)
+                        if (Players[i].HasBed == true && IsSamePosition(
+                            ToIntPosition(Players[i].SpawnPoint), ToIntPosition(e.Position)) == true)
                         {
-                            _players[i].DestroyBed();
+                            Players[i].DestroyBed();
                         }
                     }
                 }
@@ -173,9 +173,9 @@ public partial class Game : IGame
 
         try
         {
-            if (_map.GetChunkAt(ToIntPosition(e.Position)).CanPlaceBlock == true)
+            if (GameMap.GetChunkAt(ToIntPosition(e.Position)).CanPlaceBlock == true)
             {
-                _map.GetChunkAt(ToIntPosition(e.Position)).PlaceBlock();
+                GameMap.GetChunkAt(ToIntPosition(e.Position)).PlaceBlock();
             }
             else
             {

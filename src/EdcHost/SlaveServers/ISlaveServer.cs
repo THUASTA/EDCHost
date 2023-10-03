@@ -1,3 +1,5 @@
+using EdcHost.SlaveServers.EventArgs;
+
 namespace EdcHost.SlaveServers;
 
 /// <summary>
@@ -5,6 +7,10 @@ namespace EdcHost.SlaveServers;
 /// </summary>
 public interface ISlaveServer
 {
+    public event EventHandler<PlayerTryAttackEventArgs>? PlayerTryAttackEvent;
+    public event EventHandler<PlayerTryUseEventArgs>? PlayerTryUseEvent;
+    public event EventHandler<PlayerTryTradeEventArgs>? PlayerTryTradeEvent;
+
     /// <summary>
     /// Starts the server.
     /// </summary>

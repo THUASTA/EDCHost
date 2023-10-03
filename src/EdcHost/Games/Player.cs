@@ -69,6 +69,7 @@ public class Player : IPlayer
         if (HasBed == true)
         {
             IsAlive = true;
+            Health = MaxHealth;
         }
     }
     public void DestroyBed()

@@ -16,6 +16,10 @@ public interface IGame
         Finished
     }
 
+    public event EventHandler<AfterGameStartEventArgs>? AfterGameStartEvent;
+    public event EventHandler<AfterGameTickEventArgs>? AfterGameTickEvent;
+    public event EventHandler<AfterJudgementEventArgs>? AfterJudgementEvent;
+
     /// <summary>
     /// Current stage of the game.
     /// </summary>
@@ -33,6 +37,31 @@ public interface IGame
     /// Winner can be null in case there is no winner.
     /// </remarks>
     public IPlayer? Winner { get; }
+
+    /// <summary>
+    /// The players.
+    /// </summary>
+    public List<IPlayer> Players { get; }
+
+    /// <summary>
+    /// The game map.
+    /// </summary>
+    public IMap GameMap { get; }
+
+    /// <summary>
+    /// The mines.
+    /// </summary>
+    public List<IMine> Mines { get; }
+
+    /// <summary>
+    /// Starts the game.
+    /// </summary>
+    public void Start();
+
+    /// <summary>
+    /// Stops the game.
+    /// </summary>
+    public void Stop();
 
     /// <summary>
     /// Ticks the game.
