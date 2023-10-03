@@ -1,3 +1,4 @@
+using System.IO.Ports;
 using EdcHost.Games;
 using EdcHost.SlaveServers;
 using EdcHost.ViewerServers;
@@ -25,10 +26,21 @@ public partial class EdcHost : IEdcHost
     {
         _game = new Game();
 
+        string[] availablePorts = SerialPort.GetPortNames();
+        Serilog.Log.Information("Available ports: ");
+        foreach (string port in availablePorts)
+        {
+            Serilog.Log.Information($"{port}");
+        }
+        if (availablePorts.Length < 2)
+        {
+            Serilog.Log.Fatal("No enough ports.");
+        }
+
         /// <remarks>
         /// Choose ports and baudrates here
         /// </remarks>
-        _slaveServer = new SlaveServer(new string[] { "COM1", "COM2" }, new int[] { 19200, 19200 });
+        _slaveServer = new SlaveServer(new string[] { availablePorts[0], availablePorts[1] }, new int[] { 19200, 19200 });
         _viewerServer = new ViewerServer(3001);
 
         _game.AfterGameStartEvent += HandleAfterGameStartEvent;
