@@ -1,6 +1,8 @@
 using System.IO.Ports;
 
 using EdcHost.SlaveServers.EventArgs;
+using Fleck;
+using Serilog;
 
 namespace EdcHost.SlaveServers;
 
@@ -8,18 +10,20 @@ public class SlaveServer : ISlaveServer
 {
     public const int PLAYER_NUM = 2;
     public static readonly int[] BaudRateList = { 9600, 19200, 38400, 57600, 115200 };
-    private readonly SerialPort[] _serialPorts = new SerialPort[PLAYER_NUM];
+    private readonly SerialPort[] _serialPorts;
     private readonly Thread _sendThread;
     private readonly Thread _receiveThread;
     private bool _isRunning = false;
     private readonly IPacket?[] _packetsToSend = { null, null };
     private readonly IPacketFromSlave[] _packetsReceived = new IPacketFromSlave[PLAYER_NUM];
+    private readonly ILogger _logger = Log.Logger.ForContext<SlaveServer>();
     public event EventHandler<PlayerTryAttackEventArgs>? PlayerTryAttackEvent;
     public event EventHandler<PlayerTryUseEventArgs>? PlayerTryUseEvent;
     public event EventHandler<PlayerTryTradeEventArgs>? PlayerTryTradeEvent;
 
     public SlaveServer(string[] portNames, int[] baudRates)
     {
+        _serialPorts = new SerialPort[PLAYER_NUM];
         if (portNames.Length != PLAYER_NUM
             || baudRates.Length != PLAYER_NUM)
         {
@@ -102,17 +106,13 @@ public class SlaveServer : ISlaveServer
     private void SetPortName(int id, string portName)
     {
         string[] ports = SerialPort.GetPortNames();
-        foreach (string s in SerialPort.GetPortNames())
+        if (ports.Contains(portName))
         {
-            string UpperName = s.ToUpper();
-            if (ports.Contains(UpperName))
-            {
-                _serialPorts[id].PortName = UpperName;
-            }
-            else
-            {
-                throw new ArgumentException("Port name not available.");
-            }
+            _serialPorts[id].PortName = portName;
+        }
+        else
+        {
+            _logger.Error("Port name {portName} is not available.", portName);
         }
     }
 
