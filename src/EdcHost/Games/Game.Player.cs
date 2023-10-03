@@ -13,14 +13,14 @@ public partial class Game : IGame
     private const int InstantDeathDamage = 255;
 
     /// <summary>
+    /// All players.
+    /// </summary>
+    public List<IPlayer> Players { get; private set; }
+
+    /// <summary>
     /// Whether all beds are destroyed or not.
     /// </summary>
     private bool _allBedsDestroyed;
-
-    /// <summary>
-    /// All players.
-    /// </summary>
-    private readonly List<IPlayer> _players;
 
     /// <summary>
     /// Last attack time of each player.
@@ -69,7 +69,7 @@ public partial class Game : IGame
     private IPlayer Opponent(IPlayer player)
     {
         //0^1=1, 1^1=0, 0^0=0
-        return _players[player.PlayerId ^ 1];
+        return Players[player.PlayerId ^ 1];
     }
 
 }

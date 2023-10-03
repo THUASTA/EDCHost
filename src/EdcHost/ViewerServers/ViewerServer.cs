@@ -31,7 +31,8 @@ public class ViewerServer : IViewerServer
 
     public ViewerServer(int port)
     {
-        _webSocketServer = new WebSocketServer("ws://localhost:" + port)
+        //_webSocketServer = new WebSocketServer("ws://localhost:" + port)
+        _webSocketServer = new WebSocketServer("ws://127.0.0.1:" + port)
         {
             RestartAfterListenError = true
         };
