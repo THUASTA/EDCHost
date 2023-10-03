@@ -10,9 +10,8 @@ public class MessageTransferEventArgsTests
     [Fact]
     public void MessageTransferEventArgs_DoNothing_ReturnsContructorValue()
     {
-        string messageTypeTest = "testType";
         var messageMock = new Mock<IMessage>();
         var messageTransferEvent = new MessageTransferEventArgs(messageMock.Object);
-        Assert.Equal(messageTypeTest, messageTransferEvent.Message.MessageType);
+        Assert.Equal(messageMock.Object, messageTransferEvent.Message);
     }
 }
