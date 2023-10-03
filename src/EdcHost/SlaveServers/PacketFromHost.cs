@@ -2,6 +2,7 @@ namespace EdcHost.SlaveServers;
 
 public class PacketFromHost : IPacketFromHost
 {
+    const int PACKET_LENGTH = 100;
     public int GameStage { get; }
     public int ElapsedTime { get; }
     public List<int> HeightOfChunks { get; } = new List<int>();
@@ -19,8 +20,9 @@ public class PacketFromHost : IPacketFromHost
 
     public byte[] MakePacket()
     {
+        byte[] bytes = new byte[PACKET_LENGTH];
         // TODO: add a serializer
-        throw new NotImplementedException();
+        return bytes;
     }
 
     public void ExtractPacketData(byte[] bytes)
