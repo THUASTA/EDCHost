@@ -102,14 +102,17 @@ public class SlaveServer : ISlaveServer
     private void SetPortName(int id, string portName)
     {
         string[] ports = SerialPort.GetPortNames();
-        string UpperName = portName.ToUpper();
-        if (ports.Contains(UpperName))
+        foreach (string s in SerialPort.GetPortNames())
         {
-            _serialPorts[id].PortName = UpperName;
-        }
-        else
-        {
-            throw new ArgumentException("Port name not available.");
+            string UpperName = s.ToUpper();
+            if (ports.Contains(UpperName))
+            {
+                _serialPorts[id].PortName = UpperName;
+            }
+            else
+            {
+                throw new ArgumentException("Port name not available.");
+            }
         }
     }
 
