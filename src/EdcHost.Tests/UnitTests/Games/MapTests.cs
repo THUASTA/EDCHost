@@ -12,12 +12,12 @@ public class MapTests
         public int Y { get; set; }
     }
 
-    public static IPosition<int> point1 = new MockPosition{ X = 1, Y = 1 };
-    public static IPosition<int> point2 = new MockPosition{ X = 2, Y = 2 };
-    public static IPosition<int> point3 = new MockPosition{ X = 3, Y = 3 };
-    public static IPosition<int> point4 = new MockPosition{ X = 4, Y = 4 };
+    public static IPosition<int> point1 = new MockPosition { X = 1, Y = 1 };
+    public static IPosition<int> point2 = new MockPosition { X = 2, Y = 2 };
+    public static IPosition<int> point3 = new MockPosition { X = 3, Y = 3 };
+    public static IPosition<int> point4 = new MockPosition { X = 4, Y = 4 };
 
-    public IPosition<int>[] spawnPoints = new IPosition<int>[] {point1, point2, point3, point4};
+    public IPosition<int>[] spawnPoints = new IPosition<int>[] { point1, point2, point3, point4 };
 
     [Fact]
     public void Map_CorrectyInitialized()
@@ -55,9 +55,7 @@ public class MapTests
     public void GetChunkAt_ThrowsRightException(int x, int y)
     {
         Map map = new Map(spawnPoints);
-        var positionMock = new Mock<IPosition<int>>();
-        positionMock.Setup(p => p.X).Returns(x);
-        positionMock.Setup(p => p.Y).Returns(y);
-        Assert.Throws<ArgumentException>(() => map.GetChunkAt(positionMock.Object));
+        MockPosition positionMock = new MockPosition { X = x, Y = y };
+        Assert.Throws<ArgumentException>(() => map.GetChunkAt(positionMock));
     }
 }
