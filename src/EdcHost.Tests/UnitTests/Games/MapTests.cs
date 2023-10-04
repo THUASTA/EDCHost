@@ -27,10 +27,11 @@ public class MapTests
         Assert.Equal(64, map.Chunks.Count);
         for (int i = 0; i < 64; i++)
         {
-            Assert.Equal(0, map.Chunks[i].Height);
             Assert.Equal(i / 8, map.Chunks[i].Position.X);
             Assert.Equal(i % 8, map.Chunks[i].Position.Y);
         }
+        Assert.Equal(0, map.Chunks[0].Height);
+        Assert.Equal(0, map.Chunks[20].Height);
         Assert.Equal(1, map.Chunks[9].Height);
         Assert.Equal(1, map.Chunks[18].Height);
         Assert.Equal(1, map.Chunks[27].Height);
