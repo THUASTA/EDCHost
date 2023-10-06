@@ -6,12 +6,6 @@ namespace EdcHost.Tests.UnitTests.Games;
 
 public class GameTest
 {
-    public class MockPosition : IPosition<int>
-    {
-        public int X { get; set; }
-        public int Y { get; set; }
-    }
-
     [Fact]
     public void Game_DoNothing_PublicMembersCorrectlyInitialized()
     {
@@ -20,11 +14,11 @@ public class GameTest
         Assert.Equal(TimeSpan.FromSeconds(0), game.ElapsedTime);
         Assert.Null(game.Winner);
         Assert.Equal(0, game.CurrentTick);
-        IPosition<int> mockPosition1 = new MockPosition { X = 0, Y = 0 };
-        IPosition<int> mockPosition2 = new MockPosition { X = 7, Y = 7 };
-        Assert.Equal(mockPosition1, game.GameMap.Chunks[0].Position);
+        Assert.Equal(0, game.GameMap.Chunks[0].Position.X);
+        Assert.Equal(0, game.GameMap.Chunks[0].Position.Y);
         Assert.Equal(1, game.GameMap.Chunks[0].Height);
-        Assert.Equal(mockPosition2, game.GameMap.Chunks[63].Position);
+        Assert.Equal(7, game.GameMap.Chunks[63].Position.X);
+        Assert.Equal(7, game.GameMap.Chunks[63].Position.Y);
         Assert.Equal(1, game.GameMap.Chunks[63].Height);
         Assert.NotNull(game.Players);
         Assert.Equal(0, game.Players[0].PlayerId);
