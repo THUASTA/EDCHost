@@ -1,3 +1,5 @@
+using System.Runtime.InteropServices;
+
 namespace EdcHost.Games;
 
 /// <summary>
@@ -19,6 +21,11 @@ public partial class Game : IGame
     /// How much time a player should wait until respawn.
     /// </summary>
     private readonly TimeSpan RespawnTimeInterval = TimeSpan.FromSeconds(15);
+
+    /// <summary>
+    /// Time interval between two battling damages.
+    /// </summary>
+    private readonly TimeSpan BattlingDamageInterval = TimeSpan.FromSeconds(1);
 
     /// <summary>
     /// Current stage of the game.
@@ -64,6 +71,11 @@ public partial class Game : IGame
     private DateTime? _lastTickTime;
 
     /// <summary>
+    /// Last time when a battling damage is dealt.
+    /// </summary>
+    private DateTime? _lastBattlingDamageTime;
+
+    /// <summary>
     /// The tick task.
     /// </summary>
     private readonly Task _tickTask;
@@ -80,19 +92,11 @@ public partial class Game : IGame
 
         _startTime = null;
         _lastTickTime = null;
+        _lastBattlingDamageTime = null;
 
         GameMap = new Map(new IPosition<int>[] { new Position<int>(0, 0), new Position<int>(7, 7) });
 
         Players = new();
-
-        //TODO: Set player's initial position and spawnpoint
-
-        for (int i = 0; i < 2; i++)
-        {
-            Players.Add(new Player(i, 0f, 0f, 0f, 0f));
-        }
-        Players[0] = new Player(0, 0.4f, 0.4f, 0.4f, 0.4f);
-        Players[1] = new Player(1, 7.4f, 7.4f, 7.4f, 7.4f);
 
         _playerLastAttackTime = new();
         for (int i = 0; i < 2; i++)
@@ -104,14 +108,6 @@ public partial class Game : IGame
         for (int i = 0; i < 2; i++)
         {
             _playerDeathTime.Add(null);
-        }
-
-        for (int i = 0; i < 2; i++)
-        {
-            Players[i].OnMove += HandlePlayerMoveEvent;
-            Players[i].OnAttack += HandlePlayerAttackEvent;
-            Players[i].OnPlace += HandlePlayerPlaceEvent;
-            Players[i].OnDie += HandlePlayerDieEvent;
         }
 
         Mines = new();
@@ -132,11 +128,19 @@ public partial class Game : IGame
             throw new InvalidOperationException("The game is already started.");
         }
 
-        //TODO: Start game after all players are ready
+        Players.Clear();
 
-        foreach (Mine mine in Mines)
+        //TODO: Set player's initial position and spawnpoint
+
+        Players.Add(new Player(0, 0.4f, 0.4f, 0.4f, 0.4f));
+        Players.Add(new Player(1, 7.4f, 7.4f, 7.4f, 7.4f));
+
+        for (int i = 0; i < 2; i++)
         {
-            mine.GenerateOre();
+            Players[i].OnMove += HandlePlayerMoveEvent;
+            Players[i].OnAttack += HandlePlayerAttackEvent;
+            Players[i].OnPlace += HandlePlayerPlaceEvent;
+            Players[i].OnDie += HandlePlayerDieEvent;
         }
 
         for (int i = 0; i < 2; i++)
@@ -149,6 +153,13 @@ public partial class Game : IGame
             _playerDeathTime[i] = null;
         }
 
+        //TODO: Start game after all players are ready
+
+        foreach (IMine mine in Mines)
+        {
+            mine.GenerateOre();
+        }
+
         CurrentStage = IGame.Stage.Running;
         Winner = null;
         CurrentTick = 0;
@@ -157,6 +168,8 @@ public partial class Game : IGame
         _startTime = initTime;
         _lastTickTime = initTime;
         ElapsedTime = TimeSpan.FromSeconds(0);
+
+        _lastBattlingDamageTime = null;
 
         _allBedsDestroyed = false;
 
@@ -174,12 +187,16 @@ public partial class Game : IGame
         {
             Serilog.Log.Warning("The game has not started yet.");
         }
+
         lock (this)
         {
             Judge();
 
             _startTime = null;
             _lastTickTime = null;
+            _lastBattlingDamageTime = null;
+
+            Players.Clear();
 
             for (int i = 0; i < 2; i++)
             {
@@ -189,6 +206,11 @@ public partial class Game : IGame
             for (int i = 0; i < 2; i++)
             {
                 _playerDeathTime[i] = null;
+            }
+
+            foreach (IMine mine in Mines)
+            {
+                mine.PickUpOre(mine.AccumulatedOreCount);
             }
 
             ElapsedTime = TimeSpan.FromSeconds(0);
@@ -226,15 +248,26 @@ public partial class Game : IGame
                         Stop();
                     }
 
-                    //TODO: Deal damage every second when battling
-
-                    if (CurrentStage == IGame.Stage.Battling && _allBedsDestroyed == false)
+                    if (CurrentStage == IGame.Stage.Battling)
                     {
-                        for (int i = 0; i < 2; i++)
+                        if (_allBedsDestroyed == false)
                         {
-                            Players[i].DestroyBed();
+                            for (int i = 0; i < 2; i++)
+                            {
+                                Players[i].DestroyBed();
+                            }
+                            _allBedsDestroyed = true;
                         }
-                        _allBedsDestroyed = true;
+
+                        if (_lastBattlingDamageTime is null
+                            || DateTime.Now - _lastBattlingDamageTime > BattlingDamageInterval)
+                        {
+                            for (int i = 0; i < 2; i++)
+                            {
+                                Players[i].Hurt(1);
+                            }
+                            _lastBattlingDamageTime = DateTime.Now;
+                        }
                     }
 
                     Update();
@@ -362,7 +395,7 @@ public partial class Game : IGame
     private void UpdateMines()
     {
         DateTime currentTime = DateTime.Now;
-        foreach (Mine mine in Mines)
+        foreach (IMine mine in Mines)
         {
             if (currentTime - mine.LastOreGeneratedTime >= mine.AccumulateOreInterval)
             {
