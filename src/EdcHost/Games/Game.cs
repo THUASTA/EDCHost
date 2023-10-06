@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-
 namespace EdcHost.Games;
 
 /// <summary>
@@ -8,24 +6,24 @@ namespace EdcHost.Games;
 public partial class Game : IGame
 {
     /// <summary>
-    /// Time interval between two ticks.
-    /// </summary>
-    private readonly TimeSpan TickInterval = TimeSpan.FromSeconds(0.05d);
-
-    /// <summary>
     /// When will Battling stage start.
     /// </summary>
-    private readonly TimeSpan StartBattlingTime = TimeSpan.FromSeconds(600);
+    public readonly TimeSpan StartBattlingTime = TimeSpan.FromSeconds(600);
 
     /// <summary>
     /// How much time a player should wait until respawn.
     /// </summary>
-    private readonly TimeSpan RespawnTimeInterval = TimeSpan.FromSeconds(15);
+    public readonly TimeSpan RespawnTimeInterval = TimeSpan.FromSeconds(15);
 
     /// <summary>
     /// Time interval between two battling damages.
     /// </summary>
-    private readonly TimeSpan BattlingDamageInterval = TimeSpan.FromSeconds(1);
+    public readonly TimeSpan BattlingDamageInterval = TimeSpan.FromSeconds(1);
+
+    /// <summary>
+    /// Time interval between two ticks.
+    /// </summary>
+    private readonly TimeSpan TickInterval = TimeSpan.FromSeconds(0.05d);
 
     /// <summary>
     /// Current stage of the game.
