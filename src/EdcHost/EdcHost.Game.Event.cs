@@ -11,7 +11,14 @@ public partial class EdcHost : IEdcHost
 
     private void HandleAfterGameTickEvent(object? sender, AfterGameTickEventArgs e)
     {
-        //TODO: Update packet to send after new game tick
+        try
+        {
+            //TODO: Call UpdatePacket in _slaveServer
+        }
+        catch (Exception exception)
+        {
+            Serilog.Log.Warning(@$"An exception is caught when updating game: {exception}");
+        }
     }
 
     private void HandleAfterJudgementEvent(object? sender, AfterJudgementEventArgs e)
@@ -24,5 +31,7 @@ public partial class EdcHost : IEdcHost
         {
             Serilog.Log.Information($"Winner is {e.Winner?.PlayerId}");
         }
+
+        Stop();
     }
 }
