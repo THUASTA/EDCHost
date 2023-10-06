@@ -1,9 +1,6 @@
 using EdcHost.Games;
 using Moq;
-using Serilog.Core;
-using Serilog.Events;
 using Xunit;
-using System.Reflection; 
 
 namespace EdcHost.Tests.UnitTests.Games;
 
@@ -25,21 +22,16 @@ public class GameTest
         Assert.Equal(0, game.CurrentTick);
         MockPosition mockPosition1 = new MockPosition { X = 0, Y = 0 };
         MockPosition mockPosition2 = new MockPosition { X = 7, Y = 7 };
-        var mockChunk1 = new Mock<IChunk>();
-        var mockChunk2 = new Mock<IChunk>();
-        mockChunk1.Setup(p => p.Height).Returns(1);
-        mockChunk1.Setup(p => p.Position).Returns(mockPosition1);
-        mockChunk2.Setup(p => p.Height).Returns(1);
-        mockChunk2.Setup(p => p.Position).Returns(mockPosition2);
-        Assert.Equal(mockChunk1.Object, game.GameMap.Chunks[0]);
-        Assert.Equal(mockChunk2.Object, game.GameMap.Chunks[63]);
+        Assert.Equal(mockPosition1, game.GameMap.Chunks[0].Position);
+        Assert.Equal(1, game.GameMap.Chunks[0].Height);
+        Assert.Equal(mockPosition2, game.GameMap.Chunks[63].Position);
+        Assert.Equal(1, game.GameMap.Chunks[63].Height);
         Assert.NotNull(game.Players);
         Assert.Equal(0, game.Players[0].PlayerId);
         Assert.Equal(0.4f, game.Players[0].PlayerPosition.X);
         Assert.Equal(7.4f, game.Players[1].SpawnPoint.Y);
         //TODO:Mine
     }
-    
 
     [Fact]
     public void Start_StartedYet_ThrowsCorrectException()
@@ -69,6 +61,7 @@ public class GameTest
         {
             eventReceived = true;
         };
+        game.Start();
         Assert.True(eventReceived);
     }
 }
