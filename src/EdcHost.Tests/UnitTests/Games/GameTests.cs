@@ -20,8 +20,8 @@ public class GameTest
         Assert.Equal(TimeSpan.FromSeconds(0), game.ElapsedTime);
         Assert.Null(game.Winner);
         Assert.Equal(0, game.CurrentTick);
-        MockPosition mockPosition1 = new MockPosition { X = 0, Y = 0 };
-        MockPosition mockPosition2 = new MockPosition { X = 7, Y = 7 };
+        IPosition<int> mockPosition1 = new MockPosition { X = 0, Y = 0 };
+        IPosition<int> mockPosition2 = new MockPosition { X = 7, Y = 7 };
         Assert.Equal(mockPosition1, game.GameMap.Chunks[0].Position);
         Assert.Equal(1, game.GameMap.Chunks[0].Height);
         Assert.Equal(mockPosition2, game.GameMap.Chunks[63].Position);
