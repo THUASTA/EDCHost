@@ -76,8 +76,11 @@ public partial class EdcHost : IEdcHost
     {
         try
         {
+            Serilog.Log.Information("Starting slave server.");
             _slaveServer.Start();
+            Serilog.Log.Information("Starting game.");
             _game.Start();
+            Serilog.Log.Information("Starting viewer server.");
             _viewerServer.Start();
             Serilog.Log.Information("Host started successfully.");
         }
@@ -91,8 +94,11 @@ public partial class EdcHost : IEdcHost
     {
         try
         {
+            Serilog.Log.Information("Stopping viewer server.");
             _viewerServer.Stop();
+            Serilog.Log.Information("Stopping game.");
             _game.Stop();
+            Serilog.Log.Information("Stopping slave server.");
             _slaveServer.Stop();
             Serilog.Log.Information("Host stopped.");
         }

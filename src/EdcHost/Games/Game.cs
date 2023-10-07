@@ -188,8 +188,6 @@ public partial class Game : IGame
 
         lock (this)
         {
-            Judge();
-
             _startTime = null;
             _lastTickTime = null;
             _lastBattlingDamageTime = null;
@@ -215,11 +213,9 @@ public partial class Game : IGame
             CurrentTick = 0;
 
             _allBedsDestroyed = false;
-
-            Serilog.Log.Information("Game stopped.");
         }
 
-        _tickTask.Wait();
+        Serilog.Log.Information("Game stopped.");
     }
 
     /// <summary>
@@ -227,23 +223,18 @@ public partial class Game : IGame
     /// </summary>
     public void Tick()
     {
-        while (true)
+        while (_startTime is not null)
         {
             try
             {
                 lock (this)
                 {
-                    if (_startTime is null)
-                    {
-                        break;
-                    }
-
                     DateTime currentTime = DateTime.Now;
                     ElapsedTime = currentTime - (DateTime)_startTime;
 
                     if (CurrentStage == IGame.Stage.Finished)
                     {
-                        Stop();
+                        Judge();
                     }
 
                     if (CurrentStage == IGame.Stage.Battling)
