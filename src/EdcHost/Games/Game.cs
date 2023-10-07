@@ -44,6 +44,16 @@ public partial class Game : IGame
     public IPlayer? Winner { get; private set; }
 
     /// <summary>
+    /// The game map.
+    /// </summary>
+    public IMap GameMap { get; private set; }
+
+    /// <summary>
+    /// All mines.
+    /// </summary>
+    public List<IMine> Mines { get; private set; }
+
+    /// <summary>
     /// When game starts.
     /// </summary>
     private DateTime? _startTime;
@@ -54,22 +64,12 @@ public partial class Game : IGame
     private DateTime? _lastTickTime;
 
     /// <summary>
-    /// The game map.
-    /// </summary>
-    private readonly IMap _map;
-
-    /// <summary>
-    /// All mines.
-    /// </summary>
-    private readonly List<IMine> _mines;
-
-    /// <summary>
     /// The tick task.
     /// </summary>
     private readonly Task _tickTask;
 
     /// <summary>
-    /// Constructor
+    /// Construct a Game object.
     /// </summary>
     public Game()
     {
@@ -81,21 +81,25 @@ public partial class Game : IGame
         _startTime = null;
         _lastTickTime = null;
 
-        _map = new Map();
+        GameMap = new Map(new IPosition<int>[] { new Position<int>(0, 0), new Position<int>(7, 7) });
 
-        _players = new();
+        Players = new();
 
         //TODO: Set player's initial position and spawnpoint
 
         for (int i = 0; i < 2; i++)
         {
-            _players.Add(new Player(i, 0f, 0f, 0f, 0f));
+            Players.Add(new Player(i, 0f, 0f, 0f, 0f));
         }
+        Players[0] = new Player(0, 0.4f, 0.4f, 0.4f, 0.4f);
+        Players[1] = new Player(1, 7.4f, 7.4f, 7.4f, 7.4f);
+
         _playerLastAttackTime = new();
         for (int i = 0; i < 2; i++)
         {
             _playerLastAttackTime.Add(DateTime.Now - TimeSpan.FromSeconds(20));
         }
+
         _playerDeathTime = new();
         for (int i = 0; i < 2; i++)
         {
@@ -104,14 +108,16 @@ public partial class Game : IGame
 
         for (int i = 0; i < 2; i++)
         {
-            _players[i].OnMove += HandlePlayerMoveEvent;
-            _players[i].OnAttack += HandlePlayerAttackEvent;
-            _players[i].OnPlace += HandlePlayerPlaceEvent;
-            _players[i].OnDie += HandlePlayerDieEvent;
+            Players[i].OnMove += HandlePlayerMoveEvent;
+            Players[i].OnAttack += HandlePlayerAttackEvent;
+            Players[i].OnPlace += HandlePlayerPlaceEvent;
+            Players[i].OnDie += HandlePlayerDieEvent;
         }
 
-        _mines = new();
+        Mines = new();
         GenerateMines();
+
+        _allBedsDestroyed = false;
 
         _tickTask = new(Tick);
     }
@@ -128,7 +134,7 @@ public partial class Game : IGame
 
         //TODO: Start game after all players are ready
 
-        foreach (Mine mine in _mines)
+        foreach (Mine mine in Mines)
         {
             mine.GenerateOre();
         }
@@ -151,6 +157,8 @@ public partial class Game : IGame
         _startTime = initTime;
         _lastTickTime = initTime;
         ElapsedTime = TimeSpan.FromSeconds(0);
+
+        _allBedsDestroyed = false;
 
         _tickTask.Start();
 
@@ -185,7 +193,12 @@ public partial class Game : IGame
 
             ElapsedTime = TimeSpan.FromSeconds(0);
             CurrentTick = 0;
+
+            _allBedsDestroyed = false;
+
+            Serilog.Log.Information("Game stopped.");
         }
+
         _tickTask.Wait();
     }
 
@@ -208,14 +221,23 @@ public partial class Game : IGame
                     DateTime currentTime = DateTime.Now;
                     ElapsedTime = currentTime - (DateTime)_startTime;
 
-                    Update();
-
-                    //TODO: Destroy all beds when battling
-
                     if (CurrentStage == IGame.Stage.Finished)
                     {
                         Stop();
                     }
+
+                    //TODO: Deal damage every second when battling
+
+                    if (CurrentStage == IGame.Stage.Battling && _allBedsDestroyed == false)
+                    {
+                        for (int i = 0; i < 2; i++)
+                        {
+                            Players[i].DestroyBed();
+                        }
+                        _allBedsDestroyed = true;
+                    }
+
+                    Update();
 
                     if (currentTime - _lastTickTime >= TickInterval)
                     {
@@ -299,17 +321,37 @@ public partial class Game : IGame
     {
         for (int i = 0; i < 2; i++)
         {
-            //TODO: Break a player's bed if the chunk is void
-
-            if (_players[i].IsAlive == true && IsValidPosition(
-                ToIntPosition(_players[i].PlayerPosition)) == false)
+            if (Players[i].HasBed == true
+                && GameMap.GetChunkAt(ToIntPosition(Players[i].SpawnPoint)).IsVoid == true)
             {
-                _players[i].Hurt(InstantDeathDamage);
+                Players[i].DestroyBed();
             }
-            else if (_players[i].IsAlive == true && _map.GetChunkAt(
-                ToIntPosition(_players[i].PlayerPosition)).IsVoid == true)
+
+            /// <remarks>
+            /// Now Spawn() doesn't set a Player's Health to MaxHealth.
+            /// But there is no other way to heal a Player.
+            /// Waiting for resolving this issue.
+            /// </remarks>
+            if (Players[i].IsAlive == false && Players[i].HasBed == true
+                && DateTime.Now - _playerDeathTime[i] > RespawnTimeInterval
+                && IsSamePosition(
+                    ToIntPosition(Players[i].PlayerPosition), ToIntPosition(Players[i].SpawnPoint)
+                    ) == true)
             {
-                _players[i].Hurt(InstantDeathDamage);
+                Players[i].Spawn(Players[i].MaxHealth);
+                _playerDeathTime[i] = null;
+
+            }
+
+            if (Players[i].IsAlive == true && IsValidPosition(
+                ToIntPosition(Players[i].PlayerPosition)) == false)
+            {
+                Players[i].Hurt(InstantDeathDamage);
+            }
+            else if (Players[i].IsAlive == true && GameMap.GetChunkAt(
+                ToIntPosition(Players[i].PlayerPosition)).IsVoid == true)
+            {
+                Players[i].Hurt(InstantDeathDamage);
             }
         }
     }
@@ -320,15 +362,39 @@ public partial class Game : IGame
     private void UpdateMines()
     {
         DateTime currentTime = DateTime.Now;
-        foreach (Mine mine in _mines)
+        foreach (Mine mine in Mines)
         {
             if (currentTime - mine.LastOreGeneratedTime >= mine.AccumulateOreInterval)
             {
                 mine.GenerateOre();
             }
-        }
+            for (int i = 0; i < 2; i++)
+            {
+                if (Players[i].IsAlive == true
+                    && IsSamePosition(
+                        ToIntPosition(Players[i].PlayerPosition), ToIntPosition(mine.Position)
+                        ) == true)
+                {
+                    //Remaining capacity of a player
+                    int capacity = MaximumItemCount - Players[i].EmeraldCount;
 
-        //TODO: Update AccumulatedOreCount when a player collects ore
+                    //Value of an ore
+                    int value = mine.OreKind switch
+                    {
+                        IMine.OreKindType.IronIngot => 1,
+                        IMine.OreKindType.GoldIngot => 4,
+                        IMine.OreKindType.Diamond => 16,
+                        _ => throw new ArgumentOutOfRangeException(nameof(mine.OreKind), "No such ore kind.")
+                    };
+
+                    //Collected ore count
+                    int collectedOre = Math.Min(capacity / value, mine.AccumulatedOreCount);
+
+                    Players[i].EmeraldAdd(collectedOre * value);
+                    mine.PickUpOre(collectedOre);
+                }
+            }
+        }
     }
 
     /// <summary>
@@ -339,7 +405,7 @@ public partial class Game : IGame
     {
         for (int i = 0; i < 2; i++)
         {
-            if (_players[i].IsAlive == false && _players[i].HasBed == false)
+            if (Players[i].IsAlive == false && Players[i].HasBed == false)
             {
                 return true;
             }
@@ -355,7 +421,7 @@ public partial class Game : IGame
         int remainingPlayers = 0;
         for (int i = 0; i < 2; i++)
         {
-            if (_players[i].IsAlive == true || _players[i].HasBed == true)
+            if (Players[i].IsAlive == true || Players[i].HasBed == true)
             {
                 remainingPlayers++;
             }
@@ -369,9 +435,9 @@ public partial class Game : IGame
         {
             for (int i = 0; i < 2; i++)
             {
-                if (_players[i].IsAlive == true || _players[i].HasBed == true)
+                if (Players[i].IsAlive == true || Players[i].HasBed == true)
                 {
-                    Winner = _players[i];
+                    Winner = Players[i];
                     break;
                 }
             }

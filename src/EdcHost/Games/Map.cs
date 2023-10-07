@@ -37,12 +37,16 @@ public class Map : IMap
     /// <summary>
     /// Constructor
     /// </summary>
-    public Map()
+    public Map(IPosition<int>[] spawnPoints)
     {
         Chunks = new();
         for (int i = 0; i < TotalChunkCount; i++)
         {
-            Chunks.Add(new Chunk(0, new Position<int>(i / 8, i % 8)));
+            Chunks.Add(new Chunk(0, new Position<int>(i / MaxY, i % MaxY)));
+        }
+        foreach (IPosition<int> spawnPoint in spawnPoints)
+        {
+            Chunks[MaxY * spawnPoint.X + spawnPoint.Y] = new Chunk(1, spawnPoint);
         }
     }
 
@@ -57,7 +61,7 @@ public class Map : IMap
         {
             throw new ArgumentException("No such chunk.");
         }
-        return Chunks[8 * position.X + position.Y];
+        return Chunks[MaxY * position.X + position.Y];
     }
 
 }

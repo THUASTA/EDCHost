@@ -31,7 +31,8 @@ public class ViewerServer : IViewerServer
 
     public ViewerServer(int port)
     {
-        _webSocketServer = new WebSocketServer("ws://localhost:" + port)
+        //_webSocketServer = new WebSocketServer("ws://localhost:" + port)
+        _webSocketServer = new WebSocketServer("ws://127.0.0.1:" + port)
         {
             RestartAfterListenError = true
         };
@@ -55,6 +56,10 @@ public class ViewerServer : IViewerServer
         Controller.GetHostConfigurationEvent += (sender, args) => Send(args.Message);
         WebSocketServerStart();
         CompetitionUpdater.StartUpdate();
+        CompetitionUpdater.SendEvent += (sender, args) => Send(args.Message);
+
+        Controller.GetHostConfigurationEvent += (sender, args) => Send(args.Message);
+
         _logger.Information("Server started.");
     }
     /// <summary>

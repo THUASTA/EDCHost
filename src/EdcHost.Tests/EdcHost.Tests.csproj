@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
 
     <IsPackable>false</IsPackable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,9 +25,5 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EdcHost\EdcHost.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="Moq.dll" />
   </ItemGroup>
 </Project>
