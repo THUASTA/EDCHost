@@ -358,11 +358,6 @@ public partial class Game : IGame
                 Players[i].DestroyBed();
             }
 
-            /// <remarks>
-            /// Now Spawn() doesn't set a Player's Health to MaxHealth.
-            /// But there is no other way to heal a Player.
-            /// Waiting for resolving this issue.
-            /// </remarks>
             if (Players[i].IsAlive == false && Players[i].HasBed == true
                 && DateTime.Now - _playerDeathTime[i] > RespawnTimeInterval
                 && IsSamePosition(

@@ -24,11 +24,6 @@ public partial class Game : IGame
                     ToIntPosition(e.Position), ToIntPosition(e.Player.SpawnPoint)
                     ) == true)
             {
-                /// <remarks>
-                /// Now Spawn() doesn't set a Player's Health to MaxHealth.
-                /// But there is no other way to heal a Player.
-                /// Waiting for resolving this issue.
-                /// </remarks>
                 Players[e.Player.PlayerId].Spawn(e.Player.MaxHealth);
                 _playerDeathTime[e.Player.PlayerId] = null;
             }
