@@ -58,7 +58,7 @@ public class GameControllerTests
         var gameController = new GameController();
         var availableCameras = new List<string> { "Camera1", "Camera2" };
         var availablePorts = new List<string> { "COM1", "COM2" };
-        
+
         gameController.SetAvailableDevice(availablePorts.ToArray(), availableCameras.ToArray());
         bool eventRaised = false;
 
@@ -88,7 +88,7 @@ public class GameControllerTests
         var gameController = new GameController();
 
         // Act & Assert
-        Exception exception =Assert.Throws<Exception>(() => gameController.GetHostConfiguration());
-        Assert.Equal("Ports or cameras are not set.",exception.Message);
+        Exception exception = Assert.Throws<Exception>(() => gameController.GetHostConfiguration());
+        Assert.Equal("Ports or cameras are not set.", exception.Message);
     }
 }

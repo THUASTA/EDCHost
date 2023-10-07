@@ -93,10 +93,11 @@ public class PlayerTests
     [InlineData(1)]
     [InlineData(0)]
     [InlineData(int.MaxValue)]
-    public void EmeraldAdd_IncreaseBy(int x){
-        IPlayer player=new Player();
+    public void EmeraldAdd_IncreaseBy(int x)
+    {
+        IPlayer player = new Player();
         player.EmeraldAdd(x);
-        Assert.Equal(x,player.EmeraldCount);
+        Assert.Equal(x, player.EmeraldCount);
     }
 
     [Theory]
@@ -151,29 +152,31 @@ public class PlayerTests
         Assert.True(event_triggered);
     }
     //TODO: wait for implementation of WoolCount adding.
-    
+
     [Theory]
-    [InlineData(0,0)]
-    [InlineData(0.5f,0.5f)]
-    [InlineData(-0.5f,-0.5f)]
-    [InlineData(0.5f,-0.5f)]
-    [InlineData(1.0f/3,1.0f/3)]
-    [InlineData(float.MaxValue,float.MaxValue)]
-    [InlineData(float.MinValue,float.MinValue)]
-    [InlineData(float.MaxValue,float.MinValue)]
-    public void Place_TestPosition_HasWool_EventTriggered(float newX,float newY){
-        IPlayer player=new Player();
+    [InlineData(0, 0)]
+    [InlineData(0.5f, 0.5f)]
+    [InlineData(-0.5f, -0.5f)]
+    [InlineData(0.5f, -0.5f)]
+    [InlineData(1.0f / 3, 1.0f / 3)]
+    [InlineData(float.MaxValue, float.MaxValue)]
+    [InlineData(float.MinValue, float.MinValue)]
+    [InlineData(float.MaxValue, float.MinValue)]
+    public void Place_TestPosition_HasWool_EventTriggered(float newX, float newY)
+    {
+        IPlayer player = new Player();
         player.EmeraldAdd(1);
         player.Trade(IPlayer.CommodityKindType.Wool);
-        bool event_triggered=false;
-        player.OnPlace+=(this_x,args)=>{
-            Assert.Equal(newX,args.Position.X);
-            Assert.Equal(newY,args.Position.Y);
-            Assert.Equal(player,args.Player);
-            Assert.Equal(player,this_x);
-            event_triggered=true;
+        bool event_triggered = false;
+        player.OnPlace += (this_x, args) =>
+        {
+            Assert.Equal(newX, args.Position.X);
+            Assert.Equal(newY, args.Position.Y);
+            Assert.Equal(player, args.Player);
+            Assert.Equal(player, this_x);
+            event_triggered = true;
         };
-        player.Place(newX,newY);
+        player.Place(newX, newY);
         Assert.True(event_triggered);
     }
     [Fact]
@@ -223,8 +226,9 @@ public class PlayerTests
         Assert.False(player.IsAlive);
     }
     [Fact]
-    public void KillandSpawn_HasBed_Alive(){
-        IPlayer player=new Player();
+    public void KillandSpawn_HasBed_Alive()
+    {
+        IPlayer player = new Player();
         player.Hurt(100);
         Assert.Equal(0, player.Health);
         Assert.False(player.IsAlive);
@@ -233,8 +237,9 @@ public class PlayerTests
         Assert.True(player.IsAlive);
     }
     [Fact]
-    public void KillandSpawn_BedDestroyed_NothingHappens(){
-        IPlayer player=new Player();
+    public void KillandSpawn_BedDestroyed_NothingHappens()
+    {
+        IPlayer player = new Player();
         player.DestroyBed();
         player.Hurt(100);
         Assert.Equal(0, player.Health);
@@ -244,13 +249,14 @@ public class PlayerTests
         Assert.False(player.IsAlive);
     }
     [Fact]
-    public void DecreaseWoolCount_DecreaseByOne(){
-        IPlayer player=new Player();
+    public void DecreaseWoolCount_DecreaseByOne()
+    {
+        IPlayer player = new Player();
         player.EmeraldAdd(1);
         player.Trade(IPlayer.CommodityKindType.Wool);
-        Assert.Equal(1,player.WoolCount);
+        Assert.Equal(1, player.WoolCount);
         player.DecreaseWoolCount();
-        Assert.Equal(0,player.WoolCount);
+        Assert.Equal(0, player.WoolCount);
     }
     [Fact]
     public void PerformActionPosition_Attack_CheckEvent()
