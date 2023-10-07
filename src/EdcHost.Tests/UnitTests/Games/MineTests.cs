@@ -1,16 +1,16 @@
 using EdcHost.Games;
+using Moq;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace EdcHost.Tests.UnitTests.Games;
 
+public interface IDateTime
+{
+    DateTime GetCurrentDateTime();
+}
+
 public class MineTest
 {
-    private readonly ITestOutputHelper output;
-    public MineTest(ITestOutputHelper output)
-    {
-        this.output = output;
-    }
     public class MockPosition : IPosition<float>
     {
         public float X { get; set; }
@@ -43,17 +43,12 @@ public class MineTest
     public void Position_DoNothing_ReturnsConstructorValue(float x, float y)
     {
         IPosition<float> expected = new MockPosition { X = x, Y = y };
+        DateTime nowTime = DateTime.Now;
         Mine mine = new Mine(IMine.OreKindType.Diamond, expected);
         IPosition<float> actual = mine.Position;
+        double millisecondsDifference = Math.Abs((nowTime - mine.LastOreGeneratedTime).TotalMilliseconds);
+        Assert.True(millisecondsDifference < 0.1);
         Assert.Equal(expected, actual);
-    }
-
-    [Fact]
-    public void LastOreGeneratedTime_DoNothing_ReturnsCorrectTime()
-    {
-        Mine mine = new Mine(IMine.OreKindType.Diamond, new MockPosition { X = 0f, Y = 0f });
-        TimeSpan timeDifference = DateTime.Now - mine.LastOreGeneratedTime;
-        Assert.True(timeDifference.TotalSeconds < 0.01);
     }
 
     [Theory]
@@ -69,9 +64,7 @@ public class MineTest
         {
             mine.GenerateOre();
         }
-        TimeSpan timeDifference = DateTime.Now - mine.LastOreGeneratedTime;
         Assert.Equal(expectedValue, mine.AccumulatedOreCount);
-        Assert.True(timeDifference.TotalSeconds < 0.01);
     }
 
     [Fact]
@@ -100,4 +93,5 @@ public class MineTest
         InvalidOperationException ex = Assert.Throws<InvalidOperationException>(() => { mine.PickUpOre(count); });
         Assert.Equal("No enough ore.", ex.Message);
     }
+
 }

@@ -123,14 +123,11 @@ public class SlaveServer : ISlaveServer
             if (baudRate == availableRate)
             {
                 _serialPorts[id].BaudRate = baudRate;
-                break;
-            }
-            else
-            {
-                throw new ArgumentException(
-                    "Baud rate must be one of the following: " + string.Join(", ", BaudRateList));
+                return;
             }
         }
+        throw new ArgumentException(
+            "Baud rate must be one of the following: " + string.Join(", ", BaudRateList));
     }
 
     private void SetPortParity(int id, Parity parity)
