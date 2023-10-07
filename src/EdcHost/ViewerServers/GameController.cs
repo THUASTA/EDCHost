@@ -10,7 +10,7 @@ public class GameController : IGameController
     public event EventHandler? ResetGameEvent;
     public event EventHandler<MessageTransferEventArgs>? GetHostConfigurationEvent;
     private List<object>? _availablePorts;
-    private List<object>? _availableCameras;
+    private List<int>? _availableCameras;
 
     /// <summary>
     /// Starts the game.
@@ -57,9 +57,9 @@ public class GameController : IGameController
     /// </summary>
     /// <param name="ports">names of ports. eg: "COM3"</param>
     /// <param name="cameras">names of cameras.</param>
-    public void SetAvailableDevice(string[] ports, string[] cameras)
+    public void SetAvailableDevice(string[] ports, int[] cameras)
     {
         _availablePorts = new List<object>(ports.ToList<object>());
-        _availableCameras = new List<object>(cameras.ToList<object>());
+        _availableCameras = new List<int>(cameras.ToList<int>());
     }
 }

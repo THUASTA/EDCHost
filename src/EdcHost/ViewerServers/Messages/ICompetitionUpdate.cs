@@ -4,10 +4,10 @@ namespace EdcHost.ViewerServers.Messages;
 
 public interface ICompetitionUpdate : IMessage
 {
-    List<object> Cameras { get; }
-    List<object> Chunks { get; }
-    List<object> Events { get; }
-    List<object> Info { get; }
-    List<object> Mines { get; }
-    List<object> Players { get; }
+    public List<object> Cameras { get; }
+    public List<object> Chunks { get; }
+    public List<object> Events { get; }
+    public object Info { get; set; }
+    public List<object> Mines { get; }
+    public List<object> Players { get; }
 }

@@ -9,7 +9,7 @@ public class HostConfigurationFromServer : IHostConfigurationFromServer
     public string MessageType { get; }
 
     [JsonPropertyName("availableCameras")]
-    public List<object> AvailableCameras { get; }
+    public List<int> AvailableCameras { get; }
 
     [JsonPropertyName("availableSerialPorts")]
     public List<object> AvailableSerialPorts { get; }
@@ -20,14 +20,14 @@ public class HostConfigurationFromServer : IHostConfigurationFromServer
     [JsonConstructor]
     public HostConfigurationFromServer(
         string messageType,
-        List<object> availableCameras,
+        List<int> availableCameras,
         List<object> availableSerialPorts,
         string message
     ) => (MessageType, AvailableCameras, AvailableSerialPorts, Message)
         = (messageType, availableCameras, availableSerialPorts, message);
 
     public HostConfigurationFromServer(
-        List<object> availableCameras,
+        List<int> availableCameras,
         List<object> availableSerialPorts,
         string message = "device info"
     ) => (MessageType, AvailableCameras, AvailableSerialPorts, Message)

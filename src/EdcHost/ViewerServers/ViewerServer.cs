@@ -38,11 +38,22 @@ public class ViewerServer : IViewerServer
         };
     }
 
+    public ViewerServer()
+    {
+        _webSocketServer = new WebSocketServer("ws://localhost:11451")
+        {
+            RestartAfterListenError = true
+        };
+    }
+
     /// <summary>
     /// Starts the server.
     /// </summary>
     public void Start()
     {
+        CompetitionUpdater.SendEvent += (sender, args) => Send(args.Message);
+
+        Controller.GetHostConfigurationEvent += (sender, args) => Send(args.Message);
         WebSocketServerStart();
         CompetitionUpdater.StartUpdate();
         CompetitionUpdater.SendEvent += (sender, args) => Send(args.Message);
@@ -253,10 +264,5 @@ public class ViewerServer : IViewerServer
     public void RaiseError(int errorCode, string errorMessage)
     {
         Send(new Error(errorCode, errorMessage));
-    }
-
-    public void SendDeviceInfo(string[] portsInfo, string[] cameraInfo)
-    {
-        Send(new HostConfigurationFromServer(cameraInfo.ToList<object>(), portsInfo.ToList<object>()));
     }
 }

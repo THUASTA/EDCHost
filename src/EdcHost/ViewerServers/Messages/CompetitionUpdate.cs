@@ -19,7 +19,7 @@ public class CompetitionUpdate : ICompetitionUpdate
     public List<object> Events { get; }
 
     [JsonPropertyName("info")]
-    public List<object> Info { get; }
+    public object Info { get; set; }
 
     [JsonPropertyName("mines")]
     public List<object> Mines { get; }
@@ -33,7 +33,7 @@ public class CompetitionUpdate : ICompetitionUpdate
         Cameras = new List<object>();
         Chunks = new List<object>();
         Events = new List<object>();
-        Info = new List<object>();
+        Info = new object();
         Mines = new List<object>();
         Players = new List<object>();
     }
@@ -44,7 +44,7 @@ public class CompetitionUpdate : ICompetitionUpdate
         List<object> cameras,
         List<object> chunks,
         List<object> events,
-        List<object> info,
+        object info,
         List<object> mines,
         List<object> players
     ) => (MessageType, Cameras, Chunks, Events, Info, Mines, Players)
