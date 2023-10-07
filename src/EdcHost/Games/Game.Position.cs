@@ -27,7 +27,7 @@ public partial class Game : IGame
     /// </summary>
     /// <param name="position1">First position</param>
     /// <param name="position2">Second position</param>
-    /// <returns>True if adjacent, false otherwise</returns>
+    /// <returns>True if adjacant, false otherwise</returns>
     private bool IsAdjacent(IPosition<int> position1, IPosition<int> position2)
     {
         return (Math.Abs(position1.X - position2.X) <= 1
