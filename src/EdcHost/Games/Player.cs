@@ -63,7 +63,7 @@ public class Player : IPlayer
             OnDie?.Invoke(this, new PlayerDieEventArgs(this));
         }
     }
-    public void Spawn()
+    public void Spawn(int MaxHealth)
     {
         if (HasBed == true)
         {
