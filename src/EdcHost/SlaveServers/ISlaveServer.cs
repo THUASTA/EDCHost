@@ -19,4 +19,6 @@ public interface ISlaveServer
     /// Stops the server.
     /// </summary>
     public void Stop();
+
+    public void UpdatePacket(int id, IPacket packet);
 }

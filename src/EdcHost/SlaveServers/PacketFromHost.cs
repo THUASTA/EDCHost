@@ -18,6 +18,29 @@ public class PacketFromHost : IPacketFromHost
     public int EmeraldCount { get; }
     public int WoolCount { get; }
 
+    public PacketFromHost(
+        int gameStage, int elapsedTime, List<int> heightOfChunks, bool hasBed,
+        float positionX, float positionY, float positionOpponentX, float positionOpponentY,
+        int agility, int health, int maxHealth, int strength,
+        int emeraldCount, int woolCount
+        )
+    {
+        GameStage = gameStage;
+        ElapsedTime = elapsedTime;
+        HeightOfChunks = new(heightOfChunks);
+        HasBed = hasBed;
+        PositionX = positionX;
+        PositionY = positionY;
+        PositionOpponentX = positionOpponentX;
+        PositionOpponentY = positionOpponentY;
+        Agility = agility;
+        Health = health;
+        MaxHealth = maxHealth;
+        Strength = strength;
+        EmeraldCount = emeraldCount;
+        WoolCount = woolCount;
+    }
+
     public byte[] MakePacket()
     {
         byte[] bytes = new byte[PACKET_LENGTH];

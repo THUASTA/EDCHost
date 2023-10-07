@@ -1,4 +1,5 @@
 using EdcHost.Games;
+using EdcHost.SlaveServers;
 
 namespace EdcHost;
 
@@ -13,21 +14,37 @@ public partial class EdcHost : IEdcHost
     {
         try
         {
-            //TODO: Call UpdatePacket in _slaveServer
-            Serilog.Log.Information($"{e.Game.ElapsedTime} {e.Game.CurrentStage}\n");
+            List<int> heightOfChunks = new();
+            foreach (IChunk chunk in e.Game.GameMap.Chunks)
+            {
+                heightOfChunks.Add(chunk.Height);
+            }
             for (int i = 0; i < 2; i++)
             {
-                Serilog.Log.Information($"Player {e.Game.Players[i].PlayerId} (Has bed: {e.Game.Players[i].HasBed}):");
-                Serilog.Log.Information($"Holding {e.Game.Players[i].WoolCount} wools {e.Game.Players[i].EmeraldCount} emeralds");
-                Serilog.Log.Information($"Position: ({e.Game.Players[i].PlayerPosition.X}, {e.Game.Players[i].PlayerPosition.Y})");
-                Serilog.Log.Information($"Health: {e.Game.Players[i].Health}/{e.Game.Players[i].MaxHealth}");
-                Serilog.Log.Information($"Strength: {e.Game.Players[i].Strength}");
-                Serilog.Log.Information($"Agility: {e.Game.Players[i].ActionPoints}\n");
+                _slaveServer.UpdatePacket(
+                    id: _game.Players[i].PlayerId,
+                    packet: new PacketFromHost(
+                        (int)e.Game.CurrentStage,
+                        (int)e.Game.ElapsedTime.TotalSeconds,
+                        heightOfChunks,
+                        e.Game.Players[i].HasBed,
+                        e.Game.Players[i].PlayerPosition.X,
+                        e.Game.Players[i].PlayerPosition.Y,
+                        e.Game.Players[(i == 0) ? 1 : 0].PlayerPosition.X,
+                        e.Game.Players[(i == 0) ? 1 : 0].PlayerPosition.Y,
+                        e.Game.Players[i].ActionPoints,
+                        e.Game.Players[i].Health,
+                        e.Game.Players[i].MaxHealth,
+                        e.Game.Players[i].Strength,
+                        e.Game.Players[i].EmeraldCount,
+                        e.Game.Players[i].WoolCount
+                    )
+                );
             }
         }
         catch (Exception exception)
         {
-            Serilog.Log.Warning($"An exception is caught when updating game: {exception}");
+            Serilog.Log.Warning($"An exception is caught when updating packet: {exception}");
         }
     }
 
