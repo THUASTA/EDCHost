@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using EdcHost.Games;
 using Xunit;
 
@@ -8,6 +9,27 @@ public class PlayerTests
     const int Expected_MaxHealth = 20;
     const int Expected_Strength = 1;
     const int Expected_Initial_ActionPoints = 1;
+
+    [Fact]
+    public void Player_Initialization_DefaultConstructor()
+    {
+        // Arrange & Act
+        Player player = new Player();
+
+        // Assert
+        Assert.Equal(1, player.PlayerId);
+        Assert.Equal(0, player.EmeraldCount);
+        Assert.True(player.IsAlive);
+        Assert.True(player.HasBed);
+        Assert.NotNull(player.SpawnPoint);
+        Assert.NotNull(player.PlayerPosition);
+        Assert.Equal(0, player.WoolCount);
+        Assert.Equal(20, player.Health);
+        Assert.Equal(20, player.MaxHealth);
+        Assert.Equal(1, player.Strength);
+        Assert.Equal(1, player.ActionPoints);
+    }
+
     [Theory]
     [InlineData(1)]
     [InlineData(2)]
@@ -68,6 +90,17 @@ public class PlayerTests
     }
 
     [Theory]
+    [InlineData(1)]
+    [InlineData(0)]
+    [InlineData(int.MaxValue)]
+    public void EmeraldAdd_IncreaseBy(int x)
+    {
+        IPlayer player = new Player();
+        player.EmeraldAdd(x);
+        Assert.Equal(x, player.EmeraldCount);
+    }
+
+    [Theory]
     [InlineData(0, 0)]
     [InlineData(0.5f, 0.5f)]
     [InlineData(-0.5f, -0.5f)]
@@ -119,31 +152,33 @@ public class PlayerTests
         Assert.True(event_triggered);
     }
     //TODO: wait for implementation of WoolCount adding.
-    /*
+
     [Theory]
-    [InlineData(0,0)]
-    [InlineData(0.5f,0.5f)]
-    [InlineData(-0.5f,-0.5f)]
-    [InlineData(0.5f,-0.5f)]
-    [InlineData(1.0f/3,1.0f/3)]
-    [InlineData(float.MaxValue,float.MaxValue)]
-    [InlineData(float.MinValue,float.MinValue)]
-    [InlineData(float.MaxValue,float.MinValue)]
-    public void Place_TestPosition_HasWool_EventTriggered(float newX,float newY){
-        IPlayer player=new Player();
-        //TODO: ADD the WoolCount of the player
-        //
-        bool event_triggered=false;
-        player.OnPlace+=(this_x,args)=>{
-            Assert.Equal(newX,args.Position.X);
-            Assert.Equal(newY,args.Position.Y);
-            Assert.Equal(player,args.Player);
-            Assert.Equal(player,this_x);
-            event_triggered=true;
+    [InlineData(0, 0)]
+    [InlineData(0.5f, 0.5f)]
+    [InlineData(-0.5f, -0.5f)]
+    [InlineData(0.5f, -0.5f)]
+    [InlineData(1.0f / 3, 1.0f / 3)]
+    [InlineData(float.MaxValue, float.MaxValue)]
+    [InlineData(float.MinValue, float.MinValue)]
+    [InlineData(float.MaxValue, float.MinValue)]
+    public void Place_TestPosition_HasWool_EventTriggered(float newX, float newY)
+    {
+        IPlayer player = new Player();
+        player.EmeraldAdd(1);
+        player.Trade(IPlayer.CommodityKindType.Wool);
+        bool event_triggered = false;
+        player.OnPlace += (this_x, args) =>
+        {
+            Assert.Equal(newX, args.Position.X);
+            Assert.Equal(newY, args.Position.Y);
+            Assert.Equal(player, args.Player);
+            Assert.Equal(player, this_x);
+            event_triggered = true;
         };
-        player.Place(newX,newY);
+        player.Place(newX, newY);
         Assert.True(event_triggered);
-    }*/
+    }
     [Fact]
     public void Place_NoWool_EventNotTriggered()
     {
@@ -190,7 +225,39 @@ public class PlayerTests
         Assert.True(event_triggered);
         Assert.False(player.IsAlive);
     }
-    //TODO: TEST PerformActionPosition
+    [Fact]
+    public void KillandSpawn_HasBed_Alive()
+    {
+        IPlayer player = new Player();
+        player.Hurt(100);
+        Assert.Equal(0, player.Health);
+        Assert.False(player.IsAlive);
+        player.Spawn(player.MaxHealth);
+        Assert.Equal(Expected_MaxHealth, player.Health);
+        Assert.True(player.IsAlive);
+    }
+    [Fact]
+    public void KillandSpawn_BedDestroyed_NothingHappens()
+    {
+        IPlayer player = new Player();
+        player.DestroyBed();
+        player.Hurt(100);
+        Assert.Equal(0, player.Health);
+        Assert.False(player.IsAlive);
+        player.Spawn(player.MaxHealth);
+        Assert.Equal(0, player.Health);
+        Assert.False(player.IsAlive);
+    }
+    [Fact]
+    public void DecreaseWoolCount_DecreaseByOne()
+    {
+        IPlayer player = new Player();
+        player.EmeraldAdd(1);
+        player.Trade(IPlayer.CommodityKindType.Wool);
+        Assert.Equal(1, player.WoolCount);
+        player.DecreaseWoolCount();
+        Assert.Equal(0, player.WoolCount);
+    }
     [Fact]
     public void PerformActionPosition_Attack_CheckEvent()
     {
@@ -214,7 +281,115 @@ public class PlayerTests
         };
         player.PerformActionPosition(IPlayer.ActionKindType.PlaceBlock, 0, 0);
         Assert.False(event_triggered);
-        //TODO: Add WoolCount and try again
+
+        player.EmeraldAdd(1);
+        player.Trade(IPlayer.CommodityKindType.Wool);
+        player.PerformActionPosition(IPlayer.ActionKindType.PlaceBlock, 0, 0);
+        Assert.True(event_triggered);
     }
     //TODO: TEST Trade
+    [Fact]
+    public void Trade_AgilityBoost_CommodityKindType()
+    {
+        // Arrange
+        IPlayer player = new Player();
+        player.EmeraldAdd(8);
+
+        // Act
+        bool result = player.Trade(IPlayer.CommodityKindType.AgilityBoost);
+
+        // Assert
+        Assert.True(result);
+        Assert.Equal(6, player.EmeraldCount);
+        Assert.Equal(2, player.ActionPoints);
+
+        // Act
+        result = player.Trade(IPlayer.CommodityKindType.AgilityBoost);
+
+        // Assert
+        Assert.True(result);
+        Assert.Equal(2, player.EmeraldCount);
+        Assert.Equal(3, player.ActionPoints);
+
+        // Act
+        result = player.Trade(IPlayer.CommodityKindType.AgilityBoost);
+
+        // Assert
+        Assert.False(result);
+        Assert.Equal(2, player.EmeraldCount);
+        Assert.Equal(3, player.ActionPoints);
+    }
+
+    [Fact]
+    public void Trade_HealthBoost_CommodityKindType()
+    {
+        // Arrange
+        IPlayer player = new Player();
+        player.EmeraldAdd(4);
+
+        // Act
+        bool result = player.Trade(IPlayer.CommodityKindType.HealthBoost);
+
+        // Assert
+        Assert.True(result);
+        Assert.Equal(3, player.EmeraldCount);
+        Assert.Equal(21, player.MaxHealth);
+
+        // Act
+        result = player.Trade(IPlayer.CommodityKindType.HealthBoost);
+
+        // Assert
+        Assert.True(result);
+        Assert.Equal(1, player.EmeraldCount);
+        Assert.Equal(22, player.MaxHealth);
+
+        // Act
+        result = player.Trade(IPlayer.CommodityKindType.HealthBoost);
+
+        // Assert
+        Assert.False(result);
+        Assert.Equal(1, player.EmeraldCount);
+        Assert.Equal(22, player.MaxHealth);
+    }
+
+    [Fact]
+    public void Trade_HealthPotion_CommodityKindType()
+    {
+        // Arrange
+        IPlayer player = new Player();
+        player.EmeraldAdd(5);
+        player.Hurt(10);
+
+        // Act
+        bool result = player.Trade(IPlayer.CommodityKindType.HealthPotion);
+
+        // Assert
+        Assert.True(result);
+        Assert.Equal(1, player.EmeraldCount);
+        Assert.Equal(11, player.Health);
+
+        // Act
+        result = player.Trade(IPlayer.CommodityKindType.HealthPotion);
+
+        // Assert
+        Assert.False(result);
+        Assert.Equal(1, player.EmeraldCount);
+        Assert.Equal(11, player.Health);
+    }
+
+    [Fact]
+    public void Trade_UnknownCommodityKindType()
+    {
+        // Arrange
+        IPlayer player = new Player();
+        player.EmeraldAdd(10);
+
+        // Act
+        bool result = player.Trade((IPlayer.CommodityKindType)99); // Unknown commodity kind
+
+        // Assert
+        Assert.False(result);
+        Assert.Equal(10, player.EmeraldCount); // Emerald count remains unchanged
+    }
+    //
 }

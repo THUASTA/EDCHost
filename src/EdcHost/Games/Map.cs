@@ -44,7 +44,7 @@ public class Map : IMap
         {
             Chunks.Add(new Chunk(0, new Position<int>(i / MaxY, i % MaxY)));
         }
-        foreach (Position<int> spawnPoint in spawnPoints)
+        foreach (IPosition<int> spawnPoint in spawnPoints)
         {
             Chunks[MaxY * spawnPoint.X + spawnPoint.Y] = new Chunk(1, spawnPoint);
         }
