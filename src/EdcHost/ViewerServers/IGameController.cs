@@ -30,5 +30,5 @@ public interface IGameController
     /// </summary>
     /// <param name="ports">names of ports. eg: "COM3"</param>
     /// <param name="cameras">names of cameras.</param>
-    public void SetAvailableDevices(string[] ports, int[] cameras);
+    public void SetAvailableDevice(string[] ports, int[] cameras);
 }
