@@ -56,7 +56,7 @@ public class GameControllerTests
     {
         // Arrange
         var gameController = new GameController();
-        var availableCameras = new List<string> { "Camera1", "Camera2" };
+        var availableCameras = new List<int> { 1,2,3,4,5 };
         var availablePorts = new List<string> { "COM1", "COM2" };
 
         gameController.SetAvailableDevice(availablePorts.ToArray(), availableCameras.ToArray());
