@@ -21,12 +21,6 @@ public interface IViewerServer
     /// </summary>
     public void Stop();
     /// <summary>
-    /// Sends the device information to the viewer.
-    /// </summary>
-    /// <param name="portsInfo"></param>
-    /// <param name="camerasInfo"></param>
-    public void SendDeviceInfo(string[] portsInfo, string[] camerasInfo);
-    /// <summary>
     /// Raise an error to the viewer.
     /// </summary>
     /// <param name="errorCode"></param>

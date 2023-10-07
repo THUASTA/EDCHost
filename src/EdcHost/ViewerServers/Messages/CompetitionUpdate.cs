@@ -19,7 +19,7 @@ public class CompetitionUpdate : ICompetitionUpdate
     public List<object> Events { get; }
 
     [JsonPropertyName("info")]
-    public List<object> Info { get; }
+    public object Info { get; set; }
 
     [JsonPropertyName("mines")]
     public List<object> Mines { get; }

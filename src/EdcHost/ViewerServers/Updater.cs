@@ -21,7 +21,7 @@ public class Updater : IUpdater
         {
             while (_isRunning)
             {
-                Task.Delay(47).Wait();
+                Task.Delay(50).Wait();
 
                 if (!ReadyToSend())
                     continue;
@@ -38,7 +38,7 @@ public class Updater : IUpdater
         _sendThread.Start();
     }
 
-    public void Clear()
+    private void Clear()
     {
         CachedMessage = new CompetitionUpdate();
         _playerUpdate = false;
@@ -48,7 +48,7 @@ public class Updater : IUpdater
         _infoUpdate = false;
     }
 
-    public bool ReadyToSend()
+    private bool ReadyToSend()
     {
         return _playerUpdate && _cameraUpdate && _chunkUpdate && _mineUpdate && _infoUpdate;
     }
@@ -81,17 +81,13 @@ public class Updater : IUpdater
         _playerUpdate = true;
     }
 
-    public void UpdateInfo(object[]? infos)
+    public void UpdateInfo(object? info)
     {
-        if (infos == null)
+        if (info == null)
         {
             return;
         }
-        CachedMessage.Info.Clear();
-        foreach (object info in infos)
-        {
-            CachedMessage.Info.Add(info);
-        }
+        CachedMessage.Info = info;
         _infoUpdate = true;
     }
 
