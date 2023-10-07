@@ -235,6 +235,7 @@ public partial class Game : IGame
                     if (CurrentStage == IGame.Stage.Finished)
                     {
                         Judge();
+                        break;
                     }
 
                     if (CurrentStage == IGame.Stage.Battling)
