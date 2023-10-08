@@ -31,7 +31,7 @@ public class HostConfigurationFromServer : IHostConfigurationFromServer
         List<object> availableSerialPorts,
         string message = "device info"
     ) => (MessageType, AvailableCameras, AvailableSerialPorts, Message)
-        = (new string("HOST_CONFIGURATION_FROM_SERVER"), availableCameras, availableSerialPorts, message);
+        = ("HOST_CONFIGURATION_FROM_SERVER", availableCameras, availableSerialPorts, message);
 
     public byte[] SerializeToUtf8Bytes() => JsonSerializer.SerializeToUtf8Bytes(this);
 
