@@ -3,9 +3,14 @@ namespace EdcHost.Games;
 public partial class Game : IGame
 {
     /// <summary>
+    /// Number of players.
+    /// </summary>
+    public const int PlayerNum = 2;
+
+    /// <summary>
     /// Maximum count of same type of items a player can hold.
     /// </summary>
-    private const int MaximumItemCount = 64;
+    public const int MaximumItemCount = 64;
 
     /// <summary>
     /// The damage which will kill a player instantly.
@@ -68,8 +73,7 @@ public partial class Game : IGame
     /// <returns>Opponent of the player</returns>
     private IPlayer Opponent(IPlayer player)
     {
-        //0^1=1, 1^1=0, 0^0=0
-        return Players[player.PlayerId ^ 1];
+        return Players[(player.PlayerId == 0) ? 1 : 0];
     }
 
 }

@@ -6,22 +6,142 @@ namespace EdcHost;
 
 public partial class EdcHost : IEdcHost
 {
-    /// <remarks>
-    /// These handlers handle events about players.
-    /// To implement, call functions in _game.Players[playerId].
-    /// </remarks>
     private void HandlePlayerTryAttackEvent(object? sender, PlayerTryAttackEventArgs e)
     {
-        //TODO: Implement
+        try
+        {
+            IPosition<float> current = _game.Players[e.PlayerId].PlayerPosition;
+            IPosition<float>? target = null;
+            switch ((Directions)e.TargetChunk)
+            {
+                case Directions.Up:
+                    target = new Position<float>(current.X, current.Y + 1.0f);
+                    _game.Players[e.PlayerId].Attack(target.X, target.Y);
+                    break;
+
+                case Directions.Down:
+                    target = new Position<float>(current.X, current.Y - 1.0f);
+                    _game.Players[e.PlayerId].Attack(target.X, target.Y);
+                    break;
+
+                case Directions.Left:
+                    target = new Position<float>(current.X - 1.0f, current.Y);
+                    _game.Players[e.PlayerId].Attack(target.X, target.Y);
+                    break;
+
+                case Directions.Right:
+                    target = new Position<float>(current.X + 1.0f, current.Y);
+                    _game.Players[e.PlayerId].Attack(target.X, target.Y);
+                    break;
+
+                case Directions.UpLeft:
+                    target = new Position<float>(current.X - 1.0f, current.Y + 1.0f);
+                    _game.Players[e.PlayerId].Attack(target.X, target.Y);
+                    break;
+
+                case Directions.UpRight:
+                    target = new Position<float>(current.X + 1.0f, current.Y + 1.0f);
+                    _game.Players[e.PlayerId].Attack(target.X, target.Y);
+                    break;
+
+                case Directions.DownLeft:
+                    target = new Position<float>(current.X - 1.0f, current.Y - 1.0f);
+                    _game.Players[e.PlayerId].Attack(target.X, target.Y);
+                    break;
+
+                case Directions.DownRight:
+                    target = new Position<float>(current.X + 1.0f, current.Y - 1.0f);
+                    _game.Players[e.PlayerId].Attack(target.X, target.Y);
+                    break;
+
+                default:
+                    Serilog.Log.Warning(@$"Failed to convert {e.TargetChunk} to a chunk.
+                    Action rejeccted.");
+                    break;
+            }
+        }
+        catch (Exception exception)
+        {
+            Serilog.Log.Warning($"Action failed: {exception}");
+        }
     }
 
     private void HandlePlayerTryUseEvent(object? sender, PlayerTryUseEventArgs e)
     {
-        //TODO: Implement
+        try
+        {
+            IPosition<float> current = _game.Players[e.PlayerId].PlayerPosition;
+            IPosition<float>? target = null;
+            switch ((Directions)e.TargetChunk)
+            {
+                case Directions.Up:
+                    target = new Position<float>(current.X, current.Y + 1.0f);
+                    _game.Players[e.PlayerId].Place(target.X, target.Y);
+                    break;
+
+                case Directions.Down:
+                    target = new Position<float>(current.X, current.Y - 1.0f);
+                    _game.Players[e.PlayerId].Place(target.X, target.Y);
+                    break;
+
+                case Directions.Left:
+                    target = new Position<float>(current.X - 1.0f, current.Y);
+                    _game.Players[e.PlayerId].Place(target.X, target.Y);
+                    break;
+
+                case Directions.Right:
+                    target = new Position<float>(current.X + 1.0f, current.Y);
+                    _game.Players[e.PlayerId].Place(target.X, target.Y);
+                    break;
+
+                case Directions.UpLeft:
+                    target = new Position<float>(current.X - 1.0f, current.Y + 1.0f);
+                    _game.Players[e.PlayerId].Place(target.X, target.Y);
+                    break;
+
+                case Directions.UpRight:
+                    target = new Position<float>(current.X + 1.0f, current.Y + 1.0f);
+                    _game.Players[e.PlayerId].Place(target.X, target.Y);
+                    break;
+
+                case Directions.DownLeft:
+                    target = new Position<float>(current.X - 1.0f, current.Y - 1.0f);
+                    _game.Players[e.PlayerId].Place(target.X, target.Y);
+                    break;
+
+                case Directions.DownRight:
+                    target = new Position<float>(current.X + 1.0f, current.Y - 1.0f);
+                    _game.Players[e.PlayerId].Place(target.X, target.Y);
+                    break;
+
+                default:
+                    Serilog.Log.Warning(@$"Failed to convert {e.TargetChunk} to a chunk.
+                        Action rejeccted.");
+                    break;
+            }
+        }
+        catch (Exception exception)
+        {
+            Serilog.Log.Warning($"Action failed: {exception}");
+        }
     }
 
     private void HandlePlayerTryTradeEvent(object? sender, PlayerTryTradeEventArgs e)
     {
-        //TODO: Implement
+        try
+        {
+            switch ((ItemList)e.Item)
+            {
+                //TODO: Trade
+
+                default:
+                    Serilog.Log.Warning($"No item with id {e.Item}. Action rejected.");
+                    break;
+            }
+        }
+        catch (Exception exception)
+        {
+            Serilog.Log.Warning($"Action failed: {exception}");
+        }
     }
 }

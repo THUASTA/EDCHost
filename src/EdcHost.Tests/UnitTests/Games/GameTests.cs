@@ -21,9 +21,12 @@ public class GameTest
         Assert.Equal(7, game.GameMap.Chunks[63].Position.Y);
         Assert.Equal(1, game.GameMap.Chunks[63].Height);
         Assert.NotNull(game.Players);
-        Assert.Equal(0, game.Players[0].PlayerId);
-        Assert.Equal(0.4f, game.Players[0].PlayerPosition.X);
-        Assert.Equal(7.4f, game.Players[1].SpawnPoint.Y);
+
+        /// <remarks>
+        /// Now Players is an emply list when constructing.
+        /// Player objects are added after game starts and removed after game ends.
+        /// </remarks>
+
         //TODO:Mine
     }
 

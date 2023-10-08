@@ -8,6 +8,21 @@ namespace EdcHost;
 public partial class EdcHost : IEdcHost
 {
     /// <summary>
+    /// Default serial ports.
+    /// </summary>
+    public readonly string[] DefaultSerialPorts = { "COM1", "COM2" };
+
+    /// <summary>
+    /// Default baud rates.
+    /// </summary>
+    public readonly int[] DefaultBaudRates = { 19200, 19200 };
+
+    /// <summary>
+    /// Default viewer server port.
+    /// </summary>
+    public const int DefaultViewerServerPort = 3001;
+
+    /// <summary>
     /// The game.
     /// </summary>
     private readonly IGame _game;
@@ -36,12 +51,13 @@ public partial class EdcHost : IEdcHost
         {
             Serilog.Log.Fatal("No enough ports.");
         }
+        string[] ports = new string[] { availablePorts[0], availablePorts[1] };
 
         /// <remarks>
         /// Choose ports and baudrates here
         /// </remarks>
-        _slaveServer = new SlaveServer(new string[] { availablePorts[0], availablePorts[1] }, new int[] { 19200, 19200 });
-        _viewerServer = new ViewerServer(3001);
+        _slaveServer = new SlaveServer(ports, DefaultBaudRates);
+        _viewerServer = new ViewerServer(DefaultViewerServerPort);
 
         _game.AfterGameStartEvent += HandleAfterGameStartEvent;
         _game.AfterGameTickEvent += HandleAfterGameTickEvent;
@@ -61,8 +77,11 @@ public partial class EdcHost : IEdcHost
     {
         try
         {
+            Serilog.Log.Information("Starting slave server.");
             _slaveServer.Start();
+            Serilog.Log.Information("Starting game.");
             _game.Start();
+            Serilog.Log.Information("Starting viewer server.");
             _viewerServer.Start();
             Serilog.Log.Information("Host started successfully.");
         }
@@ -76,8 +95,11 @@ public partial class EdcHost : IEdcHost
     {
         try
         {
+            Serilog.Log.Information("Stopping viewer server.");
             _viewerServer.Stop();
+            Serilog.Log.Information("Stopping game.");
             _game.Stop();
+            Serilog.Log.Information("Stopping slave server.");
             _slaveServer.Stop();
             Serilog.Log.Information("Host stopped.");
         }
