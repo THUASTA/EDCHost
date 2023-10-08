@@ -92,18 +92,19 @@ public partial class Game : IGame
         _lastTickTime = null;
         _lastBattlingDamageTime = null;
 
-        GameMap = new Map(new IPosition<int>[] { new Position<int>(0, 0), new Position<int>(7, 7) });
+        IPosition<int>[] spawnPoints = new Position<int>[] { new(0, 0), new(7, 7) };
+        GameMap = new Map(spawnPoints);
 
         Players = new();
 
         _playerLastAttackTime = new();
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < PlayerNum; i++)
         {
             _playerLastAttackTime.Add(DateTime.Now - TimeSpan.FromSeconds(20));
         }
 
         _playerDeathTime = new();
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < PlayerNum; i++)
         {
             _playerDeathTime.Add(null);
         }
@@ -133,7 +134,7 @@ public partial class Game : IGame
         Players.Add(new Player(0, 0.4f, 0.4f, 0.4f, 0.4f));
         Players.Add(new Player(1, 7.4f, 7.4f, 7.4f, 7.4f));
 
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < PlayerNum; i++)
         {
             Players[i].OnMove += HandlePlayerMoveEvent;
             Players[i].OnAttack += HandlePlayerAttackEvent;
@@ -141,12 +142,12 @@ public partial class Game : IGame
             Players[i].OnDie += HandlePlayerDieEvent;
         }
 
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < PlayerNum; i++)
         {
             _playerLastAttackTime[i] = DateTime.Now - TimeSpan.FromSeconds(20);
         }
 
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < PlayerNum; i++)
         {
             _playerDeathTime[i] = null;
         }
@@ -194,12 +195,12 @@ public partial class Game : IGame
 
             Players.Clear();
 
-            for (int i = 0; i < 2; i++)
+            for (int i = 0; i < PlayerNum; i++)
             {
                 _playerLastAttackTime[i] = DateTime.Now - TimeSpan.FromSeconds(20);
             }
 
-            for (int i = 0; i < 2; i++)
+            for (int i = 0; i < PlayerNum; i++)
             {
                 _playerDeathTime[i] = null;
             }
@@ -242,7 +243,7 @@ public partial class Game : IGame
                     {
                         if (_allBedsDestroyed == false)
                         {
-                            for (int i = 0; i < 2; i++)
+                            for (int i = 0; i < PlayerNum; i++)
                             {
                                 Players[i].DestroyBed();
                             }
@@ -252,7 +253,7 @@ public partial class Game : IGame
                         if (_lastBattlingDamageTime is null
                             || DateTime.Now - _lastBattlingDamageTime > BattlingDamageInterval)
                         {
-                            for (int i = 0; i < 2; i++)
+                            for (int i = 0; i < PlayerNum; i++)
                             {
                                 Players[i].Hurt(1);
                             }
@@ -342,7 +343,7 @@ public partial class Game : IGame
     /// </remarks>
     private void UpdatePlayerInfo()
     {
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < PlayerNum; i++)
         {
             if (Players[i].HasBed == true
                 && GameMap.GetChunkAt(ToIntPosition(Players[i].SpawnPoint)).IsVoid == true)
@@ -386,7 +387,7 @@ public partial class Game : IGame
             {
                 mine.GenerateOre();
             }
-            for (int i = 0; i < 2; i++)
+            for (int i = 0; i < PlayerNum; i++)
             {
                 if (Players[i].IsAlive == true
                     && IsSamePosition(
@@ -421,7 +422,7 @@ public partial class Game : IGame
     /// <returns>True if finished, false otherwise.</returns>
     private bool IsFinished()
     {
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < PlayerNum; i++)
         {
             if (Players[i].IsAlive == false && Players[i].HasBed == false)
             {
@@ -437,7 +438,7 @@ public partial class Game : IGame
     private void Judge()
     {
         int remainingPlayers = 0;
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < PlayerNum; i++)
         {
             if (Players[i].IsAlive == true || Players[i].HasBed == true)
             {
@@ -445,13 +446,13 @@ public partial class Game : IGame
             }
         }
 
-        if (remainingPlayers == 0 || remainingPlayers == 2)
+        if (remainingPlayers == 0 || remainingPlayers == PlayerNum)
         {
             Winner = null;
         }
         else
         {
-            for (int i = 0; i < 2; i++)
+            for (int i = 0; i < PlayerNum; i++)
             {
                 if (Players[i].IsAlive == true || Players[i].HasBed == true)
                 {

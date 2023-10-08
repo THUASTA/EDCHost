@@ -51,11 +51,12 @@ public partial class EdcHost : IEdcHost
         {
             Serilog.Log.Fatal("No enough ports.");
         }
+        string[] ports = new string[] { availablePorts[0], availablePorts[1] };
 
         /// <remarks>
         /// Choose ports and baudrates here
         /// </remarks>
-        _slaveServer = new SlaveServer(new string[] { availablePorts[0], availablePorts[1] }, DefaultBaudRates);
+        _slaveServer = new SlaveServer(ports, DefaultBaudRates);
         _viewerServer = new ViewerServer(DefaultViewerServerPort);
 
         _game.AfterGameStartEvent += HandleAfterGameStartEvent;

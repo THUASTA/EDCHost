@@ -19,27 +19,27 @@ public partial class EdcHost : IEdcHost
             {
                 heightOfChunks.Add(chunk.Height);
             }
+            IPacket? packet = null;
+
             for (int i = 0; i < 2; i++)
             {
-                _slaveServer.UpdatePacket(
-                    id: _game.Players[i].PlayerId,
-                    packet: new PacketFromHost(
-                        (int)e.Game.CurrentStage,
-                        (int)e.Game.ElapsedTime.TotalSeconds,
-                        heightOfChunks,
-                        e.Game.Players[i].HasBed,
-                        e.Game.Players[i].PlayerPosition.X,
-                        e.Game.Players[i].PlayerPosition.Y,
-                        e.Game.Players[(i == 0) ? 1 : 0].PlayerPosition.X,
-                        e.Game.Players[(i == 0) ? 1 : 0].PlayerPosition.Y,
-                        e.Game.Players[i].ActionPoints,
-                        e.Game.Players[i].Health,
-                        e.Game.Players[i].MaxHealth,
-                        e.Game.Players[i].Strength,
-                        e.Game.Players[i].EmeraldCount,
-                        e.Game.Players[i].WoolCount
-                    )
+                packet = new PacketFromHost(
+                    (int)e.Game.CurrentStage,
+                    (int)e.Game.ElapsedTime.TotalSeconds,
+                    heightOfChunks,
+                    e.Game.Players[i].HasBed,
+                    e.Game.Players[i].PlayerPosition.X,
+                    e.Game.Players[i].PlayerPosition.Y,
+                    e.Game.Players[(i == 0) ? 1 : 0].PlayerPosition.X,
+                    e.Game.Players[(i == 0) ? 1 : 0].PlayerPosition.Y,
+                    e.Game.Players[i].ActionPoints,
+                    e.Game.Players[i].Health,
+                    e.Game.Players[i].MaxHealth,
+                    e.Game.Players[i].Strength,
+                    e.Game.Players[i].EmeraldCount,
+                    e.Game.Players[i].WoolCount
                 );
+                _slaveServer.UpdatePacket(_game.Players[i].PlayerId, packet);
             }
         }
         catch (Exception exception)
