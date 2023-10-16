@@ -59,7 +59,7 @@ jobs:
 
   deploy-documentation:
     # if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    if: (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/main') && github.event_name == 'push'
+    if: github.event_name == 'push'
     needs: generate-documentation
     permissions:
       id-token: write
@@ -77,16 +77,16 @@ jobs:
           mkdir -p site/api/slave
           mkdir -p site/api/viewer
 
-      - uses: docker://asyncapi/github-action-for-generator
+      - uses: docker://asyncapi/github-action-for-generator:2.1.12
         with:
           filepath: docs/api/slave/asyncapi.yaml
-          template: '@asyncapi/html-template'
+          template: '@asyncapi/html-template@0.28.4'
           output: site/api/slave
 
-      - uses: docker://asyncapi/github-action-for-generator
+      - uses: docker://asyncapi/github-action-for-generator:2.1.12
         with:
           filepath: docs/api/viewer/asyncapi.yaml
-          template: '@asyncapi/html-template'
+          template: '@asyncapi/html-template@0.28.4'
           output: site/api/viewer
 
       - uses: actions/upload-pages-artifact@v2

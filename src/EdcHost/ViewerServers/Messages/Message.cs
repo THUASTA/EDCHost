@@ -5,6 +5,7 @@ namespace EdcHost.ViewerServers.Messages;
 
 public class Message : IMessage
 {
+    [JsonPropertyName("messageType")]
     public string MessageType { get; }
 
     [JsonConstructor]

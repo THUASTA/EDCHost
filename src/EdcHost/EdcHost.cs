@@ -1,63 +1,33 @@
-using System.IO.Ports;
-using EdcHost.Games;
-using EdcHost.SlaveServers;
-using EdcHost.ViewerServers;
+using Serilog;
+
+using EdcHost;
 
 namespace EdcHost;
 
 public partial class EdcHost : IEdcHost
 {
-    /// <summary>
-    /// Default serial ports.
-    /// </summary>
-    public readonly string[] DefaultSerialPorts = { "COM1", "COM2" };
+    private readonly Games.IGame _game;
+    private readonly SlaveServers.ISlaveServer _slaveServer;
+    private readonly ViewerServers.IViewerServer _viewerServer;
 
-    /// <summary>
-    /// Default baud rates.
-    /// </summary>
-    public readonly int[] DefaultBaudRates = { 19200, 19200 };
-
-    /// <summary>
-    /// Default viewer server port.
-    /// </summary>
-    public const int DefaultViewerServerPort = 3001;
-
-    /// <summary>
-    /// The game.
-    /// </summary>
-    private readonly IGame _game;
-
-    /// <summary>
-    /// The slave server.
-    /// </summary>
-    private readonly ISlaveServer _slaveServer;
-
-    /// <summary>
-    /// The viewer server.
-    /// </summary>
-    private readonly IViewerServer _viewerServer;
-
-    public EdcHost()
+    public static IEdcHost Create(EdcHostOptions options)
     {
-        _game = new Game();
+        Games.Game game = new();
+        SlaveServers.SlaveServer slaveServer = new(new string[] { }, new int[] { });
+        ViewerServers.ViewerServer viewerServer = new(options.ServerPort);
 
-        string[] availablePorts = SerialPort.GetPortNames();
-        Serilog.Log.Information("Available ports: ");
-        foreach (string port in availablePorts)
-        {
-            Serilog.Log.Information($"{port}");
-        }
-        if (availablePorts.Length < 2)
-        {
-            Serilog.Log.Fatal("No enough ports.");
-        }
-        string[] ports = new string[] { availablePorts[0], availablePorts[1] };
+        return new EdcHost(
+            game: game,
+            slaveServer: slaveServer,
+            viewerServer: viewerServer
+        );
+    }
 
-        /// <remarks>
-        /// Choose ports and baudrates here
-        /// </remarks>
-        _slaveServer = new SlaveServer(ports, DefaultBaudRates);
-        _viewerServer = new ViewerServer(DefaultViewerServerPort);
+    public EdcHost(Games.IGame game, SlaveServers.ISlaveServer slaveServer, ViewerServers.IViewerServer viewerServer)
+    {
+        _game = game;
+        _slaveServer = slaveServer;
+        _viewerServer = viewerServer;
 
         _game.AfterGameStartEvent += HandleAfterGameStartEvent;
         _game.AfterGameTickEvent += HandleAfterGameTickEvent;
@@ -69,43 +39,55 @@ public partial class EdcHost : IEdcHost
 
         _viewerServer.SetCameraEvent += HandleSetCameraEvent;
         _viewerServer.SetPortEvent += HandleSetPortEvent;
-
-        Start();
     }
 
     public void Start()
     {
+        Log.Information("Starting...");
+
         try
         {
-            Serilog.Log.Information("Starting slave server.");
             _slaveServer.Start();
-            Serilog.Log.Information("Starting game.");
-            _game.Start();
-            Serilog.Log.Information("Starting viewer server.");
-            _viewerServer.Start();
-            Serilog.Log.Information("Host started successfully.");
         }
         catch (Exception e)
         {
-            Serilog.Log.Fatal($"An error occurred when starting host: {e}");
+            Log.Error($"failed to start slave server: {e}");
         }
+
+        try
+        {
+            _viewerServer.Start();
+        }
+        catch (Exception e)
+        {
+            Log.Error($"failed to start viewer server: {e}");
+        }
+
+        Log.Information("Started.");
     }
 
     public void Stop()
     {
+        Log.Information("Stopping...");
+
         try
         {
-            Serilog.Log.Information("Stopping viewer server.");
-            _viewerServer.Stop();
-            Serilog.Log.Information("Stopping game.");
-            _game.Stop();
-            Serilog.Log.Information("Stopping slave server.");
             _slaveServer.Stop();
-            Serilog.Log.Information("Host stopped.");
         }
         catch (Exception e)
         {
-            Serilog.Log.Warning($"Host stopped with exception: {e}");
+            Log.Error($"failed to stop slave server: {e}");
         }
+
+        try
+        {
+            _viewerServer.Stop();
+        }
+        catch (Exception e)
+        {
+            Log.Error($"failed to stop viewer server: {e}");
+        }
+
+        Log.Information("Stopped.");
     }
 }
