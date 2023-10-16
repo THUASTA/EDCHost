@@ -6,19 +6,24 @@ namespace EdcHost.Games;
 public partial class Game : IGame
 {
     /// <summary>
-    /// Time interval between two ticks.
-    /// </summary>
-    private readonly TimeSpan TickInterval = TimeSpan.FromSeconds(0.05d);
-
-    /// <summary>
     /// When will Battling stage start.
     /// </summary>
-    private readonly TimeSpan StartBattlingTime = TimeSpan.FromSeconds(600);
+    public readonly TimeSpan StartBattlingTime = TimeSpan.FromSeconds(600);
 
     /// <summary>
     /// How much time a player should wait until respawn.
     /// </summary>
-    private readonly TimeSpan RespawnTimeInterval = TimeSpan.FromSeconds(15);
+    public readonly TimeSpan RespawnTimeInterval = TimeSpan.FromSeconds(15);
+
+    /// <summary>
+    /// Time interval between two battling damages.
+    /// </summary>
+    public readonly TimeSpan BattlingDamageInterval = TimeSpan.FromSeconds(1);
+
+    /// <summary>
+    /// Time interval between two ticks.
+    /// </summary>
+    private readonly TimeSpan TickInterval = TimeSpan.FromSeconds(0.05d);
 
     /// <summary>
     /// Current stage of the game.
@@ -64,6 +69,11 @@ public partial class Game : IGame
     private DateTime? _lastTickTime;
 
     /// <summary>
+    /// Last time when a battling damage is dealt.
+    /// </summary>
+    private DateTime? _lastBattlingDamageTime;
+
+    /// <summary>
     /// The tick task.
     /// </summary>
     private readonly Task _tickTask;
@@ -80,38 +90,23 @@ public partial class Game : IGame
 
         _startTime = null;
         _lastTickTime = null;
+        _lastBattlingDamageTime = null;
 
-        GameMap = new Map(new IPosition<int>[] { new Position<int>(0, 0), new Position<int>(7, 7) });
+        IPosition<int>[] spawnPoints = new Position<int>[] { new(0, 0), new(7, 7) };
+        GameMap = new Map(spawnPoints);
 
         Players = new();
 
-        //TODO: Set player's initial position and spawnpoint
-
-        for (int i = 0; i < 2; i++)
-        {
-            Players.Add(new Player(i, 0f, 0f, 0f, 0f));
-        }
-        Players[0] = new Player(0, 0.4f, 0.4f, 0.4f, 0.4f);
-        Players[1] = new Player(1, 7.4f, 7.4f, 7.4f, 7.4f);
-
         _playerLastAttackTime = new();
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < PlayerNum; i++)
         {
             _playerLastAttackTime.Add(DateTime.Now - TimeSpan.FromSeconds(20));
         }
 
         _playerDeathTime = new();
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < PlayerNum; i++)
         {
             _playerDeathTime.Add(null);
-        }
-
-        for (int i = 0; i < 2; i++)
-        {
-            Players[i].OnMove += HandlePlayerMoveEvent;
-            Players[i].OnAttack += HandlePlayerAttackEvent;
-            Players[i].OnPlace += HandlePlayerPlaceEvent;
-            Players[i].OnDie += HandlePlayerDieEvent;
         }
 
         Mines = new();
@@ -132,21 +127,36 @@ public partial class Game : IGame
             throw new InvalidOperationException("The game is already started.");
         }
 
-        //TODO: Start game after all players are ready
+        Players.Clear();
 
-        foreach (Mine mine in Mines)
+        //TODO: Set player's initial position and spawnpoint
+
+        Players.Add(new Player(0, 0.4f, 0.4f, 0.4f, 0.4f));
+        Players.Add(new Player(1, 7.4f, 7.4f, 7.4f, 7.4f));
+
+        for (int i = 0; i < PlayerNum; i++)
         {
-            mine.GenerateOre();
+            Players[i].OnMove += HandlePlayerMoveEvent;
+            Players[i].OnAttack += HandlePlayerAttackEvent;
+            Players[i].OnPlace += HandlePlayerPlaceEvent;
+            Players[i].OnDie += HandlePlayerDieEvent;
         }
 
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < PlayerNum; i++)
         {
             _playerLastAttackTime[i] = DateTime.Now - TimeSpan.FromSeconds(20);
         }
 
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < PlayerNum; i++)
         {
             _playerDeathTime[i] = null;
+        }
+
+        //TODO: Start game after all players are ready
+
+        foreach (IMine mine in Mines)
+        {
+            mine.GenerateOre();
         }
 
         CurrentStage = IGame.Stage.Running;
@@ -157,6 +167,8 @@ public partial class Game : IGame
         _startTime = initTime;
         _lastTickTime = initTime;
         ElapsedTime = TimeSpan.FromSeconds(0);
+
+        _lastBattlingDamageTime = null;
 
         _allBedsDestroyed = false;
 
@@ -174,32 +186,37 @@ public partial class Game : IGame
         {
             Serilog.Log.Warning("The game has not started yet.");
         }
+
         lock (this)
         {
-            Judge();
-
             _startTime = null;
             _lastTickTime = null;
+            _lastBattlingDamageTime = null;
 
-            for (int i = 0; i < 2; i++)
+            Players.Clear();
+
+            for (int i = 0; i < PlayerNum; i++)
             {
                 _playerLastAttackTime[i] = DateTime.Now - TimeSpan.FromSeconds(20);
             }
 
-            for (int i = 0; i < 2; i++)
+            for (int i = 0; i < PlayerNum; i++)
             {
                 _playerDeathTime[i] = null;
+            }
+
+            foreach (IMine mine in Mines)
+            {
+                mine.PickUpOre(mine.AccumulatedOreCount);
             }
 
             ElapsedTime = TimeSpan.FromSeconds(0);
             CurrentTick = 0;
 
             _allBedsDestroyed = false;
-
-            Serilog.Log.Information("Game stopped.");
         }
 
-        _tickTask.Wait();
+        Serilog.Log.Information("Game stopped.");
     }
 
     /// <summary>
@@ -207,34 +224,41 @@ public partial class Game : IGame
     /// </summary>
     public void Tick()
     {
-        while (true)
+        while (_startTime is not null)
         {
             try
             {
                 lock (this)
                 {
-                    if (_startTime is null)
-                    {
-                        break;
-                    }
-
                     DateTime currentTime = DateTime.Now;
                     ElapsedTime = currentTime - (DateTime)_startTime;
 
                     if (CurrentStage == IGame.Stage.Finished)
                     {
-                        Stop();
+                        Judge();
+                        break;
                     }
 
-                    //TODO: Deal damage every second when battling
-
-                    if (CurrentStage == IGame.Stage.Battling && _allBedsDestroyed == false)
+                    if (CurrentStage == IGame.Stage.Battling)
                     {
-                        for (int i = 0; i < 2; i++)
+                        if (_allBedsDestroyed == false)
                         {
-                            Players[i].DestroyBed();
+                            for (int i = 0; i < PlayerNum; i++)
+                            {
+                                Players[i].DestroyBed();
+                            }
+                            _allBedsDestroyed = true;
                         }
-                        _allBedsDestroyed = true;
+
+                        if (_lastBattlingDamageTime is null
+                            || DateTime.Now - _lastBattlingDamageTime > BattlingDamageInterval)
+                        {
+                            for (int i = 0; i < PlayerNum; i++)
+                            {
+                                Players[i].Hurt(1);
+                            }
+                            _lastBattlingDamageTime = DateTime.Now;
+                        }
                     }
 
                     Update();
@@ -319,7 +343,7 @@ public partial class Game : IGame
     /// </remarks>
     private void UpdatePlayerInfo()
     {
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < PlayerNum; i++)
         {
             if (Players[i].HasBed == true
                 && GameMap.GetChunkAt(ToIntPosition(Players[i].SpawnPoint)).IsVoid == true)
@@ -327,11 +351,6 @@ public partial class Game : IGame
                 Players[i].DestroyBed();
             }
 
-            /// <remarks>
-            /// Now Spawn() doesn't set a Player's Health to MaxHealth.
-            /// But there is no other way to heal a Player.
-            /// Waiting for resolving this issue.
-            /// </remarks>
             if (Players[i].IsAlive == false && Players[i].HasBed == true
                 && DateTime.Now - _playerDeathTime[i] > RespawnTimeInterval
                 && IsSamePosition(
@@ -362,13 +381,13 @@ public partial class Game : IGame
     private void UpdateMines()
     {
         DateTime currentTime = DateTime.Now;
-        foreach (Mine mine in Mines)
+        foreach (IMine mine in Mines)
         {
             if (currentTime - mine.LastOreGeneratedTime >= mine.AccumulateOreInterval)
             {
                 mine.GenerateOre();
             }
-            for (int i = 0; i < 2; i++)
+            for (int i = 0; i < PlayerNum; i++)
             {
                 if (Players[i].IsAlive == true
                     && IsSamePosition(
@@ -403,7 +422,7 @@ public partial class Game : IGame
     /// <returns>True if finished, false otherwise.</returns>
     private bool IsFinished()
     {
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < PlayerNum; i++)
         {
             if (Players[i].IsAlive == false && Players[i].HasBed == false)
             {
@@ -419,7 +438,7 @@ public partial class Game : IGame
     private void Judge()
     {
         int remainingPlayers = 0;
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < PlayerNum; i++)
         {
             if (Players[i].IsAlive == true || Players[i].HasBed == true)
             {
@@ -427,13 +446,13 @@ public partial class Game : IGame
             }
         }
 
-        if (remainingPlayers == 0 || remainingPlayers == 2)
+        if (remainingPlayers == 0 || remainingPlayers == PlayerNum)
         {
             Winner = null;
         }
         else
         {
-            for (int i = 0; i < 2; i++)
+            for (int i = 0; i < PlayerNum; i++)
             {
                 if (Players[i].IsAlive == true || Players[i].HasBed == true)
                 {

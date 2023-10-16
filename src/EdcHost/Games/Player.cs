@@ -63,13 +63,13 @@ public class Player : IPlayer
             OnDie?.Invoke(this, new PlayerDieEventArgs(this));
         }
     }
-    public void Spawn(int EnemyStrength)
+    public void Spawn(int MaxHealth)
     {
-        /// Implement the logic for being hurt
         if (HasBed == true)
         {
             IsAlive = true;
             Health = MaxHealth;
+            SpawnPoint = PlayerPosition;
         }
     }
     public void DestroyBed()

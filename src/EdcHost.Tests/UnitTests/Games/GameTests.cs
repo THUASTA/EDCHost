@@ -20,11 +20,6 @@ public class GameTest
         Assert.Equal(7, game.GameMap.Chunks[63].Position.X);
         Assert.Equal(7, game.GameMap.Chunks[63].Position.Y);
         Assert.Equal(1, game.GameMap.Chunks[63].Height);
-        Assert.NotNull(game.Players);
-        Assert.Equal(0, game.Players[0].PlayerId);
-        Assert.Equal(0.4f, game.Players[0].PlayerPosition.X);
-        Assert.Equal(7.4f, game.Players[1].SpawnPoint.Y);
-        //TODO:Mine
     }
 
     [Fact]
@@ -35,12 +30,17 @@ public class GameTest
         Assert.Throws<InvalidOperationException>(() => game.Start());
     }
 
-    //Todo:some members doesn't test;
     [Fact]
     public void Start_DoNothing_ReturnsCorrectValue()
     {
         Game game = new Game();
         game.Start();
+        Assert.Equal(0, game.Players[0].PlayerId);
+        Assert.Equal(0.4f, game.Players[0].SpawnPoint.X);
+        Assert.Equal(0.4f, game.Players[0].PlayerPosition.Y);
+        Assert.Equal(1, game.Players[1].PlayerId);
+        Assert.Equal(7.4f, game.Players[1].SpawnPoint.X);
+        Assert.Equal(7.4f, game.Players[1].PlayerPosition.Y);
         Assert.Equal(IGame.Stage.Running, game.CurrentStage);
         Assert.Equal(0, game.CurrentTick);
         Assert.Null(game.Winner);

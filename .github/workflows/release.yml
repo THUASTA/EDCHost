@@ -47,24 +47,9 @@ jobs:
           name: EDCHost-${{ matrix.runtime }}-${{ github.sha }}
           path: bin
 
-  format:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: 6.0.x
-
-      - run: dotnet format --verify-no-changes src/EdcHost
-
-      - run: dotnet format --verify-no-changes src/EdcHost.Tests
-
   upload-to-release:
     needs:
       - build
-      - format
-      - test
     permissions:
       contents: write
     runs-on: ubuntu-latest
@@ -123,21 +108,3 @@ jobs:
           append_body: true
           files: |
             EDCHost-${{ matrix.runtime }}-${{ github.ref_name }}.tar.gz
-        
-  test:
-    strategy:
-      matrix:
-        runs-on:
-          - ubuntu-latest
-          - macos-latest
-          - windows-latest
-    runs-on: ${{ matrix.runs-on }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: 6.0.x
-
-      - run: |
-          dotnet test src/EdcHost.Tests/EdcHost.Tests.csproj

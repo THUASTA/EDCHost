@@ -12,7 +12,7 @@ namespace EdcHost.Tests.UnitTests.ViewerServers.Messages
         {
             // Arrange
             const string expectedMessageType = "HOST_CONFIGURATION_FROM_SERVER";
-            List<object> expectedAvailableCameras = new List<object>();
+            List<int> expectedAvailableCameras = new List<int>();
             List<object> expectedAvailableSerialPorts = new List<object>();
             const string expectedMessage = "device info";
 
@@ -34,7 +34,7 @@ namespace EdcHost.Tests.UnitTests.ViewerServers.Messages
         public void SerializeToUtf8Bytes_Roundtrip()
         {
             // Arrange
-            HostConfigurationFromServer originalConfiguration = new HostConfigurationFromServer(new List<object>(), new List<object>());
+            HostConfigurationFromServer originalConfiguration = new HostConfigurationFromServer(new List<int>(), new List<object>());
             string expectedJson = JsonSerializer.Serialize(originalConfiguration);
 
             // Act
@@ -51,7 +51,7 @@ namespace EdcHost.Tests.UnitTests.ViewerServers.Messages
         public void SerializeToString_Roundtrip()
         {
             // Arrange
-            HostConfigurationFromServer originalConfiguration = new HostConfigurationFromServer(new List<object>(), new List<object>());
+            HostConfigurationFromServer originalConfiguration = new HostConfigurationFromServer(new List<int>(), new List<object>());
             string expectedJson = JsonSerializer.Serialize(originalConfiguration);
 
             // Act
