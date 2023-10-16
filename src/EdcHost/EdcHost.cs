@@ -41,16 +41,34 @@ public partial class EdcHost : IEdcHost
     {
         _game = new Game();
 
-        string[] availablePorts = SerialPort.GetPortNames();
-        Serilog.Log.Information("Available ports: ");
-        foreach (string port in availablePorts)
+        string[] allPorts = SerialPort.GetPortNames();
+        List<string> availablePorts = new();
+        foreach (string port in allPorts)
         {
-            Serilog.Log.Information($"{port}");
+            try
+            {
+                // Try open the port 
+                using (SerialPort serialPort = new SerialPort(port))
+                {
+                    serialPort.Open();
+                }
+
+                // Port is available if the port is opened successfully
+                Serilog.Log.Information($"Port {port} is available.");
+                availablePorts.Add(port);
+            }
+            catch (Exception ex)
+            {
+                // Port is not available if the port cannot be opened 
+                Serilog.Log.Warning($"Port {port} is not available: {ex.Message}");
+            }
         }
-        if (availablePorts.Length < 2)
+
+        if (availablePorts.Count < 2)
         {
-            Serilog.Log.Fatal("No enough ports.");
+            Serilog.Log.Fatal("Not enough available ports.");
         }
+
         string[] ports = new string[] { availablePorts[0], availablePorts[1] };
 
         /// <remarks>
