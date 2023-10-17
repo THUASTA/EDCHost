@@ -51,13 +51,13 @@ public class PacketFromHost : IPacketFromHost
         bytes[2]=Convert.ToByte(ElapsedTime%100/10);     //*10
         bytes[3]=Convert.ToByte(ElapsedTime%1000/100);   //*100
         bytes[4]=Convert.ToByte(ElapsedTime/1000);       //*1000
-        
+
         for(int i=0;i<HeightOfChunks.Count();i++){
         bytes[5+i]=Convert.ToByte(HeightOfChunks);
         }
         bytes[69]=Convert.ToByte(HasBed);
 
-        byte[] temp=BitConverter.GetBytes(PositionX);
+        byte[] temp=BitConverter.GetBytes(PositionX);    //convert float to 4 bytes
         for(int i = 0;i<4;i++){
             bytes[70+i]=temp[i];
         }
@@ -102,7 +102,7 @@ public class PacketFromHost : IPacketFromHost
         for(int i = 0;i<4;i++){
             temp[i]=bytes[70+i];
         }
-        PositionX=BitConverter.ToSingle(temp);
+        PositionX=BitConverter.ToSingle(temp);         //convert 4 bytes to float
         for(int i = 0;i<4;i++){
             temp[i]=bytes[74+i];
         }
