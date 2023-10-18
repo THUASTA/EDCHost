@@ -40,4 +40,4 @@ msbuild.wrn
 
 ## Repository specific ignores
 /site/
-.fake
+.env
