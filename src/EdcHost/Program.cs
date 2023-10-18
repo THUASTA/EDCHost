@@ -5,11 +5,11 @@ using Serilog;
 
 namespace EdcHost;
 
-class Program
+public class Program
 {
     private const int DefaultServerPort = 8080;
 
-    static void Main()
+    public static void Main()
     {
         // Setup logger using default settings before calling dotenv.
         Log.Logger = new LoggerConfiguration()
@@ -29,7 +29,7 @@ class Program
         }
     }
 
-    static List<Tuple<int, int>> ParseMineList(string input)
+    public static List<Tuple<int, int>> ParseMineList(string input)
     {
         List<Tuple<int, int>> mines = new();
         Regex regex = new(@"\((\d+),(\d+)\)");
@@ -43,14 +43,14 @@ class Program
         return mines;
     }
 
-    static void SetupAndRunEdcHost()
+    public static void SetupAndRunEdcHost()
     {
         List<Tuple<int, int>> gameDiamondMines = EnvReader.TryGetStringValue("GAME_DIAMOND_MINES", out string? gameDiamondMinesString) ? ParseMineList(gameDiamondMinesString) : new();
         List<Tuple<int, int>> gameGoldMines = EnvReader.TryGetStringValue("GAME_GOLD_MINES", out string? gameGoldMinesString) ? ParseMineList(gameGoldMinesString) : new();
         List<Tuple<int, int>> gameIronMines = EnvReader.TryGetStringValue("GAME_IRON_MINES", out string? gameIronMinesString) ? ParseMineList(gameIronMinesString) : new();
         int serverPort = EnvReader.TryGetIntValue("SERVER_PORT", out serverPort) ? serverPort : DefaultServerPort;
 
-        IEdcHost edcHost = EdcHost.Create(new EdcHostOptions
+        IEdcHost edcHost = IEdcHost.Create(new EdcHostOptions
         (
             gameDiamondMines: gameDiamondMines,
             gameGoldMines: gameGoldMines,
@@ -59,7 +59,7 @@ class Program
         ));
     }
 
-    static void SetupDotEnv()
+    public static void SetupDotEnv()
     {
         DotEnv.Load(new DotEnvOptions
         (
@@ -67,7 +67,7 @@ class Program
         ));
     }
 
-    static void SetupSerilog()
+    public static void SetupSerilog()
     {
         // Get logging level from environment variables
         if (EnvReader.TryGetStringValue("LOGGING_LEVEL", out string? loggingLevelString) == false)
