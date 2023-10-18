@@ -10,17 +10,25 @@ public class PacketFromSlave : IPacketFromSlave
 
     public byte[] MakePacket()
     {
-        byte[] bytes = new byte[PACKET_LENGTH];
-        // TODO: add a serializer
-        bytes[0]=Convert.ToByte(ActionType);
-        bytes[1]=Convert.ToByte(Param);
+        int datalength = 2;
+        byte[] data = new byte[datalength];
 
+        int currentIndex = 0;
+        data[currentIndex++]=Convert.ToByte(ActionType);
+        data[currentIndex]=Convert.ToByte(Param);
+
+        //add header
+        byte[] header = IPacket.GeneratePacketHeader(data);
+        byte[] bytes = new byte[header.Length + data.Length];
+        header.CopyTo(bytes, 0);
+        data.CopyTo(bytes, header.Length);
         return bytes;
     }
     public void ExtractPacketData(byte[] bytes)
     {
-        //TODO: add a deserializer
-        ActionType=Convert.ToInt32(bytes[0]);
-        Param=Convert.ToInt32(bytes[1]);
+        byte[] data=IPacket.GetPacketData(bytes);
+        int currentIndex = 0;
+        ActionType=Convert.ToInt32(data[currentIndex++]);
+        Param=Convert.ToInt32(data[currentIndex]);
     }
 }
