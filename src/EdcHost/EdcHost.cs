@@ -24,6 +24,9 @@ public partial class EdcHost : IEdcHost
 
         _viewerServer.SetCameraEvent += HandleSetCameraEvent;
         _viewerServer.SetPortEvent += HandleSetPortEvent;
+        _viewerServer.Controller.StartGameEvent += HandleStartGameEvent;
+        _viewerServer.Controller.EndGameEvent += HandleStopGameEvent;
+        _viewerServer.Controller.ResetGameEvent += HandleResetGameEvent;
     }
 
     public void Start()
