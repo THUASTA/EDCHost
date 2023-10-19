@@ -6,7 +6,7 @@ namespace EdcHost.Tests.IntegrationTests;
 public partial class GamesTests
 {
     [Fact]
-    public void StartGame_EndGame()
+    public void Simple()
     {
         IGame.Stage? stage = null;
 
