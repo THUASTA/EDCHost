@@ -132,7 +132,25 @@ public partial class EdcHost : IEdcHost
         {
             switch ((ItemList)e.Item)
             {
-                //TODO: Trade
+                case ItemList.AgilityBoost:
+                    _game.Players[e.PlayerId].Trade(IPlayer.CommodityKindType.AgilityBoost);
+                    break;
+
+                case ItemList.HealthBoost:
+                    _game.Players[e.PlayerId].Trade(IPlayer.CommodityKindType.HealthBoost);
+                    break;
+
+                case ItemList.StrengthBoost:
+                    _game.Players[e.PlayerId].Trade(IPlayer.CommodityKindType.StrengthBoost);
+                    break;
+
+                case ItemList.Wool:
+                    _game.Players[e.PlayerId].Trade(IPlayer.CommodityKindType.Wool);
+                    break;
+
+                case ItemList.HealthPotion:
+                    _game.Players[e.PlayerId].Trade(IPlayer.CommodityKindType.HealthPotion);
+                    break;
 
                 default:
                     Serilog.Log.Warning($"No item with id {e.Item}. Action rejected.");

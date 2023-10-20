@@ -7,7 +7,11 @@ public interface IEdcHost
 {
     public static IEdcHost Create(EdcHostOptions options)
     {
-        Games.Game game = new();
+        Games.Game game = new(
+            diamondMines: options.GameDiamondMines,
+            goldMines: options.GameGoldMines,
+            ironMines: options.GameIronMines
+        );
         SlaveServers.SlaveServer slaveServer = new(new string[] { }, new int[] { });
         ViewerServers.ViewerServer viewerServer = new(options.ServerPort);
 

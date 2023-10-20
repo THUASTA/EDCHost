@@ -41,7 +41,8 @@ public partial class Game : IGame
     private bool _shouldRun = false;
     private readonly Task _tickTask;
 
-    public Game()
+    public Game(List<Tuple<int, int>>? diamondMines,
+        List<Tuple<int, int>>? goldMines, List<Tuple<int, int>>? ironMines)
     {
         IPosition<int>[] spawnPoints = new Position<int>[] { new(0, 0), new(7, 7) };
         GameMap = new Map(spawnPoints);
@@ -61,7 +62,11 @@ public partial class Game : IGame
         }
 
         Mines = new();
-        GenerateMines();
+        GenerateMines(
+            diamondMines: diamondMines,
+            goldMines: goldMines,
+            ironMines: ironMines
+        );
 
         _isAllBedsDestroyed = false;
 
@@ -199,11 +204,6 @@ public partial class Game : IGame
         {
             Serilog.Log.Error($"an error occurred when running the game: {e.Message}");
         }
-    }
-
-    private void GenerateMines()
-    {
-        //TODO: Generate mines according to game rule
     }
 
     private void UpdatePlayerInfo()

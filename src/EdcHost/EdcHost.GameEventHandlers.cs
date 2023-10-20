@@ -59,6 +59,6 @@ public partial class EdcHost : IEdcHost
             Serilog.Log.Information($"Winner is {e.Winner?.PlayerId}");
         }
 
-        _game.Stop();
+        _game.End();
     }
 }

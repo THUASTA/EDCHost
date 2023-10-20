@@ -6,11 +6,18 @@ public partial class EdcHost : IEdcHost
 {
     private void HandleSetPortEvent(object? sender, SetPortEventArgs e)
     {
-        //TODO: Set port name and baud rate
+        try
+        {
+            _slaveServer.SetPortName(e.PlayerId, e.PortName);
+            _slaveServer.SetPortBaudRate(e.PlayerId, e.BaudRate);
 
-        Serilog.Log.Information("[Update]");
-        Serilog.Log.Information($"Player {e.PlayerId}:");
-        Serilog.Log.Information($"Port: {e.PortName} BaudRate: {e.BaudRate}");
+            Serilog.Log.Information("[Update]");
+            Serilog.Log.Information($"Player {e.PlayerId}:");
+            Serilog.Log.Information($"Port: {e.PortName} BaudRate: {e.BaudRate}");
+        }
+        catch (Exception exception) {
+            Serilog.Log.Error($"Failde to set port: {exception}");
+        }
     }
 
     private void HandleSetCameraEvent(object? sender, SetCameraEventArgs e)
@@ -27,7 +34,6 @@ public partial class EdcHost : IEdcHost
         try
         {
             _game.Start();
-            Serilog.Log.Information("Game started.");
         }
         catch (Exception exception)
         {
@@ -35,12 +41,11 @@ public partial class EdcHost : IEdcHost
         }
     }
 
-    private void HandleStopGameEvent(object? sender, EventArgs e)
+    private void HandleEndGameEvent(object? sender, EventArgs e)
     {
         try
         {
-            _game.Stop();
-            Serilog.Log.Information("Game stpped.");
+            _game.End();
         }
         catch (Exception exception)
         {

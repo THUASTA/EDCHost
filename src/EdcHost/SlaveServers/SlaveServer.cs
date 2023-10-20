@@ -103,7 +103,7 @@ public class SlaveServer : ISlaveServer
         }
     }
 
-    private void SetPortName(int id, string portName)
+    public void SetPortName(int id, string portName)
     {
         string[] ports = SerialPort.GetPortNames();
         if (ports.Contains(portName))
@@ -116,7 +116,7 @@ public class SlaveServer : ISlaveServer
         }
     }
 
-    private void SetPortBaudRate(int id, int baudRate)
+    public void SetPortBaudRate(int id, int baudRate)
     {
         foreach (int availableRate in BaudRateList)
         {
