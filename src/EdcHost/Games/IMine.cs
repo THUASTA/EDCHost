@@ -33,12 +33,12 @@ public interface IMine
     /// <summary>
     /// How much time required to generate ore.
     /// </summary>
-    public TimeSpan AccumulateOreInterval { get; }
+    public int AccumulateOreInterval { get; }
 
     /// <summary>
     /// Last time ore generated.
     /// </summary>
-    public DateTime LastOreGeneratedTime { get; }
+    public int LastOreGeneratedTick { get; }
 
     /// <summary>
     /// Picks up some ore.
@@ -49,5 +49,5 @@ public interface IMine
     /// <summary>
     /// Generate ore automaticly.
     /// </summary>
-    public void GenerateOre();
+    public void GenerateOre(int tick);
 }

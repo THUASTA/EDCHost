@@ -13,7 +13,8 @@ public interface IGame
         Ready,
         Running,
         Battling,
-        Finished
+        Finished,
+        Ended,
     }
 
     public event EventHandler<AfterGameStartEventArgs>? AfterGameStartEvent;
@@ -28,7 +29,7 @@ public interface IGame
     /// <summary>
     /// Elapsed time of the game.
     /// </summary>
-    public TimeSpan ElapsedTime { get; }
+    public int ElapsedTicks { get; }
 
     /// <summary>
     /// Winner of the game.
@@ -56,15 +57,10 @@ public interface IGame
     /// <summary>
     /// Starts the game.
     /// </summary>
-    public void Start();
+    public Task Start();
 
     /// <summary>
-    /// Stops the game.
+    /// Ends the game.
     /// </summary>
-    public void Stop();
-
-    /// <summary>
-    /// Ticks the game.
-    /// </summary>
-    public void Tick();
+    public Task End();
 }

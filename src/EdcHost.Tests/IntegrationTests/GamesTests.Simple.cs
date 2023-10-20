@@ -23,7 +23,7 @@ public partial class GamesTests
         Assert.StrictEqual(IGame.Stage.Running, stage);
 
         // Act: Stop the game.
-        game.Stop();
+        game.End();
 
         stage = game.CurrentStage;
         Assert.StrictEqual(IGame.Stage.Finished, stage);
