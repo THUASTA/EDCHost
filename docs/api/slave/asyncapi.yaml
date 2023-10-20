@@ -44,11 +44,11 @@ channels:
                 1: RUNNING
                 2: BATTLING
                 3: FINISHED
-            elapsedTime:
+            elapsedTicks:
               type: integer
               format: int32
               description: |
-                The elapsed time.
+                The elapsed ticks.
             heightOfChunks:
               type: array
               minItems: 64

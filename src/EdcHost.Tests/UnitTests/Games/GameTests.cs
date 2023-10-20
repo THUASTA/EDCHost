@@ -1,5 +1,4 @@
 using EdcHost.Games;
-using Moq;
 using Xunit;
 
 namespace EdcHost.Tests.UnitTests.Games;
@@ -9,7 +8,7 @@ public class GameTest
     [Fact]
     public void Game_DoNothing_PublicMembersCorrectlyInitialized()
     {
-        Game game = new Game();
+        IGame game = IGame.Create();
         Assert.Equal(IGame.Stage.Ready, game.CurrentStage);
         Assert.Null(game.Winner);
         Assert.Equal(0, game.ElapsedTicks);
@@ -22,18 +21,18 @@ public class GameTest
     }
 
     [Fact]
-    public async Task Start_StartedYet_ThrowsCorrectException()
+    public void Start_StartedYet_ThrowsCorrectException()
     {
-        Game game = new();
-        await game.Start();
-        await Assert.ThrowsAsync<InvalidOperationException>(() => game.Start());
+        var game = IGame.Create();
+        game.Start();
+        Assert.Throws<InvalidOperationException>(game.Start);
     }
 
     [Fact]
-    public async Task Start_DoNothing_ReturnsCorrectValue()
+    public void Start_DoNothing_ReturnsCorrectValue()
     {
-        Game game = new Game();
-        await game.Start();
+        var game = IGame.Create();
+        game.Start();
         Assert.Equal(0, game.Players[0].PlayerId);
         Assert.Equal(0.4f, game.Players[0].SpawnPoint.X);
         Assert.Equal(0.4f, game.Players[0].PlayerPosition.Y);
@@ -46,15 +45,15 @@ public class GameTest
     }
 
     [Fact]
-    public async Task Start_AfterGameStartEvent_IsRaised()
+    public void Start_AfterGameStartEvent_IsRaised()
     {
         bool eventReceived = false;
-        Game game = new Game();
+        var game = IGame.Create();
         game.AfterGameStartEvent += (sender, args) =>
         {
             eventReceived = true;
         };
-        await game.Start();
+        game.Start();
         Assert.True(eventReceived);
     }
 }

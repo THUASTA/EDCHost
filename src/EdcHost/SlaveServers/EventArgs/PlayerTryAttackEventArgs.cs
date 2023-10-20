@@ -2,14 +2,13 @@ namespace EdcHost.SlaveServers.EventArgs;
 
 public class PlayerTryAttackEventArgs : System.EventArgs
 {
-    public string EventType { get; }
-    public int PlayerId { get; }
+    public string EventType { get; } = "PLAYER_TRY_ATTACK";
+    public string PortName { get; }
     public int TargetChunk { get; }
 
-    public PlayerTryAttackEventArgs(int playerId, int targetChunk)
+    public PlayerTryAttackEventArgs(string portName, int targetChunk)
     {
-        EventType = new string("PLAYER_TRY_ATTACK");
-        PlayerId = playerId;
+        PortName = portName;
         TargetChunk = targetChunk;
     }
 }

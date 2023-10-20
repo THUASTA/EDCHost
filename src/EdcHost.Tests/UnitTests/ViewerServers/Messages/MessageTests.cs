@@ -7,8 +7,8 @@ namespace EdcHost.Tests.UnitTests.ViewerServers.Messages;
 
 public class MessageTests
 {
-    private const string MessageTypeTest = "testType";
-    private readonly ITestOutputHelper output;
+    const string MessageTypeTest = "testType";
+    readonly ITestOutputHelper output;
     public MessageTests(ITestOutputHelper output)
     {
         this.output = output;

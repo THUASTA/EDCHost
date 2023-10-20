@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using EdcHost.Games;
 using Xunit;
 
@@ -14,7 +13,7 @@ public class PlayerTests
     public void Player_Initialization_DefaultConstructor()
     {
         // Arrange & Act
-        Player player = new Player();
+        IPlayer player = IPlayer.Create();
 
         // Assert
         Assert.Equal(1, player.PlayerId);
@@ -42,7 +41,7 @@ public class PlayerTests
     [InlineData(int.MaxValue)]
     public void IdX_DoNothing_ReturnsConstructorValue(int X)
     {
-        IPlayer player = new Player(X, 0, 0, 0, 0);
+        IPlayer player = IPlayer.Create(X, 0, 0, 0, 0);
         Assert.Equal(X, player.PlayerId);
         Assert.Equal(0, player.EmeraldCount);
         Assert.True(player.IsAlive);
@@ -68,7 +67,7 @@ public class PlayerTests
     [InlineData(float.MaxValue, float.MinValue)]
     public void SpawnPoint_DoNothing_ReturnsConstructorValue(float X, float Y)
     {
-        IPlayer player = new Player(1, X, Y, 0, 0);
+        IPlayer player = IPlayer.Create(1, X, Y, 0, 0);
         Assert.Equal(X, player.SpawnPoint.X);
         Assert.Equal(Y, player.SpawnPoint.Y);
     }
@@ -84,7 +83,7 @@ public class PlayerTests
     [InlineData(float.MaxValue, float.MinValue)]
     public void PlayerPosition_DoNothing_ReturnsConstructorValue(float X, float Y)
     {
-        IPlayer player = new Player(1, 0, 0, X, Y);
+        IPlayer player = IPlayer.Create(1, 0, 0, X, Y);
         Assert.Equal(X, player.PlayerPosition.X);
         Assert.Equal(Y, player.PlayerPosition.Y);
     }
@@ -95,7 +94,7 @@ public class PlayerTests
     [InlineData(int.MaxValue)]
     public void EmeraldAdd_IncreaseBy(int x)
     {
-        IPlayer player = new Player();
+        IPlayer player = IPlayer.Create();
         player.EmeraldAdd(x);
         Assert.Equal(x, player.EmeraldCount);
     }
@@ -111,7 +110,7 @@ public class PlayerTests
     [InlineData(float.MaxValue, float.MinValue)]
     public void Move_ToNewPosition_ReturnsNewCoordinate(float newX, float newY)
     {
-        IPlayer player = new Player();
+        IPlayer player = IPlayer.Create();
         player.OnMove += (this_x, args) =>
         {
             Assert.Equal(0, args.PositionBeforeMovement.X);
@@ -137,7 +136,7 @@ public class PlayerTests
     [InlineData(float.MaxValue, float.MinValue)]
     public void Attack_TestPosition_CheckEvent(float newX, float newY)
     {
-        IPlayer player = new Player();
+        IPlayer player = IPlayer.Create();
         bool event_triggered = false;
         player.OnAttack += (this_x, args) =>
         {
@@ -164,7 +163,7 @@ public class PlayerTests
     [InlineData(float.MaxValue, float.MinValue)]
     public void Place_TestPosition_HasWool_EventTriggered(float newX, float newY)
     {
-        IPlayer player = new Player();
+        IPlayer player = IPlayer.Create();
         player.EmeraldAdd(1);
         player.Trade(IPlayer.CommodityKindType.Wool);
         bool event_triggered = false;
@@ -182,7 +181,7 @@ public class PlayerTests
     [Fact]
     public void Place_NoWool_EventNotTriggered()
     {
-        IPlayer player = new Player();
+        IPlayer player = IPlayer.Create();
         bool event_triggered = false;
         player.OnPlace += (this_x, args) =>
         {
@@ -196,7 +195,7 @@ public class PlayerTests
     [InlineData(19)]
     public void Hurt_LessthanHealth_CheckNewHealth(int EnemyStrength)
     {
-        IPlayer player = new Player();
+        IPlayer player = IPlayer.Create();
         bool event_triggered = false;
         player.OnDie += (this_x, args) =>
         {
@@ -212,7 +211,7 @@ public class PlayerTests
     [InlineData(int.MaxValue)]
     public void Hurt_CoversHealth_PlayerDie(int EnemyStrength)
     {
-        IPlayer player = new Player();
+        IPlayer player = IPlayer.Create();
         bool event_triggered = false;
         player.OnDie += (this_x, args) =>
         {
@@ -228,7 +227,7 @@ public class PlayerTests
     [Fact]
     public void KillandSpawn_HasBed_Alive()
     {
-        IPlayer player = new Player();
+        IPlayer player = IPlayer.Create();
         player.Hurt(100);
         Assert.Equal(0, player.Health);
         Assert.False(player.IsAlive);
@@ -239,7 +238,7 @@ public class PlayerTests
     [Fact]
     public void KillandSpawn_BedDestroyed_NothingHappens()
     {
-        IPlayer player = new Player();
+        IPlayer player = IPlayer.Create();
         player.DestroyBed();
         player.Hurt(100);
         Assert.Equal(0, player.Health);
@@ -251,7 +250,7 @@ public class PlayerTests
     [Fact]
     public void DecreaseWoolCount_DecreaseByOne()
     {
-        IPlayer player = new Player();
+        IPlayer player = IPlayer.Create();
         player.EmeraldAdd(1);
         player.Trade(IPlayer.CommodityKindType.Wool);
         Assert.Equal(1, player.WoolCount);
@@ -261,7 +260,7 @@ public class PlayerTests
     [Fact]
     public void PerformActionPosition_Attack_CheckEvent()
     {
-        IPlayer player = new Player();
+        IPlayer player = IPlayer.Create();
         bool event_triggered = false;
         player.OnAttack += (this_x, args) =>
         {
@@ -273,7 +272,7 @@ public class PlayerTests
     [Fact]
     public void PerformActionPosition_Place_CheckEvent()
     {
-        IPlayer player = new Player();
+        IPlayer player = IPlayer.Create();
         bool event_triggered = false;
         player.OnPlace += (this_x, args) =>
         {
@@ -292,7 +291,7 @@ public class PlayerTests
     public void Trade_AgilityBoost_CommodityKindType()
     {
         // Arrange
-        IPlayer player = new Player();
+        IPlayer player = IPlayer.Create();
         player.EmeraldAdd(8);
 
         // Act
@@ -324,7 +323,7 @@ public class PlayerTests
     public void Trade_HealthBoost_CommodityKindType()
     {
         // Arrange
-        IPlayer player = new Player();
+        IPlayer player = IPlayer.Create();
         player.EmeraldAdd(4);
 
         // Act
@@ -356,7 +355,7 @@ public class PlayerTests
     public void Trade_HealthPotion_CommodityKindType()
     {
         // Arrange
-        IPlayer player = new Player();
+        IPlayer player = IPlayer.Create();
         player.EmeraldAdd(5);
         player.Hurt(10);
 
@@ -381,7 +380,7 @@ public class PlayerTests
     public void Trade_UnknownCommodityKindType()
     {
         // Arrange
-        IPlayer player = new Player();
+        IPlayer player = IPlayer.Create();
         player.EmeraldAdd(10);
 
         // Act

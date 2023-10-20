@@ -5,15 +5,20 @@ namespace EdcHost.Games;
 /// </summary>
 public interface IMap
 {
+    static IMap Create(IPosition<int>[] spawnPoints)
+    {
+        return new Map(spawnPoints);
+    }
+
     /// <summary>
     /// The list of chunks.
     /// </summary>
-    public List<IChunk> Chunks { get; }
+    List<IChunk> Chunks { get; }
 
     /// <summary>
     /// Gets the chunk at the position.
     /// </summary>
     /// <param name="position"></param>
     /// <returns></returns>
-    public IChunk GetChunkAt(IPosition<int> position);
+    IChunk GetChunkAt(IPosition<int> position);
 }

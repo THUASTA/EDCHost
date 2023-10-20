@@ -19,7 +19,7 @@ public class ChunkTests
     [InlineData(7)]
     public void CanPlaceBlock_LessThanMaxHeight_ReturnsTrue(int height)
     {
-        IChunk chunk = new Chunk(height, new MockPosition { X = 0, Y = 0 });
+        IChunk chunk = IChunk.Create(height, new MockPosition { X = 0, Y = 0 });
 
         bool actual = chunk.CanPlaceBlock;
 
@@ -30,7 +30,7 @@ public class ChunkTests
     public void CanPlaceBlock_EqualToMaxHeight_ReturnsFalse()
     {
         int MaxHeight = 8;
-        IChunk chunk = new Chunk(MaxHeight, new MockPosition { X = 0, Y = 0 });
+        IChunk chunk = IChunk.Create(MaxHeight, new MockPosition { X = 0, Y = 0 });
 
         bool actual = chunk.CanPlaceBlock;
 
@@ -45,7 +45,7 @@ public class ChunkTests
     [InlineData(8)]
     public void CanRemoveBlock_MoreThanZero_ReturnsTrue(int height)
     {
-        IChunk chunk = new Chunk(height, new MockPosition { X = 0, Y = 0 });
+        IChunk chunk = IChunk.Create(height, new MockPosition { X = 0, Y = 0 });
 
         bool actual = chunk.CanRemoveBlock;
 
@@ -55,7 +55,7 @@ public class ChunkTests
     [Fact]
     public void CanRemoveBlock_Zero_ReturnsFalse()
     {
-        IChunk chunk = new Chunk(0, new MockPosition { X = 0, Y = 0 });
+        IChunk chunk = IChunk.Create(0, new MockPosition { X = 0, Y = 0 });
 
         bool actual = chunk.CanRemoveBlock;
 
@@ -71,7 +71,7 @@ public class ChunkTests
     [InlineData(8, 8)]
     public void Height_DoNothing_ReturnsConstructorValue(int height, int expectedHeight)
     {
-        IChunk chunk = new Chunk(height, new MockPosition { X = 0, Y = 0 });
+        IChunk chunk = IChunk.Create(height, new MockPosition { X = 0, Y = 0 });
 
         int actual = chunk.Height;
 
@@ -86,7 +86,7 @@ public class ChunkTests
     [InlineData(8)]
     public void IsVoid_MoreThanZero_ReturnsFalse(int height)
     {
-        IChunk chunk = new Chunk(height, new MockPosition { X = 0, Y = 0 });
+        IChunk chunk = IChunk.Create(height, new MockPosition { X = 0, Y = 0 });
 
         bool actual = chunk.IsVoid;
 
@@ -96,7 +96,7 @@ public class ChunkTests
     [Fact]
     public void IsVoid_Zero_ReturnsTrue()
     {
-        IChunk chunk = new Chunk(0, new MockPosition { X = 0, Y = 0 });
+        IChunk chunk = IChunk.Create(0, new MockPosition { X = 0, Y = 0 });
 
         bool actual = chunk.IsVoid;
 
@@ -111,8 +111,8 @@ public class ChunkTests
     [InlineData(int.MaxValue, int.MaxValue)]
     public void Position_DoNothing_ReturnsConstructorValue(int x, int y)
     {
-        IPosition<int> expected = new Position<int>(x, y);
-        IChunk chunk = new Chunk(0, expected);
+        IPosition<int> expected = IPosition<int>.Create(x, y);
+        IChunk chunk = IChunk.Create(0, expected);
 
         IPosition<int> actual = chunk.Position;
 
@@ -127,7 +127,7 @@ public class ChunkTests
     [InlineData(7)]
     public void PlaceBlock_LessThanMaxHeight_IncrementsHeight(int height)
     {
-        IChunk chunk = new Chunk(height, new MockPosition { X = 0, Y = 0 });
+        IChunk chunk = IChunk.Create(height, new MockPosition { X = 0, Y = 0 });
 
         chunk.PlaceBlock();
 
@@ -138,7 +138,7 @@ public class ChunkTests
     public void PlaceBlock_EqualToMaxHeight_ThrowsInvalidOperationException()
     {
         int MaxHeight = 8;
-        IChunk chunk = new Chunk(MaxHeight, new MockPosition { X = 0, Y = 0 });
+        IChunk chunk = IChunk.Create(MaxHeight, new MockPosition { X = 0, Y = 0 });
 
         Assert.Throws<InvalidOperationException>(() => chunk.PlaceBlock());
     }
@@ -151,7 +151,7 @@ public class ChunkTests
     [InlineData(8)]
     public void RemoveBlock_MoreThanZero_DecrementsHeight(int height)
     {
-        IChunk chunk = new Chunk(height, new MockPosition { X = 0, Y = 0 });
+        IChunk chunk = IChunk.Create(height, new MockPosition { X = 0, Y = 0 });
 
         chunk.RemoveBlock();
 
@@ -161,7 +161,7 @@ public class ChunkTests
     [Fact]
     public void RemoveBlock_Zero_ThrowsInvalidOperationException()
     {
-        IChunk chunk = new Chunk(0, new MockPosition { X = 0, Y = 0 });
+        IChunk chunk = IChunk.Create(0, new MockPosition { X = 0, Y = 0 });
 
         Assert.Throws<InvalidOperationException>(() => chunk.RemoveBlock());
     }

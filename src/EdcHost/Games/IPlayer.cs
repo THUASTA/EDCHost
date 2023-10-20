@@ -5,10 +5,15 @@ namespace EdcHost.Games;
 /// </summary>
 public interface IPlayer
 {
+    static IPlayer Create(int id = 1, float initialX = 0, float initialY = 0, float initialX2 = 0, float initialY2 = 0)
+    {
+        return new Player(id, initialX, initialY, initialX2, initialY2);
+    }
+
     /// <summary>
     /// The kind of a commodity.
     /// </summary>
-    public enum CommodityKindType
+    enum CommodityKindType
     {
         AgilityBoost,
         HealthBoost,
@@ -20,7 +25,7 @@ public interface IPlayer
     /// <summary>
     /// The kind of an action.
     /// </summary>
-    public enum ActionKindType
+    enum ActionKindType
     {
         Attack,
         PlaceBlock
@@ -35,54 +40,54 @@ public interface IPlayer
     event EventHandler<PlayerPlaceEventArgs> OnPlace;
     event EventHandler<PlayerDieEventArgs> OnDie;
 
-    public void EmeraldAdd(int count);
-    public void Move(float newX, float newY);
-    public void Attack(float newX, float newY);
-    public void Place(float newX, float newY);
-    public void Hurt(int EnemyStrength);
-    public void Spawn(int MaxHealth);
-    public void DestroyBed();
-    public void DecreaseWoolCount();
+    void EmeraldAdd(int count);
+    void Move(float newX, float newY);
+    void Attack(float newX, float newY);
+    void Place(float newX, float newY);
+    void Hurt(int EnemyStrength);
+    void Spawn(int MaxHealth);
+    void DestroyBed();
+    void DecreaseWoolCount();
     /// <summary>
     /// The Id of  the player 
     /// </summary>
-    public int PlayerId { get; }
+    int PlayerId { get; }
     /// <summary>
     /// The count of emeralds the player has.
     /// </summary>
-    public int EmeraldCount { get; }
+    int EmeraldCount { get; }
     /// <summary>
     /// Whether the player is alive.
     /// </summary>
-    public bool IsAlive { get; }
+    bool IsAlive { get; }
     /// <summary>
     /// Whether the player has a bed.
     /// </summary>
-    public bool HasBed { get; }
+    bool HasBed { get; }
     /// <summary>
     /// The spawn point of the player.
     /// </summary>
-    public IPosition<float> SpawnPoint { get; }
+    IPosition<float> SpawnPoint { get; }
     /// <summary>
     /// The position of the player.
     /// </summary>
-    public IPosition<float> PlayerPosition { get; }
+    IPosition<float> PlayerPosition { get; }
     /// <summary>
     /// The count of wool blocks the player has.
     /// </summary>
-    public int WoolCount { get; }
-    public int Health { get; }
-    public int MaxHealth { get; }
-    public int Strength { get; }
-    public int ActionPoints { get; }
+    int WoolCount { get; }
+    int Health { get; }
+    int MaxHealth { get; }
+    int Strength { get; }
+    int ActionPoints { get; }
     /// <summary>
     /// Performs an action.
     /// </summary>
     /// <param name="actionKind">The action kind.</param>
-    public void PerformActionPosition(IPlayer.ActionKindType actionKind, float X, float Y);
+    void PerformActionPosition(IPlayer.ActionKindType actionKind, float X, float Y);
     /// <summary>
     /// Trades a commodity.
     /// </summary>
     /// <param name="commodityKind">The commodity kind.</param>
-    public bool Trade(CommodityKindType commodityKind);
+    bool Trade(CommodityKindType commodityKind);
 }

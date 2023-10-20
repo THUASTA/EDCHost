@@ -1,13 +1,14 @@
 using System.Diagnostics;
+using Serilog;
 
 namespace EdcHost.Games;
 
 /// <summary>
 /// Game handles the game logic.
 /// </summary>
-public partial class Game : IGame
+partial class Game : IGame
 {
-    private const int TickBattlingModeStart = 12000;
+    const int TickBattlingModeStart = 12000;
     public const int TicksPerSecondExpected = 20;
 
     /// <summary>
@@ -38,12 +39,11 @@ public partial class Game : IGame
     /// </summary>
     public List<IMine> Mines { get; private set; }
 
-    private bool _shouldRun = false;
-    private readonly Task _tickTask;
+    readonly ILogger _logger = Log.Logger.ForContext("Component", "Games");
 
     public Game()
     {
-        IPosition<int>[] spawnPoints = new Position<int>[] { new(0, 0), new(7, 7) };
+        var spawnPoints = new IPosition<int>[] { new Position<int>(0, 0), new Position<int>(7, 7) };
         GameMap = new Map(spawnPoints);
 
         Players = new();
@@ -64,8 +64,6 @@ public partial class Game : IGame
         GenerateMines();
 
         _isAllBedsDestroyed = false;
-
-        _tickTask = new(Run);
 
         Players.Clear();
 
@@ -99,115 +97,89 @@ public partial class Game : IGame
             mine.GenerateOre(ElapsedTicks);
         }
 
-        CurrentStage = IGame.Stage.Running;
         Winner = null;
 
         _isAllBedsDestroyed = false;
     }
 
-    public async Task Start()
+    public void Start()
     {
+        _logger.Information("Starting...");
+
         if (CurrentStage != IGame.Stage.Ready)
         {
             throw new InvalidOperationException("the game has already started");
         }
 
-        _shouldRun = true;
-
-        _tickTask.Start();
-
         CurrentStage = IGame.Stage.Running;
         AfterGameStartEvent?.Invoke(this, new AfterGameStartEventArgs(this));
 
-        // To suppress warning.
-        await Task.Delay(0);
-
-        Serilog.Log.Information("Game started.");
+        _logger.Information("Started.");
     }
 
-    public async Task End()
+    public void End()
     {
-        if (CurrentStage != IGame.Stage.Running || CurrentStage != IGame.Stage.Battling)
+        _logger.Information("Ending...");
+
+        if (CurrentStage != IGame.Stage.Running && CurrentStage != IGame.Stage.Battling)
         {
             throw new InvalidOperationException("the game is not running");
         }
 
-        _shouldRun = false;
-
-        while (!_tickTask.IsCompleted)
-        {
-            await Task.Delay(1000 / TicksPerSecondExpected);
-        }
-
         CurrentStage = IGame.Stage.Ended;
 
-        Serilog.Log.Information("Game stopped.");
+        _logger.Information("Ended.");
     }
 
-    private void Run()
+    public void Tick()
     {
-        try
+        ++ElapsedTicks;
+
+        if (IsFinished())
         {
-            while (_shouldRun)
+            Judge();
+            CurrentStage = IGame.Stage.Finished;
+            return;
+        }
+
+        if (ElapsedTicks > TickBattlingModeStart && CurrentStage == IGame.Stage.Running)
+        {
+            CurrentStage = IGame.Stage.Battling;
+        }
+
+        if (CurrentStage == IGame.Stage.Battling)
+        {
+            if (_isAllBedsDestroyed == false)
             {
-                Debug.Assert(CurrentStage is IGame.Stage.Running || CurrentStage is IGame.Stage.Battling);
-
-
-                lock (this)
+                for (int i = 0; i < PlayerNum; i++)
                 {
-                    ++ElapsedTicks;
+                    Players[i].DestroyBed();
+                }
+                _isAllBedsDestroyed = true;
+            }
 
-                    if (IsFinished())
-                    {
-                        Judge();
-                        break;
-                    }
-
-                    if (ElapsedTicks > TickBattlingModeStart && CurrentStage == IGame.Stage.Running)
-                    {
-                        CurrentStage = IGame.Stage.Battling;
-                    }
-
-                    if (CurrentStage == IGame.Stage.Battling)
-                    {
-                        if (_isAllBedsDestroyed == false)
-                        {
-                            for (int i = 0; i < PlayerNum; i++)
-                            {
-                                Players[i].DestroyBed();
-                            }
-                            _isAllBedsDestroyed = true;
-                        }
-
-                        if ((ElapsedTicks - TickBattlingModeStart) % TicksPerSecondExpected == 0)
-                        {
-                            for (int i = 0; i < PlayerNum; i++)
-                            {
-                                Players[i].Hurt(1);
-                            }
-                        }
-                    }
-
-                    UpdatePlayerInfo();
-                    UpdateMines();
-
-                    AfterGameTickEvent?.Invoke(
-                        this, new AfterGameTickEventArgs(this, ElapsedTicks));
+            if ((ElapsedTicks - TickBattlingModeStart) % TicksPerSecondExpected == 0)
+            {
+                for (int i = 0; i < PlayerNum; i++)
+                {
+                    Players[i].Hurt(1);
                 }
             }
         }
-        catch (Exception e)
-        {
-            Serilog.Log.Error($"an error occurred when running the game: {e.Message}");
-        }
+
+        UpdatePlayerInfo();
+        UpdateMines();
+
+        AfterGameTickEvent?.Invoke(
+            this, new AfterGameTickEventArgs(this, ElapsedTicks));
     }
 
-    private void GenerateMines()
+    void GenerateMines()
     {
         //TODO: Generate mines according to game rule
     }
 
-    private void UpdatePlayerInfo()
+    void UpdatePlayerInfo()
     {
         for (int i = 0; i < PlayerNum; i++)
         {
@@ -244,7 +216,7 @@ public partial class Game : IGame
     /// <summary>
     /// Update mines.
     /// </summary>
-    private void UpdateMines()
+    void UpdateMines()
     {
         foreach (IMine mine in Mines)
         {
@@ -285,7 +257,7 @@ public partial class Game : IGame
     /// Whether the game is finished or not.
     /// </summary>
     /// <returns>True if finished, false otherwise.</returns>
-    private bool IsFinished()
+    bool IsFinished()
     {
         for (int i = 0; i < PlayerNum; i++)
         {
@@ -300,7 +272,7 @@ public partial class Game : IGame
     /// <summary>
     /// Judge the game. Choose a winner or report there is no winner.
     /// </summary>
-    private void Judge()
+    void Judge()
     {
         int remainingPlayers = 0;
         for (int i = 0; i < PlayerNum; i++)

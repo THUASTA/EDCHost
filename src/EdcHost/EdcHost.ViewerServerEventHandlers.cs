@@ -2,19 +2,19 @@ using EdcHost.ViewerServers.EventArgs;
 
 namespace EdcHost;
 
-public partial class EdcHost : IEdcHost
+partial class EdcHost : IEdcHost
 {
-    private void HandleSetPortEvent(object? sender, SetPortEventArgs e)
+    void HandleSetPortEvent(object? sender, SetPortEventArgs e)
     {
-        Serilog.Log.Information("[Update]");
-        Serilog.Log.Information($"Player {e.PlayerId}:");
-        Serilog.Log.Information($"Port: {e.PortName} BaudRate: {e.BaudRate}");
+        _logger.Information("[Update]");
+        _logger.Information($"Player {e.PlayerId}:");
+        _logger.Information($"Port: {e.PortName} BaudRate: {e.BaudRate}");
     }
 
-    private void HandleSetCameraEvent(object? sender, SetCameraEventArgs e)
+    void HandleSetCameraEvent(object? sender, SetCameraEventArgs e)
     {
-        Serilog.Log.Information("[Update]");
-        Serilog.Log.Information($"Player {e.PlayerId}:");
-        Serilog.Log.Information($"Camera: {e.CameraConfiguration}");
+        _logger.Information("[Update]");
+        _logger.Information($"Player {e.PlayerId}:");
+        _logger.Information($"Camera: {e.CameraConfiguration}");
     }
 }

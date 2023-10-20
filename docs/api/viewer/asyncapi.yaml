@@ -101,10 +101,10 @@ components:
             type: object
             additionalProperties: false
             required:
-              - elapsedTime
+              - elapsedTicks
               - stage
             properties:
-              elapsedTime:
+              elapsedTicks:
                 type: integer
               stage:
                 type: string

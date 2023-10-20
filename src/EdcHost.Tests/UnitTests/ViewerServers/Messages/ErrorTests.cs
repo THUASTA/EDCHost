@@ -6,8 +6,8 @@ namespace EdcHost.Tests.UnitTests.ViewerServers.Messages;
 
 public class ErrorTests
 {
-    private const string MessageTypeTest = "testType";
-    private const string MessageTest = "testMessage";
+    const string MessageTypeTest = "testType";
+    const string MessageTest = "testMessage";
     [Theory]
     [InlineData(-1)]
     [InlineData(1)]
