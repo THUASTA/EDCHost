@@ -1,5 +1,3 @@
-using System.Text.Json.Serialization;
-
 namespace EdcHost.ViewerServers.Messages;
 
 public interface IHostConfigurationFromServer : IMessage

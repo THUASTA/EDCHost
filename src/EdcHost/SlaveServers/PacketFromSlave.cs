@@ -6,14 +6,15 @@ public class PacketFromSlave : IPacketFromSlave
     public int ActionType { get; }
     public int Param { get; }
 
-    public byte[] MakePacket()
+    public PacketFromSlave(byte[] bytes)
+    {
+        // TODO: add a deserializer
+    }
+
+    public byte[] ToBytes()
     {
         byte[] bytes = new byte[PACKET_LENGTH];
         // TODO: add a serializer
         return bytes;
-    }
-    public void ExtractPacketData(byte[] bytes)
-    {
-        //TODO: add a deserializer
     }
 }

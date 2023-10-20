@@ -41,15 +41,10 @@ public class PacketFromHost : IPacketFromHost
         WoolCount = woolCount;
     }
 
-    public byte[] MakePacket()
+    public byte[] ToBytes()
     {
         byte[] bytes = new byte[PACKET_LENGTH];
         // TODO: add a serializer
         return bytes;
-    }
-
-    public void ExtractPacketData(byte[] bytes)
-    {
-        // TODO: add a deserializer
     }
 }

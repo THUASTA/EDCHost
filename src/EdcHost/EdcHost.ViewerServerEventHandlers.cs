@@ -2,9 +2,9 @@ using EdcHost.ViewerServers.EventArgs;
 
 namespace EdcHost;
 
-public partial class EdcHost : IEdcHost
+partial class EdcHost : IEdcHost
 {
-    private void HandleSetPortEvent(object? sender, SetPortEventArgs e)
+    void HandleSetPortEvent(object? sender, SetPortEventArgs e)
     {
         try
         {
@@ -20,7 +20,7 @@ public partial class EdcHost : IEdcHost
         }
     }
 
-    private void HandleSetCameraEvent(object? sender, SetCameraEventArgs e)
+    void HandleSetCameraEvent(object? sender, SetCameraEventArgs e)
     {
         //TODO: Set camera
 

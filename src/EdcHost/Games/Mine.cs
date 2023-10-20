@@ -3,7 +3,7 @@ namespace EdcHost.Games;
 /// <summary>
 /// Mine represents a mine in the game.
 /// </summary>
-public class Mine : IMine
+class Mine : IMine
 {
     /// <summary>
     /// The count of accumulated ores.

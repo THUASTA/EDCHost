@@ -1,6 +1,6 @@
 namespace EdcHost.Games;
 
-public partial class Game : IGame
+partial class Game : IGame
 {
     /// <summary>
     /// Generate mines according to game config

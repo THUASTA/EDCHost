@@ -1,6 +1,6 @@
 namespace EdcHost.Games;
 
-public class Player : IPlayer
+class Player : IPlayer
 {
     public int PlayerId { get; private set; }
     public int EmeraldCount { get; private set; }
@@ -82,25 +82,7 @@ public class Player : IPlayer
         /// Decrease wool count by 1.
         WoolCount -= 1;
     }
-    public Player()
-    {
-        PlayerId = 1;
-        EmeraldCount = 0;
-        IsAlive = true;
-        HasBed = true;
-
-        /// Initialize SpawnPoint
-        SpawnPoint = new Position<float>(0, 0); /// Initial coordinates can be set as needed
-        PlayerPosition = new Position<float>(0, 0); /// Initial coordinates can be set as needed
-        WoolCount = 0;
-
-        /// Initialize player attributes
-        Health = 20; /// Initial health
-        MaxHealth = 20; /// Initial max health
-        Strength = 1; /// Initial strength
-        ActionPoints = 1; /// Initial action points
-    }
-    public Player(int id, float initialX, float initialY, float initialX2, float initialY2)
+    public Player(int id = 1, float initialX = 0, float initialY = 0, float initialX2 = 0, float initialY2 = 0)
     {
         PlayerId = id;
         EmeraldCount = 0;

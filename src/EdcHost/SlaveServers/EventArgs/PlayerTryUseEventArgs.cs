@@ -3,13 +3,13 @@ namespace EdcHost.SlaveServers.EventArgs;
 public class PlayerTryUseEventArgs : System.EventArgs
 {
     public string EventType { get; }
-    public int PlayerId { get; }
+    public string PortName { get; }
     public int TargetChunk { get; }
 
-    public PlayerTryUseEventArgs(int playerId, int targetChunk)
+    public PlayerTryUseEventArgs(string portName, int targetChunk)
     {
         EventType = new string("PLAYER_TRY_USE");
-        PlayerId = playerId;
+        PortName = portName;
         TargetChunk = targetChunk;
     }
 }

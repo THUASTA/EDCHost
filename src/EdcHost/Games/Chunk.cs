@@ -1,8 +1,8 @@
 namespace EdcHost.Games;
 
-public class Chunk : IChunk
+class Chunk : IChunk
 {
-    private const int MaxHeight = 8;
+    const int MaxHeight = 8;
 
     public bool CanPlaceBlock => (Height < MaxHeight);
     public bool CanRemoveBlock => (Height > 0);

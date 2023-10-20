@@ -1,184 +1,194 @@
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO.Ports;
-
 using EdcHost.SlaveServers.EventArgs;
-using Fleck;
 using Serilog;
 
 namespace EdcHost.SlaveServers;
 
 public class SlaveServer : ISlaveServer
 {
-    public const int PLAYER_NUM = 2;
-    public static readonly int[] BaudRateList = { 9600, 19200, 38400, 57600, 115200 };
-    private readonly SerialPort[] _serialPorts;
-    private readonly Thread _sendThread;
-    private readonly Thread _receiveThread;
-    private bool _isRunning = false;
-    private readonly IPacket?[] _packetsToSend = { null, null };
-    private readonly IPacketFromSlave[] _packetsReceived = new IPacketFromSlave[PLAYER_NUM];
-    private readonly ILogger _logger = Log.Logger.ForContext<SlaveServer>();
+    record PortComponentBundle
+    {
+        public ConcurrentQueue<IPacketFromHost> PacketsToSend;
+        public ConcurrentQueue<IPacketFromSlave> PacketsReceived;
+        public SerialPort SerialPort;
+        public bool ShouldRun = false;
+        public Task TaskForSending;
+        public Task TaskForReceiving;
+
+        public PortComponentBundle(SerialPort serialPort, Task taskForSending,
+            Task taskForReceiving, ConcurrentQueue<IPacketFromHost> packetsToSend,
+            ConcurrentQueue<IPacketFromSlave> packetsReceived)
+        {
+            SerialPort = serialPort;
+            TaskForSending = taskForSending;
+            TaskForReceiving = taskForReceiving;
+            PacketsToSend = packetsToSend;
+            PacketsReceived = packetsReceived;
+        }
+    }
+
     public event EventHandler<PlayerTryAttackEventArgs>? PlayerTryAttackEvent;
     public event EventHandler<PlayerTryUseEventArgs>? PlayerTryUseEvent;
     public event EventHandler<PlayerTryTradeEventArgs>? PlayerTryTradeEvent;
 
-    public SlaveServer(string[] portNames, int[] baudRates)
+    readonly ConcurrentDictionary<string, PortComponentBundle> _portComponentBundles = new();
+    readonly ILogger _logger = Log.Logger.ForContext("Component", "SlaveServers");
+
+    public void AddPort(string portName, int baudRate, Parity parity, int dataBits, StopBits stopBits)
     {
-        _serialPorts = new SerialPort[PLAYER_NUM];
-        if (portNames.Length != PLAYER_NUM
-            || baudRates.Length != PLAYER_NUM)
+        if (_portComponentBundles.Keys.Any(portName.Equals))
         {
-            throw new ArgumentException($"portNameList, BaudRateList, ParityList, DataBitsList, StopBitsList must have length {PLAYER_NUM}");
+            throw new ArgumentException($"port name already exists: {portName}");
         }
 
-        for (int i = 0; i < PLAYER_NUM; i++)
+        SerialPort serialPort = new(portName: portName, baudRate: baudRate, parity: parity,
+            dataBits: dataBits, stopBits: stopBits);
+
+        ConcurrentQueue<IPacketFromHost> packetsToSend = new();
+        ConcurrentQueue<IPacketFromSlave> packetsReceived = new();
+
+        Task taskForSending = new(() => SendTaskFunc(portName));
+        Task taskForReceiving = new(() => ReceiveTaskFunc(portName));
+
+        _portComponentBundles.TryAdd(portName, new PortComponentBundle(serialPort, taskForSending,
+            taskForReceiving, packetsToSend, packetsReceived));
+    }
+
+    public void RemovePort(string portName)
+    {
+        if (!_portComponentBundles.Keys.Any(portName.Equals))
         {
-            _serialPorts[i] = new SerialPort();
-            SetPortName(i, portNames[i]);
-            SetPortBaudRate(i, baudRates[i]);
+            throw new ArgumentException($"port name does not exist: {portName}");
         }
 
-        _sendThread = new Thread(Send);
-        _receiveThread = new Thread(Receive);
+        _portComponentBundles[portName].ShouldRun = false;
+        _portComponentBundles[portName].TaskForSending.Wait();
+        _portComponentBundles[portName].TaskForReceiving.Wait();
+        _portComponentBundles[portName].SerialPort.Close();
+        _portComponentBundles.Remove(portName, out _);
+    }
+
+    public void Publish(string portName, int gameStage, int elapsedTime, List<int> heightOfChunks,
+        bool hasBed, float positionX, float positionY, float positionOpponentX,
+        float positionOpponentY, int agility, int health, int maxHealth, int strength,
+        int emeraldCount, int woolCount)
+    {
+        if (!_portComponentBundles.Keys.Any(portName.Equals))
+        {
+            throw new ArgumentException($"port name does not exist: {portName}");
+        }
+
+        _portComponentBundles[portName].PacketsToSend.Enqueue(new PacketFromHost(gameStage, elapsedTime, heightOfChunks,
+            hasBed, positionX, positionY, positionOpponentX, positionOpponentY, agility, health, maxHealth, strength,
+            emeraldCount, woolCount));
     }
 
     public void Start()
     {
-        _isRunning = true;
-        for (int i = 0; i < 2; i++)
+        _logger.Information("Starting...");
+
+        foreach (PortComponentBundle portComponentBundle in _portComponentBundles.Values)
         {
-            _serialPorts[i].Open();
+            portComponentBundle.ShouldRun = true;
+
+            portComponentBundle.SerialPort.Open();
+            portComponentBundle.TaskForSending.Start();
+            portComponentBundle.TaskForReceiving.Start();
         }
-        _sendThread.Start();
-        _receiveThread.Start();
+
+        _logger.Information("Started.");
     }
 
     public void Stop()
     {
-        _isRunning = false;
-        _sendThread.Join();
-        _receiveThread.Join();
-        for (int i = 0; i < 2; i++)
+        _logger.Information("Stopping...");
+
+        foreach (PortComponentBundle portComponentBundle in _portComponentBundles.Values)
         {
-            _serialPorts[i].Close();
+            portComponentBundle.ShouldRun = false;
+
+            portComponentBundle.TaskForSending.Wait();
+            portComponentBundle.TaskForReceiving.Wait();
+            portComponentBundle.SerialPort.Close();
         }
+
+        _logger.Information("Stopped.");
     }
 
-    public void UpdatePacket(int id, IPacket packet)
-    {
-        _packetsToSend[id] = packet;
-    }
-
-    public void Send()
-    {
-        while (_isRunning)
-        {
-            Task.Delay(100).Wait();
-            for (int i = 0; i < 2; i++)
-            {
-                if (_packetsToSend[i] != null)
-                {
-                    byte[] message = _packetsToSend[i]?.MakePacket() ?? throw new NullReferenceException();
-                    _serialPorts[i].Write(message, 0, message.Length);
-                }
-            }
-        }
-    }
-
-    public void Receive()
-    {
-        while (_isRunning)
-        {
-            for (int i = 0; i < 2; i++)
-            {
-                if (_serialPorts[i].BytesToRead > 0)
-                {
-                    byte[] message = new byte[_serialPorts[i].BytesToRead];
-                    _serialPorts[i].Read(message, 0, message.Length);
-                    _packetsReceived[i]?.ExtractPacketData(message);
-
-                    //Execute the event
-                    PerformAction(i, _packetsReceived[i]);
-                }
-            }
-        }
-    }
-
-    public void SetPortName(int id, string portName)
-    {
-        string[] ports = SerialPort.GetPortNames();
-        if (ports.Contains(portName))
-        {
-            _serialPorts[id].PortName = portName;
-        }
-        else
-        {
-            _logger.Error("Port name {portName} is not available.", portName);
-        }
-    }
-
-    public void SetPortBaudRate(int id, int baudRate)
-    {
-        foreach (int availableRate in BaudRateList)
-        {
-            if (baudRate == availableRate)
-            {
-                _serialPorts[id].BaudRate = baudRate;
-                return;
-            }
-        }
-        throw new ArgumentException(
-            "Baud rate must be one of the following: " + string.Join(", ", BaudRateList));
-    }
-
-    private void SetPortParity(int id, Parity parity)
-    {
-        _serialPorts[id].Parity = parity;
-    }
-
-    private void SetPortDataBits(int id, int dataBits)
-    {
-        if (dataBits >= 5 && dataBits <= 8)
-        {
-            _serialPorts[id].DataBits = dataBits;
-        }
-        else
-        {
-            throw new ArgumentException("Data bits must be between 5 and 8");
-        }
-    }
-
-    private void SetStopBits(int id, StopBits stopBits)
-    {
-        _serialPorts[id].StopBits = stopBits;
-    }
-
-    private void PerformAction(int id, IPacketFromSlave packet)
+    void PerformAction(string portName, IPacketFromSlave packet)
     {
         switch (packet.ActionType)
         {
             case (int)ActionTypes.Attack:
                 if (Enum.IsDefined(typeof(Directions), packet.Param))
                 {
-                    PlayerTryAttackEvent?.Invoke(this, new PlayerTryAttackEventArgs(id, packet.Param));
+                    PlayerTryAttackEvent?.Invoke(this, new PlayerTryAttackEventArgs(portName, packet.Param));
                 }
                 break;
 
             case (int)ActionTypes.Use:
                 if (Enum.IsDefined(typeof(Directions), packet.Param))
                 {
-                    PlayerTryUseEvent?.Invoke(this, new PlayerTryUseEventArgs(id, packet.Param));
+                    PlayerTryUseEvent?.Invoke(this, new PlayerTryUseEventArgs(portName, packet.Param));
                 }
                 break;
 
             case (int)ActionTypes.Trade:
                 if (Enum.IsDefined(typeof(ItemList), packet.Param))
                 {
-                    PlayerTryTradeEvent?.Invoke(this, new PlayerTryTradeEventArgs(id, packet.Param));
+                    PlayerTryTradeEvent?.Invoke(this, new PlayerTryTradeEventArgs(portName, packet.Param));
                 }
                 break;
 
             default:
                 break;
+        }
+    }
+
+    void SendTaskFunc(string portName)
+    {
+        while (_portComponentBundles.GetValueOrDefault(portName)?.ShouldRun ?? false)
+        {
+            try
+            {
+                if (_portComponentBundles[portName].PacketsToSend.TryDequeue(out IPacketFromHost? packet))
+                {
+                    byte[] message = packet.ToBytes();
+                    _portComponentBundles[portName].SerialPort.Write(message, 0, message.Length);
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e, "error while sending packet");
+            }
+        }
+    }
+
+    void ReceiveTaskFunc(string portName)
+    {
+        while (_portComponentBundles.GetValueOrDefault(portName)?.ShouldRun ?? false)
+        {
+            try
+            {
+                if (_portComponentBundles[portName].SerialPort.BytesToRead == 0)
+                {
+                    continue;
+                }
+                byte[] message = new byte[_portComponentBundles[portName].SerialPort.BytesToRead];
+                _portComponentBundles[portName].SerialPort.Read(message, 0, message.Length);
+                _portComponentBundles[portName].PacketsReceived.Enqueue(new PacketFromSlave(message));
+
+                while (_portComponentBundles[portName].PacketsReceived.TryDequeue(out IPacketFromSlave? packet))
+                {
+                    PerformAction(portName, packet);
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e, "error while receiving packet");
+            }
         }
     }
 }

@@ -1,3 +1,5 @@
+using EdcHost.Games;
+
 namespace EdcHost;
 
 /// <summary>
@@ -5,18 +7,34 @@ namespace EdcHost;
 /// </summary>
 public interface IEdcHost
 {
-    public static IEdcHost Create(EdcHostOptions options)
+    class EdcHostOptions
     {
-        Games.Game game = new(
-            diamondMines: options.GameDiamondMines,
-            goldMines: options.GameGoldMines,
-            ironMines: options.GameIronMines
-        );
-        SlaveServers.SlaveServer slaveServer = new(new string[] { }, new int[] { });
+        const int DefaultServerPort = 8080;
+
+        public List<Tuple<int, int>> GameDiamondMines { get; }
+        public List<Tuple<int, int>> GameGoldMines { get; }
+        public List<Tuple<int, int>> GameIronMines { get; }
+        public int ServerPort { get; }
+
+        public EdcHostOptions(int serverPort, List<Tuple<int, int>>? gameDiamondMines = null, List<Tuple<int, int>>? gameGoldMines = null, List<Tuple<int, int>>? gameIronMines = null)
+        {
+            GameDiamondMines = gameDiamondMines ?? new();
+            GameGoldMines = gameGoldMines ?? new();
+            GameIronMines = gameIronMines ?? new();
+            ServerPort = serverPort;
+        }
+    }
+
+    static IEdcHost Create(EdcHostOptions options)
+    {
+        var game = IGame.Create();
+        var gameRunner = IGameRunner.Create(game);
+        SlaveServers.SlaveServer slaveServer = new();
         ViewerServers.ViewerServer viewerServer = new(options.ServerPort);
 
         return new EdcHost(
             game: game,
+            gameRunner: gameRunner,
             slaveServer: slaveServer,
             viewerServer: viewerServer
         );
@@ -25,10 +43,10 @@ public interface IEdcHost
     /// <summary>
     /// Starts the host.
     /// </summary>
-    public void Start();
+    void Start();
 
     /// <summary>
     /// Stops the host.
     /// </summary>
-    public void Stop();
+    void Stop();
 }

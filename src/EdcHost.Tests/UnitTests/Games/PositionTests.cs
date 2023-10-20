@@ -13,7 +13,7 @@ public class PositionTests
     [InlineData(int.MaxValue, int.MaxValue)]
     public void IntX_DoNothing_ReturnsConstructorValue(int x, int expectedX)
     {
-        IPosition<int> position = new Position<int>(x, 0);
+        IPosition<int> position = IPosition<int>.Create(x, 0);
 
         int actualX = position.X;
 
@@ -29,7 +29,7 @@ public class PositionTests
     public void IntX_SingleNumber_ReturnsSameNumber(int x, int expectedX)
     {
 #pragma warning disable IDE0017
-        IPosition<int> position = new Position<int>(0, 0);
+        IPosition<int> position = IPosition<int>.Create(0, 0);
 
         position.X = x;
         int actualX = position.X;
@@ -45,7 +45,7 @@ public class PositionTests
     [InlineData(int.MaxValue, int.MaxValue)]
     public void IntY_DoNothing_ReturnsConstructorValue(int y, int expectedY)
     {
-        IPosition<int> position = new Position<int>(0, y);
+        IPosition<int> position = IPosition<int>.Create(0, y);
 
         int actualY = position.Y;
 
@@ -61,7 +61,7 @@ public class PositionTests
     public void IntY_SingleNumber_ReturnsSameNumber(int y, int expectedY)
     {
 #pragma warning disable IDE0017
-        IPosition<int> position = new Position<int>(0, 0);
+        IPosition<int> position = IPosition<int>.Create(0, 0);
 
         position.Y = y;
         int actualY = position.Y;
@@ -81,7 +81,7 @@ public class PositionTests
     [InlineData(float.Epsilon, float.Epsilon)]
     public void FloatX_DoNothing_ReturnsConstructorValue(float x, float expectedX)
     {
-        IPosition<float> position = new Position<float>(x, 0);
+        IPosition<float> position = IPosition<float>.Create(x, 0);
 
         float actualX = position.X;
 
@@ -101,7 +101,7 @@ public class PositionTests
     public void FloatX_SingleNumber_ReturnsSameNumber(float x, float expectedX)
     {
 #pragma warning disable IDE0017
-        IPosition<float> position = new Position<float>(0, 0);
+        IPosition<float> position = IPosition<float>.Create(0, 0);
 
         position.X = x;
         float actualX = position.X;
@@ -121,7 +121,7 @@ public class PositionTests
     [InlineData(float.Epsilon, float.Epsilon)]
     public void FloatY_DoNothing_ReturnsConstructorValue(float y, float expectedY)
     {
-        IPosition<float> position = new Position<float>(0, y);
+        IPosition<float> position = IPosition<float>.Create(0, y);
 
         float actualY = position.Y;
 
@@ -141,7 +141,7 @@ public class PositionTests
     public void FloatY_SingleNumber_ReturnsSameNumber(float y, float expectedY)
     {
 #pragma warning disable IDE0017
-        IPosition<float> position = new Position<float>(0, 0);
+        IPosition<float> position = IPosition<float>.Create(0, 0);
 
         position.Y = y;
         float actualY = position.Y;

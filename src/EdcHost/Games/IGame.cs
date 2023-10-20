@@ -5,10 +5,15 @@ namespace EdcHost.Games;
 /// </summary>
 public interface IGame
 {
+    static IGame Create()
+    {
+        return new Game();
+    }
+
     /// <summary>
     /// Stage of game.
     /// </summary>
-    public enum Stage
+    enum Stage
     {
         Ready,
         Running,
@@ -17,19 +22,19 @@ public interface IGame
         Ended,
     }
 
-    public event EventHandler<AfterGameStartEventArgs>? AfterGameStartEvent;
-    public event EventHandler<AfterGameTickEventArgs>? AfterGameTickEvent;
-    public event EventHandler<AfterJudgementEventArgs>? AfterJudgementEvent;
+    event EventHandler<AfterGameStartEventArgs>? AfterGameStartEvent;
+    event EventHandler<AfterGameTickEventArgs>? AfterGameTickEvent;
+    event EventHandler<AfterJudgementEventArgs>? AfterJudgementEvent;
 
     /// <summary>
     /// Current stage of the game.
     /// </summary>
-    public Stage CurrentStage { get; }
+    Stage CurrentStage { get; }
 
     /// <summary>
     /// Elapsed time of the game.
     /// </summary>
-    public int ElapsedTicks { get; }
+    int ElapsedTicks { get; }
 
     /// <summary>
     /// Winner of the game.
@@ -37,30 +42,32 @@ public interface IGame
     /// <remarks>
     /// Winner can be null in case there is no winner.
     /// </remarks>
-    public IPlayer? Winner { get; }
+    IPlayer? Winner { get; }
 
     /// <summary>
     /// The players.
     /// </summary>
-    public List<IPlayer> Players { get; }
+    List<IPlayer> Players { get; }
 
     /// <summary>
     /// The game map.
     /// </summary>
-    public IMap GameMap { get; }
+    IMap GameMap { get; }
 
     /// <summary>
     /// The mines.
     /// </summary>
-    public List<IMine> Mines { get; }
+    List<IMine> Mines { get; }
 
     /// <summary>
     /// Starts the game.
     /// </summary>
-    public Task Start();
+    void Start();
 
     /// <summary>
     /// Ends the game.
     /// </summary>
-    public Task End();
+    void End();
+
+    void Tick();
 }

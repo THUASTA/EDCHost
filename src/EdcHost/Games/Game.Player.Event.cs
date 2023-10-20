@@ -1,13 +1,13 @@
 namespace EdcHost.Games;
 
-public partial class Game : IGame
+partial class Game : IGame
 {
     /// <summary>
     /// Handle PlayerMoveEvent
     /// </summary>
     /// <param name="sender">Sender of the event</param>
     /// <param name="e">Event args</param>
-    private void HandlePlayerMoveEvent(object? sender, PlayerMoveEventArgs e)
+    void HandlePlayerMoveEvent(object? sender, PlayerMoveEventArgs e)
     {
         try
         {
@@ -44,7 +44,7 @@ public partial class Game : IGame
     /// </summary>
     /// <param name="sender">Sender of the event</param>
     /// <param name="e">Event args</param>
-    private void HandlePlayerAttackEvent(object? sender, PlayerAttackEventArgs e)
+    void HandlePlayerAttackEvent(object? sender, PlayerAttackEventArgs e)
     {
         if (e.Player.IsAlive == false)
         {
@@ -123,7 +123,7 @@ public partial class Game : IGame
     /// </summary>
     /// <param name="sender">Sender of the event</param>
     /// <param name="e">Event args</param>
-    private void HandlePlayerPlaceEvent(object? sender, PlayerPlaceEventArgs e)
+    void HandlePlayerPlaceEvent(object? sender, PlayerPlaceEventArgs e)
     {
         if (e.Player.IsAlive == false)
         {
@@ -173,7 +173,7 @@ public partial class Game : IGame
     /// </summary>
     /// <param name="sender">Sender of the event</param>
     /// <param name="e">Event args</param>
-    private void HandlePlayerDieEvent(object? sender, PlayerDieEventArgs e)
+    void HandlePlayerDieEvent(object? sender, PlayerDieEventArgs e)
     {
         if (_playerDeathTickList[e.Player.PlayerId] is not null)
         {

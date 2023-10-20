@@ -1,10 +1,4 @@
-using System.IO.Compression;
-using System.IO.Ports;
-using System.Net.Mime;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Runtime.Intrinsics.X86;
-using System.Security;
 using System.Text;
 using System.Text.Json;
 using EdcHost.ViewerServers.EventArgs;
@@ -21,9 +15,9 @@ namespace EdcHost.ViewerServers;
 /// </summary>
 public class ViewerServer : IViewerServer
 {
-    private readonly WebSocketServer _webSocketServer;
-    private readonly ILogger _logger = Log.Logger.ForContext<ViewerServer>();
-    private IWebSocketConnection? _socket = null;
+    readonly WebSocketServer _webSocketServer;
+    readonly ILogger _logger = Log.Logger.ForContext("Component", "ViewerServers");
+    IWebSocketConnection? _socket = null;
     public IUpdater CompetitionUpdater { get; } = new Updater();
     public IGameController Controller { get; } = new GameController();
     public event EventHandler<SetPortEventArgs>? SetPortEvent;
@@ -51,6 +45,8 @@ public class ViewerServer : IViewerServer
     /// </summary>
     public void Start()
     {
+        _logger.Information("Starting...");
+
         CompetitionUpdater.SendEvent += (sender, args) => Send(args.Message);
 
         Controller.GetHostConfigurationEvent += (sender, args) => Send(args.Message);
@@ -60,17 +56,18 @@ public class ViewerServer : IViewerServer
 
         Controller.GetHostConfigurationEvent += (sender, args) => Send(args.Message);
 
-        _logger.Information("Server started.");
+        _logger.Information("Started.");
     }
     /// <summary>
     /// Stops the server.
     /// </summary>
     public void Stop()
     {
+        _logger.Information("Stopping...");
         _webSocketServer.Dispose();
         _socket?.Close();
         CompetitionUpdater.End();
-        _logger.Information("Server stopped.");
+        _logger.Information("Stopped.");
     }
 
     /// <summary>
@@ -98,7 +95,7 @@ public class ViewerServer : IViewerServer
     /// <summary>
     /// Starts the WebSocket server.
     /// </summary>
-    private void WebSocketServerStart()
+    void WebSocketServerStart()
     {
         _webSocketServer.Start(socket =>
         {
@@ -156,7 +153,7 @@ public class ViewerServer : IViewerServer
     /// </summary>
     /// <param name="text"></param>
     /// <exception cref="InvalidDataException"></exception>
-    private void DeserializeMessage(string text)
+    void DeserializeMessage(string text)
     {
         IMessage message = JsonSerializer.Deserialize<Message>(text)!;
         switch (message.MessageType)

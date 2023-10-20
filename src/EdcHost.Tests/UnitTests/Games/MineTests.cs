@@ -1,5 +1,4 @@
 using EdcHost.Games;
-using Moq;
 using Xunit;
 
 namespace EdcHost.Tests.UnitTests.Games;
@@ -9,7 +8,7 @@ public interface Iint
     int GetCurrentint();
 }
 
-public class MineTest
+public class IMineTest
 {
     public class MockPosition : IPosition<float>
     {
@@ -20,7 +19,7 @@ public class MineTest
     [Fact]
     public void IntAccumulatedOreCount_NotGenerate_ReturnsCorrectValue()
     {
-        Mine mine = new Mine(IMine.OreKindType.Diamond, new MockPosition { X = 0f, Y = 0f }, 0);
+        IMine mine = IMine.Create(IMine.OreKindType.Diamond, new MockPosition { X = 0f, Y = 0f }, 0);
         Assert.Equal(0, mine.AccumulatedOreCount);
     }
 
@@ -30,25 +29,9 @@ public class MineTest
     [InlineData(IMine.OreKindType.Diamond, IMine.OreKindType.Diamond)]
     public void OreKind_ReturnsCorrectValue(IMine.OreKindType oreKindType, IMine.OreKindType expectedOreKind)
     {
-        Mine mine = new Mine(oreKindType, new MockPosition { X = 0f, Y = 0f }, 0);
+        IMine mine = IMine.Create(oreKindType, new MockPosition { X = 0f, Y = 0f }, 0);
         Assert.Equal(expectedOreKind, mine.OreKind);
     }
-
-    // [Theory]
-    // [InlineData(0f, 0f)]
-    // [InlineData(2.5f, 2.5f)]
-    // [InlineData(-2.5f, -2.5f)]
-    // [InlineData(float.MinValue, float.MinValue)]
-    // [InlineData(float.MaxValue, float.MaxValue)]
-    // public void Position_DoNothing_ReturnsConstructorValue(float x, float y)
-    // {
-    // IPosition<float> expected = new MockPosition { X = x, Y = y };
-    // Mine mine = new Mine(IMine.OreKindType.Diamond, expected);
-    // IPosition<float> actual = mine.Position;
-    // double millisecondsDifference = Math.Abs((nowTime - mine.LastOreGeneratedTime).TotalMilliseconds);
-    // Assert.True(millisecondsDifference < 0.1);
-    // Assert.Equal(expected, actual);
-    // }
 
     [Theory]
     [InlineData(3, 3)]
@@ -58,7 +41,7 @@ public class MineTest
     [InlineData(200, 200)]
     public void GenerateOre_AccumulatedOreCountAdd_ReturnsCorrectValue(int generate, int expectedValue)
     {
-        Mine mine = new Mine(IMine.OreKindType.Diamond, new MockPosition { X = 0f, Y = 0f }, 0);
+        IMine mine = IMine.Create(IMine.OreKindType.Diamond, new MockPosition { X = 0f, Y = 0f }, 0);
         for (int i = 0; i < generate; i++)
         {
             mine.GenerateOre(0);
@@ -69,7 +52,7 @@ public class MineTest
     [Fact]
     public void PickUpOre_CountLessThanAccumulatedOreCount_ReturnsCorrctValue()
     {
-        Mine mine = new Mine(IMine.OreKindType.Diamond, new MockPosition { X = 0f, Y = 0f }, 0);
+        IMine mine = IMine.Create(IMine.OreKindType.Diamond, new MockPosition { X = 0f, Y = 0f }, 0);
         for (int i = 0; i < 200; i++)
         {
             mine.GenerateOre(0);
@@ -83,7 +66,7 @@ public class MineTest
     [Fact]
     public void PickUpOre_CountMoreThanAccumulatedOreCount_ReturnsCorrctValue()
     {
-        Mine mine = new Mine(IMine.OreKindType.Diamond, new MockPosition { X = 0f, Y = 0f }, 0);
+        IMine mine = IMine.Create(IMine.OreKindType.Diamond, new MockPosition { X = 0f, Y = 0f }, 0);
         for (int i = 0; i < 30; i++)
         {
             mine.GenerateOre(0);

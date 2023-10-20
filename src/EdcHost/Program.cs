@@ -5,11 +5,12 @@ using Serilog;
 
 namespace EdcHost;
 
-public class Program
+class Program
 {
-    private const int DefaultServerPort = 8080;
+    const int DefaultServerPort = 8080;
+    const string SerilogTemplate = "[{Timestamp:HH:mm:ss} {Level:u3}] <{Component}> {Message:lj}{NewLine}{Exception}";
 
-    public static void Main()
+    static void Main()
     {
         // Setup logger using default settings before calling dotenv.
         Log.Logger = new LoggerConfiguration()
@@ -29,7 +30,7 @@ public class Program
         }
     }
 
-    public static List<Tuple<int, int>> ParseMineList(string input)
+    static List<Tuple<int, int>> ParseMineList(string input)
     {
         List<Tuple<int, int>> mines = new();
         Regex regex = new(@"\((\d+),(\d+)\)");
@@ -43,23 +44,25 @@ public class Program
         return mines;
     }
 
-    public static void SetupAndRunEdcHost()
+    static void SetupAndRunEdcHost()
     {
         List<Tuple<int, int>> gameDiamondMines = EnvReader.TryGetStringValue("GAME_DIAMOND_MINES", out string? gameDiamondMinesString) ? ParseMineList(gameDiamondMinesString) : new();
         List<Tuple<int, int>> gameGoldMines = EnvReader.TryGetStringValue("GAME_GOLD_MINES", out string? gameGoldMinesString) ? ParseMineList(gameGoldMinesString) : new();
         List<Tuple<int, int>> gameIronMines = EnvReader.TryGetStringValue("GAME_IRON_MINES", out string? gameIronMinesString) ? ParseMineList(gameIronMinesString) : new();
         int serverPort = EnvReader.TryGetIntValue("SERVER_PORT", out serverPort) ? serverPort : DefaultServerPort;
 
-        IEdcHost edcHost = IEdcHost.Create(new EdcHostOptions
+        IEdcHost edcHost = IEdcHost.Create(new IEdcHost.EdcHostOptions
         (
             gameDiamondMines: gameDiamondMines,
             gameGoldMines: gameGoldMines,
             gameIronMines: gameIronMines,
             serverPort: serverPort
         ));
+
+        edcHost.Start();
     }
 
-    public static void SetupDotEnv()
+    static void SetupDotEnv()
     {
         DotEnv.Load(new DotEnvOptions
         (
@@ -67,7 +70,7 @@ public class Program
         ));
     }
 
-    public static void SetupSerilog()
+    static void SetupSerilog()
     {
         // Get logging level from environment variables
         if (EnvReader.TryGetStringValue("LOGGING_LEVEL", out string? loggingLevelString) == false)
@@ -81,29 +84,56 @@ public class Program
         {
             "Verbose" => new LoggerConfiguration()
                 .MinimumLevel.Verbose()
-                .WriteTo.Console()
+                .WriteTo.Console(outputTemplate: SerilogTemplate)
+                .Enrich.WithProperty("Component", "Program")
                 .CreateLogger(),
             "Debug" => new LoggerConfiguration()
                 .MinimumLevel.Debug()
-                .WriteTo.Console()
+                .WriteTo.Console(outputTemplate: SerilogTemplate)
+                .Enrich.WithProperty("Component", "Program")
                 .CreateLogger(),
             "Information" => new LoggerConfiguration()
                 .MinimumLevel.Information()
-                .WriteTo.Console()
+                .WriteTo.Console(outputTemplate: SerilogTemplate)
+                .Enrich.WithProperty("Component", "Program")
                 .CreateLogger(),
             "Warning" => new LoggerConfiguration()
                 .MinimumLevel.Warning()
-                .WriteTo.Console()
+                .WriteTo.Console(outputTemplate: SerilogTemplate)
+                .Enrich.WithProperty("Component", "Program")
                 .CreateLogger(),
             "Error" => new LoggerConfiguration()
                 .MinimumLevel.Error()
-                .WriteTo.Console()
+                .WriteTo.Console(outputTemplate: SerilogTemplate)
+                .Enrich.WithProperty("Component", "Program")
                 .CreateLogger(),
             "Fatal" => new LoggerConfiguration()
                 .MinimumLevel.Fatal()
-                .WriteTo.Console()
+                .WriteTo.Console(outputTemplate: SerilogTemplate)
+                .Enrich.WithProperty("Component", "Program")
                 .CreateLogger(),
             _ => throw new ArgumentOutOfRangeException(nameof(loggingLevelString), loggingLevelString, "invalid logging level")
+        };
+
+        // Configure Fleck logging
+        ILogger fleckLogger = Log.Logger.ForContext("Component", "Fleck");
+        Fleck.FleckLog.LogAction = (level, message, ex) =>
+        {
+            switch (level)
+            {
+                case Fleck.LogLevel.Debug:
+                    fleckLogger.Debug(message, ex);
+                    break;
+                case Fleck.LogLevel.Info:
+                    fleckLogger.Information(message, ex);
+                    break;
+                case Fleck.LogLevel.Warn:
+                    fleckLogger.Warning(message, ex);
+                    break;
+                case Fleck.LogLevel.Error:
+                    fleckLogger.Error(message, ex);
+                    break;
+            }
         };
     }
 }

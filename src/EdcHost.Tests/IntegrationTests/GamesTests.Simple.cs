@@ -6,26 +6,70 @@ namespace EdcHost.Tests.IntegrationTests;
 public partial class GamesTests
 {
     [Fact]
-    public async Task Simple()
+    public void Simple()
     {
-        IGame.Stage? stage = null;
+        const int TicksBeforeBattling = 12000;
+        const int TicksBattling = 400;
 
-        // Arrange: Create a game.
-        var game = new Game();
+        // Arrange
+        var game = IGame.Create();
 
-        stage = game.CurrentStage;
+        IGame.Stage? stage = game.CurrentStage;
+        int elapsedTicks = game.ElapsedTicks;
+        IPlayer? winner = game.Winner;
+
         Assert.StrictEqual(IGame.Stage.Ready, stage);
+        Assert.StrictEqual(0, elapsedTicks);
+        Assert.Null(winner);
 
-        // Act: Start the game.
-        await game.Start();
+        // Act 1
+        game.Start();
 
         stage = game.CurrentStage;
+        elapsedTicks = game.ElapsedTicks;
+        winner = game.Winner;
+
         Assert.StrictEqual(IGame.Stage.Running, stage);
+        Assert.StrictEqual(0, elapsedTicks);
+        Assert.Null(winner);
 
-        // Act: Stop the game.
-        await game.End();
+        for (int tick = 1; tick <= TicksBeforeBattling; ++tick)
+        {
+            // Act 2~12001
+            game.Tick();
+
+            stage = game.CurrentStage;
+            elapsedTicks = game.ElapsedTicks;
+            winner = game.Winner;
+
+            Assert.StrictEqual(IGame.Stage.Running, stage);
+            Assert.StrictEqual(tick, elapsedTicks);
+            Assert.Null(winner);
+        }
+
+        for (int tick = TicksBeforeBattling + 1; tick <= TicksBeforeBattling + TicksBattling; ++tick)
+        {
+            // Act 12002~12401
+            game.Tick();
+
+            stage = game.CurrentStage;
+            elapsedTicks = game.ElapsedTicks;
+            winner = game.Winner;
+
+            Assert.StrictEqual(IGame.Stage.Battling, stage);
+            Assert.StrictEqual(tick, elapsedTicks);
+            Assert.Null(winner);
+        }
+
+        // Act 12402
+        game.Tick();
 
         stage = game.CurrentStage;
-        Assert.StrictEqual(IGame.Stage.Ended, stage);
+        elapsedTicks = game.ElapsedTicks;
+        winner = game.Winner;
+
+        Assert.StrictEqual(IGame.Stage.Finished, stage);
+        Assert.StrictEqual(TicksBeforeBattling + TicksBattling + 1, elapsedTicks);
+        Assert.Null(winner);
     }
 }
