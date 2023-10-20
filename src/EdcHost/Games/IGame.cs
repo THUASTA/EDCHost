@@ -5,8 +5,8 @@ namespace EdcHost.Games;
 /// </summary>
 public interface IGame
 {
-    static IGame Create(List<Tuple<int, int>> diamondMines, List<Tuple<int, int>> goldMines,
-        List<Tuple<int, int>> ironMines)
+    static IGame Create(List<Tuple<int, int>>? diamondMines = null,
+        List<Tuple<int, int>>? goldMines = null, List<Tuple<int, int>>? ironMines = null)
     {
         return new Game(
             diamondMines: diamondMines,

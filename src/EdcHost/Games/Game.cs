@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Serilog;
 
 namespace EdcHost.Games;
@@ -41,8 +40,8 @@ partial class Game : IGame
 
     readonly ILogger _logger = Log.Logger.ForContext("Component", "Games");
 
-    public Game(List<Tuple<int, int>>? diamondMines,
-        List<Tuple<int, int>>? goldMines, List<Tuple<int, int>>? ironMines)
+    public Game(List<Tuple<int, int>>? diamondMines = null,
+        List<Tuple<int, int>>? goldMines = null, List<Tuple<int, int>>? ironMines = null)
     {
         var spawnPoints = new IPosition<int>[] { new Position<int>(0, 0), new Position<int>(7, 7) };
         GameMap = new Map(spawnPoints);
