@@ -14,7 +14,8 @@ partial class EdcHost : IEdcHost
             Serilog.Log.Information($"Player {e.PlayerId}:");
             Serilog.Log.Information($"Port: {e.PortName} BaudRate: {e.BaudRate}");
         }
-        catch (Exception exception) {
+        catch (Exception exception)
+        {
             Serilog.Log.Error($"Failde to set port: {exception}");
         }
     }
