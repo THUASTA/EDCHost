@@ -29,11 +29,5 @@ public interface ISlaveServer
     /// <summary>
     /// Stops the server.
     /// </summary>
-    public void Stop();
-
-    public void UpdatePacket(int id, IPacket packet);
-
-    public void SetPortName(int id, string portName);
-
-    public void SetPortBaudRate(int id, int baudRate);
+    void Stop();
 }

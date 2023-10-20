@@ -7,7 +7,7 @@ partial class EdcHost : IEdcHost
 {
     void HandleAfterGameStartEvent(object? sender, AfterGameStartEventArgs e)
     {
-
+        //Do nothing
     }
 
     void HandleAfterGameTickEvent(object? sender, AfterGameTickEventArgs e)
@@ -82,6 +82,6 @@ partial class EdcHost : IEdcHost
             _logger.Information($"Winner is {e.Winner?.PlayerId}");
         }
 
-        _game.End();
+        _gameRunner.End();
     }
 }

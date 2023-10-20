@@ -8,8 +8,7 @@ partial class EdcHost : IEdcHost
     {
         try
         {
-            _slaveServer.SetPortName(e.PlayerId, e.PortName);
-            _slaveServer.SetPortBaudRate(e.PlayerId, e.BaudRate);
+            //TODO: Update port
 
             Serilog.Log.Information("[Update]");
             Serilog.Log.Information($"Player {e.PlayerId}:");
@@ -33,7 +32,7 @@ partial class EdcHost : IEdcHost
     {
         try
         {
-            _game.Start();
+            _gameRunner.Start();
         }
         catch (Exception exception)
         {
@@ -45,7 +44,7 @@ partial class EdcHost : IEdcHost
     {
         try
         {
-            _game.End();
+            _gameRunner.End();
         }
         catch (Exception exception)
         {
