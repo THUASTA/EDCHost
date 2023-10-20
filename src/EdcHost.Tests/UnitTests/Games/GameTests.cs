@@ -11,9 +11,8 @@ public class GameTest
     {
         Game game = new Game();
         Assert.Equal(IGame.Stage.Ready, game.CurrentStage);
-        Assert.Equal(TimeSpan.FromSeconds(0), game.ElapsedTime);
         Assert.Null(game.Winner);
-        Assert.Equal(0, game.CurrentTick);
+        Assert.Equal(0, game.ElapsedTicks);
         Assert.Equal(0, game.GameMap.Chunks[0].Position.X);
         Assert.Equal(0, game.GameMap.Chunks[0].Position.Y);
         Assert.Equal(1, game.GameMap.Chunks[0].Height);
@@ -23,18 +22,18 @@ public class GameTest
     }
 
     [Fact]
-    public void Start_StartedYet_ThrowsCorrectException()
+    public async Task Start_StartedYet_ThrowsCorrectException()
     {
-        Game game = new Game();
-        game.Start();
-        Assert.Throws<InvalidOperationException>(() => game.Start());
+        Game game = new();
+        await game.Start();
+        await Assert.ThrowsAsync<InvalidOperationException>(() => game.Start());
     }
 
     [Fact]
-    public void Start_DoNothing_ReturnsCorrectValue()
+    public async Task Start_DoNothing_ReturnsCorrectValue()
     {
         Game game = new Game();
-        game.Start();
+        await game.Start();
         Assert.Equal(0, game.Players[0].PlayerId);
         Assert.Equal(0.4f, game.Players[0].SpawnPoint.X);
         Assert.Equal(0.4f, game.Players[0].PlayerPosition.Y);
@@ -42,12 +41,12 @@ public class GameTest
         Assert.Equal(7.4f, game.Players[1].SpawnPoint.X);
         Assert.Equal(7.4f, game.Players[1].PlayerPosition.Y);
         Assert.Equal(IGame.Stage.Running, game.CurrentStage);
-        Assert.Equal(0, game.CurrentTick);
+        Assert.Equal(0, game.ElapsedTicks);
         Assert.Null(game.Winner);
     }
 
     [Fact]
-    public void Start_AfterGameStartEvent_IsRaised()
+    public async Task Start_AfterGameStartEvent_IsRaised()
     {
         bool eventReceived = false;
         Game game = new Game();
@@ -55,7 +54,7 @@ public class GameTest
         {
             eventReceived = true;
         };
-        game.Start();
+        await game.Start();
         Assert.True(eventReceived);
     }
 }

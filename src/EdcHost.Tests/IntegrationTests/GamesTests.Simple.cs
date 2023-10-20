@@ -6,7 +6,7 @@ namespace EdcHost.Tests.IntegrationTests;
 public partial class GamesTests
 {
     [Fact]
-    public void StartGame_EndGame()
+    public async Task Simple()
     {
         IGame.Stage? stage = null;
 
@@ -17,15 +17,15 @@ public partial class GamesTests
         Assert.StrictEqual(IGame.Stage.Ready, stage);
 
         // Act: Start the game.
-        game.Start();
+        await game.Start();
 
         stage = game.CurrentStage;
         Assert.StrictEqual(IGame.Stage.Running, stage);
 
         // Act: Stop the game.
-        game.Stop();
+        await game.End();
 
         stage = game.CurrentStage;
-        Assert.StrictEqual(IGame.Stage.Finished, stage);
+        Assert.StrictEqual(IGame.Stage.Ended, stage);
     }
 }

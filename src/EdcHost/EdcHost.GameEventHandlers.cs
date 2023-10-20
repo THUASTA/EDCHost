@@ -25,7 +25,7 @@ public partial class EdcHost : IEdcHost
             {
                 packet = new PacketFromHost(
                     (int)e.Game.CurrentStage,
-                    (int)e.Game.ElapsedTime.TotalSeconds,
+                    e.Game.ElapsedTicks * Game.TicksPerSecondExpected,
                     heightOfChunks,
                     e.Game.Players[i].HasBed,
                     e.Game.Players[i].PlayerPosition.X,
