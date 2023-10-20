@@ -20,13 +20,13 @@ public class Mine : IMine
     /// </summary>
     public IPosition<float> Position { get; }
 
-    public TimeSpan AccumulateOreInterval
+    public int AccumulateOreInterval
     {
         get => OreKind switch
         {
-            IMine.OreKindType.IronIngot => TimeSpan.FromSeconds(1),
-            IMine.OreKindType.GoldIngot => TimeSpan.FromSeconds(4),
-            IMine.OreKindType.Diamond => TimeSpan.FromSeconds(16),
+            IMine.OreKindType.IronIngot => 20,
+            IMine.OreKindType.GoldIngot => 80,
+            IMine.OreKindType.Diamond => 320,
             _ => throw new ArgumentOutOfRangeException(
                 nameof(OreKind), $"No ore kind {OreKind}")
         };
@@ -35,19 +35,19 @@ public class Mine : IMine
     /// <summary>
     /// Last time ore generated.
     /// </summary>
-    public DateTime LastOreGeneratedTime { get; private set; }
+    public int LastOreGeneratedTick { get; private set; }
 
     /// <summary>
     /// Constructor
     /// </summary>
     /// <param name="oreKind">The ore kind</param>
     /// <param name="position">The position</param>
-    public Mine(IMine.OreKindType oreKind, IPosition<float> position)
+    public Mine(IMine.OreKindType oreKind, IPosition<float> position, int tick)
     {
         AccumulatedOreCount = 0;
         OreKind = oreKind;
         Position = position;
-        LastOreGeneratedTime = DateTime.Now;
+        LastOreGeneratedTick = tick;
     }
 
     /// <summary>
@@ -66,10 +66,10 @@ public class Mine : IMine
     /// <summary>
     /// Generate ore automaticly.
     /// </summary>
-    public void GenerateOre()
+    public void GenerateOre(int tick)
     {
         AccumulatedOreCount++;
-        LastOreGeneratedTime = DateTime.Now;
+        LastOreGeneratedTick = tick;
     }
 
 }
