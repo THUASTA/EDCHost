@@ -65,6 +65,10 @@ public interface IPlayer
     /// </summary>
     bool HasBed { get; }
     /// <summary>
+    /// Whether the opponent player has a bed.
+    /// </summary>
+    public bool HasBedOpponent { get; }
+    /// <summary>
     /// The spawn point of the player.
     /// </summary>
     IPosition<float> SpawnPoint { get; }
