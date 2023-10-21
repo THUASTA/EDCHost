@@ -96,7 +96,6 @@ class Player : IPlayer
         MaxHealth = 20; /// Initial max health
         Strength = 1; /// Initial strength
         ActionPoints = 1; /// Initial action points
-        ActionPoints = 1;
     }
     public void PerformActionPosition(IPlayer.ActionKindType actionKind, float X, float Y)
     {

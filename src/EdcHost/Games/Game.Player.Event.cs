@@ -57,12 +57,6 @@ partial class Game : IGame
                 Action rejected.");
             return;
         }
-        if (IsAdjacent(ToIntPosition(e.Player.PlayerPosition), ToIntPosition(e.Position)) == false)
-        {
-            Serilog.Log.Warning(@$"Position ({e.Position.X}, {e.Position.Y})
-                is not adjacent to player {e.Player.PlayerId}. Action rejected.");
-            return;
-        }
         if (IsValidPosition(ToIntPosition(e.Position)) == false)
         {
             Serilog.Log.Warning(@$"Position ({e.Position.X}, {e.Position.Y}) is not valid.
@@ -128,12 +122,6 @@ partial class Game : IGame
         if (e.Player.IsAlive == false)
         {
             Serilog.Log.Warning($"Player {e.Player.PlayerId} is dead. Action rejected.");
-            return;
-        }
-        if (IsAdjacent(ToIntPosition(e.Player.PlayerPosition), ToIntPosition(e.Position)) == false)
-        {
-            Serilog.Log.Warning(@$"Position ({e.Position.X}, {e.Position.Y})
-                is not adjecant to player {e.Player.PlayerId}. Action rejected.");
             return;
         }
         if (IsValidPosition(ToIntPosition(e.Position)) == false)
