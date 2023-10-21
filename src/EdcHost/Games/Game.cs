@@ -51,7 +51,7 @@ partial class Game : IGame
         _playerLastAttackTickList = new();
         for (int i = 0; i < PlayerNum; i++)
         {
-            _playerLastAttackTickList.Add(ElapsedTicks);
+            _playerLastAttackTickList.Add(Never);
         }
 
         _playerDeathTickList = new();

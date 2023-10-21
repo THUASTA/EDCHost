@@ -20,6 +20,12 @@ partial class Game : IGame
     const int InstantDeathDamage = 114514;
 
     /// <summary>
+    /// This means a player hasn't done something (for example, Attack) yet
+    /// after game started.
+    /// </summary>
+    const int Never = -3939;
+
+    /// <summary>
     /// All players.
     /// </summary>
     public List<IPlayer> Players { get; private set; }
