@@ -2,18 +2,6 @@ namespace EdcHost.SlaveServers;
 
 public interface IPacket
 {
-    /// <summary>
-    /// Extract the data from a packet in raw byte array form.
-    /// </summary>
-    /// <param name="bytes">
-    /// The raw data.
-    /// </param>
-    /// <returns></returns>
-
-
-    public abstract byte[] MakePacket();
-    public abstract void ExtractPacketData(byte[] bytes);
-
     public static byte CalculateChecksum(byte[] bytes)
     {
         byte checksum = 0x00;
@@ -86,6 +74,7 @@ public interface IPacket
     /// <summary>
     /// Get the data from the byte array without header to the packet object
     /// </summary>
-    
 
+
+    public byte[] ToBytes();
 }

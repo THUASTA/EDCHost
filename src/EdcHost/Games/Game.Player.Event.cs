@@ -1,31 +1,24 @@
 namespace EdcHost.Games;
 
-public partial class Game : IGame
+partial class Game : IGame
 {
     /// <summary>
     /// Handle PlayerMoveEvent
     /// </summary>
     /// <param name="sender">Sender of the event</param>
     /// <param name="e">Event args</param>
-    private void HandlePlayerMoveEvent(object? sender, PlayerMoveEventArgs e)
+    void HandlePlayerMoveEvent(object? sender, PlayerMoveEventArgs e)
     {
-        if (_startTime is null)
-        {
-            Serilog.Log.Warning(@"The game is not started yet.
-                Please make sure every player is at its spawnpoint.");
-            return;
-        }
-
         try
         {
             if (e.Player.IsAlive == false && e.Player.HasBed == true
-                && DateTime.Now - _playerDeathTime[e.Player.PlayerId] > RespawnTimeInterval
+                && ElapsedTicks - _playerDeathTickList[e.Player.PlayerId] > TicksBeforeRespawn
                 && IsSamePosition(
                     ToIntPosition(e.Position), ToIntPosition(e.Player.SpawnPoint)
                     ) == true)
             {
                 Players[e.Player.PlayerId].Spawn(e.Player.MaxHealth);
-                _playerDeathTime[e.Player.PlayerId] = null;
+                _playerDeathTickList[e.Player.PlayerId] = null;
             }
 
             //Kill fallen player. Use 'if' instead of 'else if' to avoid fake spawn.
@@ -51,19 +44,14 @@ public partial class Game : IGame
     /// </summary>
     /// <param name="sender">Sender of the event</param>
     /// <param name="e">Event args</param>
-    private void HandlePlayerAttackEvent(object? sender, PlayerAttackEventArgs e)
+    void HandlePlayerAttackEvent(object? sender, PlayerAttackEventArgs e)
     {
-        if (_startTime is null)
-        {
-            Serilog.Log.Warning("The game is not started yet. Action rejected.");
-            return;
-        }
         if (e.Player.IsAlive == false)
         {
             Serilog.Log.Warning($"Player {e.Player.PlayerId} is dead. Action rejected.");
             return;
         }
-        if (DateTime.Now - _playerLastAttackTime[e.Player.PlayerId] < AttackTimeInterval(e.Player))
+        if (ElapsedTicks - _playerLastAttackTickList[e.Player.PlayerId] < AttackTickInterval(e.Player))
         {
             Serilog.Log.Warning(@$"Player {e.Player.PlayerId} has already attacked recently.
                 Action rejected.");
@@ -93,7 +81,7 @@ public partial class Game : IGame
         {
             //Attack opponent
             Players[Opponent(e.Player).PlayerId].Hurt(e.Player.Strength);
-            _playerLastAttackTime[e.Player.PlayerId] = DateTime.Now;
+            _playerLastAttackTickList[e.Player.PlayerId] = ElapsedTicks;
             return;
         }
         else
@@ -108,7 +96,7 @@ public partial class Game : IGame
             {
                 GameMap.GetChunkAt(ToIntPosition(e.Position)).RemoveBlock();
                 Players[e.Player.PlayerId].DecreaseWoolCount();
-                _playerLastAttackTime[e.Player.PlayerId] = DateTime.Now;
+                _playerLastAttackTickList[e.Player.PlayerId] = ElapsedTicks;
 
                 if (GameMap.GetChunkAt(ToIntPosition(e.Position)).IsVoid == true)
                 {
@@ -135,13 +123,8 @@ public partial class Game : IGame
     /// </summary>
     /// <param name="sender">Sender of the event</param>
     /// <param name="e">Event args</param>
-    private void HandlePlayerPlaceEvent(object? sender, PlayerPlaceEventArgs e)
+    void HandlePlayerPlaceEvent(object? sender, PlayerPlaceEventArgs e)
     {
-        if (_startTime is null)
-        {
-            Serilog.Log.Warning("The game is not started yet. Action rejected.");
-            return;
-        }
         if (e.Player.IsAlive == false)
         {
             Serilog.Log.Warning($"Player {e.Player.PlayerId} is dead. Action rejected.");
@@ -190,19 +173,14 @@ public partial class Game : IGame
     /// </summary>
     /// <param name="sender">Sender of the event</param>
     /// <param name="e">Event args</param>
-    private void HandlePlayerDieEvent(object? sender, PlayerDieEventArgs e)
+    void HandlePlayerDieEvent(object? sender, PlayerDieEventArgs e)
     {
-        if (_startTime is null)
-        {
-            Serilog.Log.Warning("The game is not started yet. Action rejected.");
-            return;
-        }
-        if (_playerDeathTime[e.Player.PlayerId] is not null)
+        if (_playerDeathTickList[e.Player.PlayerId] is not null)
         {
             Serilog.Log.Warning($"Player {e.Player.PlayerId} is already dead. Action rejected.");
             return;
         }
 
-        _playerDeathTime[e.Player.PlayerId] = DateTime.Now;
+        _playerDeathTickList[e.Player.PlayerId] = ElapsedTicks;
     }
 }

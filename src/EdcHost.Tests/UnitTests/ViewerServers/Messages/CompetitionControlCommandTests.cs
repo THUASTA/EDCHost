@@ -6,9 +6,9 @@ namespace EdcHost.Tests.UnitTests.ViewerServers.Messages;
 
 public class CompetitionControlCommandTests
 {
-    private const string MessageTypeTest = "testType";
-    private const string TokenTest = "testToken";
-    private const string CommandTest = "testMessage";
+    const string MessageTypeTest = "testType";
+    const string TokenTest = "testToken";
+    const string CommandTest = "testMessage";
     [Fact]
     public void CompetitionControlCommand_DoNothing_ReturnsContructorValue()
     {

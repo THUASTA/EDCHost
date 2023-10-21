@@ -1,10 +1,8 @@
-using System.Drawing;
 using EdcHost.Games;
-using Moq;
 using Xunit;
 
 namespace EdcHost.Tests.UnitTests.Games;
-public class MapTests
+public class IMapTests
 {
     public class MockPosition : IPosition<int>
     {
@@ -20,9 +18,9 @@ public class MapTests
     public IPosition<int>[] spawnPoints = new IPosition<int>[] { point1, point2, point3, point4 };
 
     [Fact]
-    public void Map_CorrectyInitialized()
+    public void IMap_CorrectyInitialized()
     {
-        Map map = new Map(spawnPoints);
+        IMap map = IMap.Create(spawnPoints);
         Assert.NotNull(map.Chunks);
         Assert.Equal(64, map.Chunks.Count);
         for (int i = 0; i < 64; i++)
@@ -41,7 +39,7 @@ public class MapTests
     [Fact]
     public void GetChunkAt_DoNothing_ReturnsCorrectChunkPosition()
     {
-        Map map = new Map(spawnPoints);
+        IMap map = IMap.Create(spawnPoints);
         MockPosition positionMock = new MockPosition { X = 2, Y = 3 };
         IChunk expectedChunk = map.Chunks[19];
         IChunk actualChunk = map.GetChunkAt(positionMock);
@@ -55,7 +53,7 @@ public class MapTests
     [InlineData(2, 8)]
     public void GetChunkAt_ThrowsRightException(int x, int y)
     {
-        Map map = new Map(spawnPoints);
+        IMap map = IMap.Create(spawnPoints);
         MockPosition positionMock = new MockPosition { X = x, Y = y };
         Assert.Throws<ArgumentException>(() => map.GetChunkAt(positionMock));
     }

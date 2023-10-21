@@ -9,10 +9,10 @@ public interface IPosition<T>
     /// <summary>
     /// The X coordinate of the position.
     /// </summary>
-    public T X { get; set; }
+    T X { get; set; }
 
     /// <summary>
     /// The Y coordinate of the position.
     /// </summary>
-    public T Y { get; set; }
+    T Y { get; set; }
 }

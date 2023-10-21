@@ -5,30 +5,41 @@ namespace EdcHost.Games;
 /// </summary>
 public interface IGame
 {
+    static IGame Create(List<Tuple<int, int>>? diamondMines = null,
+        List<Tuple<int, int>>? goldMines = null, List<Tuple<int, int>>? ironMines = null)
+    {
+        return new Game(
+            diamondMines: diamondMines,
+            goldMines: goldMines,
+            ironMines: ironMines
+        );
+    }
+
     /// <summary>
     /// Stage of game.
     /// </summary>
-    public enum Stage
+    enum Stage
     {
         Ready,
         Running,
         Battling,
-        Finished
+        Finished,
+        Ended,
     }
 
-    public event EventHandler<AfterGameStartEventArgs>? AfterGameStartEvent;
-    public event EventHandler<AfterGameTickEventArgs>? AfterGameTickEvent;
-    public event EventHandler<AfterJudgementEventArgs>? AfterJudgementEvent;
+    event EventHandler<AfterGameStartEventArgs>? AfterGameStartEvent;
+    event EventHandler<AfterGameTickEventArgs>? AfterGameTickEvent;
+    event EventHandler<AfterJudgementEventArgs>? AfterJudgementEvent;
 
     /// <summary>
     /// Current stage of the game.
     /// </summary>
-    public Stage CurrentStage { get; }
+    Stage CurrentStage { get; }
 
     /// <summary>
     /// Elapsed time of the game.
     /// </summary>
-    public TimeSpan ElapsedTime { get; }
+    int ElapsedTicks { get; }
 
     /// <summary>
     /// Winner of the game.
@@ -36,35 +47,32 @@ public interface IGame
     /// <remarks>
     /// Winner can be null in case there is no winner.
     /// </remarks>
-    public IPlayer? Winner { get; }
+    IPlayer? Winner { get; }
 
     /// <summary>
     /// The players.
     /// </summary>
-    public List<IPlayer> Players { get; }
+    List<IPlayer> Players { get; }
 
     /// <summary>
     /// The game map.
     /// </summary>
-    public IMap GameMap { get; }
+    IMap GameMap { get; }
 
     /// <summary>
     /// The mines.
     /// </summary>
-    public List<IMine> Mines { get; }
+    List<IMine> Mines { get; }
 
     /// <summary>
     /// Starts the game.
     /// </summary>
-    public void Start();
+    void Start();
 
     /// <summary>
-    /// Stops the game.
+    /// Ends the game.
     /// </summary>
-    public void Stop();
+    void End();
 
-    /// <summary>
-    /// Ticks the game.
-    /// </summary>
-    public void Tick();
+    void Tick();
 }

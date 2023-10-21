@@ -7,24 +7,24 @@ public class PacketFromHost : IPacketFromHost
     const int Chunk_MaxHeight = 8;
     const int Chunk_MinHeight = 0;
     const int PACKET_LENGTH = 100;
-    public int GameStage { get;private set; }
-    public int ElapsedTime { get;private set;  }
-    public List<int> HeightOfChunks { get;private set;  } = new List<int>();
-    public bool HasBed { get;private set;  }
-    public bool HasBedOpponent{get; private set;}
-    public float PositionX { get;private set;  }
-    public float PositionY { get;private set;  }
-    public float PositionOpponentX { get;private set;  }
-    public float PositionOpponentY { get;private set;  }
-    public int Agility { get;private set;  } 
-    public int Health { get;private set;  }
-    public int MaxHealth { get;private set;  }
+    public int GameStage { get; private set; }
+    public int ElapsedTime { get; private set; }
+    public List<int> HeightOfChunks { get; private set; } = new List<int>();
+    public bool HasBed { get; private set; }
+    public bool HasBedOpponent { get; private set; }
+    public float PositionX { get; private set; }
+    public float PositionY { get; private set; }
+    public float PositionOpponentX { get; private set; }
+    public float PositionOpponentY { get; private set; }
+    public int Agility { get; private set; }
+    public int Health { get; private set; }
+    public int MaxHealth { get; private set; }
     public int Strength { get; private set; }
-    public int EmeraldCount { get;private set;  }
-    public int WoolCount { get;private set;  }
+    public int EmeraldCount { get; private set; }
+    public int WoolCount { get; private set; }
 
     public PacketFromHost(
-        int gameStage, int elapsedTime, List<int> heightOfChunks, bool hasBed,bool hasBedOpponent,
+        int gameStage, int elapsedTime, List<int> heightOfChunks, bool hasBed, bool hasBedOpponent,
         float positionX, float positionY, float positionOpponentX, float positionOpponentY,
         int agility, int health, int maxHealth, int strength,
         int emeraldCount, int woolCount
@@ -46,81 +46,88 @@ public class PacketFromHost : IPacketFromHost
         EmeraldCount = emeraldCount;
         WoolCount = woolCount;
     }
-    public static bool PositionIsInvalid(float PositionT){
-        return (PositionT>7||PositionT<0);
-    }
-    public byte[] MakePacket()
+    public static bool PositionIsInvalid(float PositionT)
     {
-         int datalength=(
-            1+                  //GameStage
-            4+                  //ElapsedTime
-            1*64+               //HeightOfChunk
-            1+                  //HasBed
-            1+                  //HasBedOpponet
-            4*4+                // Position 
-            1*6                 //agility health maxHealth strength emeraldCount woolCount
-        );
+        return (PositionT > 7 || PositionT < 0);
+    }
+
+    public byte[] ToBytes()
+    {
+        int datalength = (
+           1 +                  //GameStage
+           4 +                  //ElapsedTime
+           1 * 64 +               //HeightOfChunk
+           1 +                  //HasBed
+           1 +                  //HasBedOpponet
+           4 * 4 +                // Position 
+           1 * 6                 //agility health maxHealth strength emeraldCount woolCount
+       );
         byte[] data = new byte[datalength];
-       
-        int currentIndex=0;
+
+        int currentIndex = 0;
         //GameStage
-        data[currentIndex++]=Convert.ToByte(GameStage);
-        
+        data[currentIndex++] = Convert.ToByte(GameStage);
+
         //ElapsedTime
-        if(ElapsedTime>=10000||ElapsedTime<0) throw new ArgumentException("The ElapsedTime is incorrect");
-        data[currentIndex++]=Convert.ToByte(ElapsedTime%10);         //*1
-        data[currentIndex++]=Convert.ToByte(ElapsedTime%100/10);     //*10
-        data[currentIndex++]=Convert.ToByte(ElapsedTime%1000/100);   //*100
-        data[currentIndex++]=Convert.ToByte(ElapsedTime/1000);       //*1000
+        if (ElapsedTime >= 10000 || ElapsedTime < 0) throw new ArgumentException("The ElapsedTime is incorrect");
+        data[currentIndex++] = Convert.ToByte(ElapsedTime % 10);         //*1
+        data[currentIndex++] = Convert.ToByte(ElapsedTime % 100 / 10);     //*10
+        data[currentIndex++] = Convert.ToByte(ElapsedTime % 1000 / 100);   //*100
+        data[currentIndex++] = Convert.ToByte(ElapsedTime / 1000);       //*1000
 
         //HeightOfChunks
-        for(int i=0;i<HeightOfChunks.Count();i++){
-        if(HeightOfChunks[i]>Chunk_MaxHeight || HeightOfChunks[i]<Chunk_MinHeight) throw new ArgumentException("The HeightOfChunks is incorrect");
-        data[currentIndex]=Convert.ToByte(HeightOfChunks[i]);
-        currentIndex++;
+        for (int i = 0; i < HeightOfChunks.Count(); i++)
+        {
+            if (HeightOfChunks[i] > Chunk_MaxHeight || HeightOfChunks[i] < Chunk_MinHeight) throw new ArgumentException("The HeightOfChunks is incorrect");
+            data[currentIndex] = Convert.ToByte(HeightOfChunks[i]);
+            currentIndex++;
         }
 
         //HasBed
-        data[currentIndex]=Convert.ToByte(HasBed);
+        data[currentIndex] = Convert.ToByte(HasBed);
         currentIndex++;
 
         //HasBedOpponent
-        data[currentIndex]=Convert.ToByte(HasBedOpponent);
+        data[currentIndex] = Convert.ToByte(HasBedOpponent);
         currentIndex++;
 
         //Position
-        if(PositionIsInvalid(PositionX)) throw new ArgumentException("The PositionX is incorrect");
-        byte[] temp=BitConverter.GetBytes(PositionX);    //convert float to 4 bytes
-        for(int i = 0;i<temp.Length;i++){
-            data[currentIndex]=temp[i];
+        if (PositionIsInvalid(PositionX)) throw new ArgumentException("The PositionX is incorrect");
+        byte[] temp = BitConverter.GetBytes(PositionX);    //convert float to 4 bytes
+        for (int i = 0; i < temp.Length; i++)
+        {
+            data[currentIndex] = temp[i];
             currentIndex++;
         }
-        if(PositionIsInvalid(PositionY)) throw new ArgumentException("The PositionY is incorrect");
-        temp=BitConverter.GetBytes(PositionY);
-         for(int i = 0;i<4;i++){
-            data[currentIndex]=temp[i];
+        if (PositionIsInvalid(PositionY)) throw new ArgumentException("The PositionY is incorrect");
+        temp = BitConverter.GetBytes(PositionY);
+        for (int i = 0; i < 4; i++)
+        {
+            data[currentIndex] = temp[i];
             currentIndex++;
         }
-        if(PositionIsInvalid(PositionOpponentX)) throw new ArgumentException("The PositionOpponentX is incorrect");
-        temp=BitConverter.GetBytes(PositionOpponentX);
-         for(int i = 0;i<4;i++){
-            data[currentIndex]=temp[i];
+        if (PositionIsInvalid(PositionOpponentX)) throw new ArgumentException("The PositionOpponentX is incorrect");
+        temp = BitConverter.GetBytes(PositionOpponentX);
+        for (int i = 0; i < 4; i++)
+        {
+            data[currentIndex] = temp[i];
             currentIndex++;
         }
-        if(PositionIsInvalid(PositionOpponentY)) throw new ArgumentException("The PositionOpponentY is incorrect");
-        temp=BitConverter.GetBytes(PositionOpponentY);
-         for(int i = 0;i<4;i++){
-            data[currentIndex]=temp[i];
+        if (PositionIsInvalid(PositionOpponentY)) throw new ArgumentException("The PositionOpponentY is incorrect");
+        temp = BitConverter.GetBytes(PositionOpponentY);
+        for (int i = 0; i < 4; i++)
+        {
+            data[currentIndex] = temp[i];
             currentIndex++;
         }
 
         //1 byte factors
-        data[currentIndex++]=Convert.ToByte(Agility);
-        data[currentIndex++]=Convert.ToByte(Health);
-        data[currentIndex++]=Convert.ToByte(MaxHealth);
-        data[currentIndex++]=Convert.ToByte(Strength);
-        data[currentIndex++]=Convert.ToByte(EmeraldCount);
-        data[currentIndex++]=Convert.ToByte(WoolCount);
+        data[currentIndex++] = Convert.ToByte(Agility);
+        data[currentIndex++] = Convert.ToByte(Health);
+        data[currentIndex++] = Convert.ToByte(MaxHealth);
+        data[currentIndex++] = Convert.ToByte(Strength);
+        data[currentIndex++] = Convert.ToByte(EmeraldCount);
+        data[currentIndex++] = Convert.ToByte(WoolCount);
 
         //add header
         byte[] header = IPacket.GeneratePacketHeader(data);
@@ -128,71 +135,5 @@ public class PacketFromHost : IPacketFromHost
         header.CopyTo(bytes, 0);
         data.CopyTo(bytes, header.Length);
         return bytes;
-    }
-
-    /// <summary>
-    /// get data from a raw byte array and update the object
-    /// </summary>
-    public void ExtractPacketData(byte[] bytes)
-    {
-
-        byte[] data=IPacket.GetPacketData(bytes);
-
-        int currentIndex = 0;
-
-        //GameStage
-        GameStage=Convert.ToInt32(data[currentIndex]);
-        currentIndex++;
-
-        //ElapsedTime
-        ElapsedTime=0;
-        for(int i = 0;i<4;i++){
-            ElapsedTime+=Convert.ToInt32(data[currentIndex])*(int)Math.Pow(10,i);
-            currentIndex++;
-        }
-
-        //HeightOfChunks
-        for(int i=0;i<HeightOfChunks.Count();i++){
-            HeightOfChunks[i]=Convert.ToInt32(data[currentIndex]);
-            currentIndex++;
-        }
-
-        //HasBed
-        HasBed=Convert.ToBoolean(data[currentIndex]);
-        currentIndex++;
-
-        //HasBedOpponent
-        HasBedOpponent=Convert.ToBoolean(data[currentIndex]);
-        currentIndex++;
-
-        //Position
-        byte[] temp=new byte[4];
-        for(int i = 0;i<4;i++){
-            temp[i]=data[currentIndex];
-            currentIndex++;
-        }
-        PositionX=BitConverter.ToSingle(temp);         //convert 4 bytes to float
-        for(int i = 0;i<4;i++){
-            temp[i]=data[currentIndex];
-            currentIndex++;
-        }
-        PositionY=BitConverter.ToSingle(temp);
-        for(int i = 0;i<4;i++){
-            temp[i]=data[currentIndex];
-            currentIndex++;
-        }
-        PositionOpponentX=BitConverter.ToSingle(temp);
-         for(int i = 0;i<4;i++){
-            temp[i]=data[currentIndex];
-            currentIndex++;
-        }
-        PositionOpponentY=BitConverter.ToSingle(temp);
-
-        Agility=Convert.ToInt32(data[currentIndex++]);
-        Health=Convert.ToInt32(data[currentIndex++]);
-        MaxHealth=Convert.ToInt32(data[currentIndex++]);
-        Strength=Convert.ToInt32(data[currentIndex++]);
-        EmeraldCount=Convert.ToInt32(data[currentIndex++]);
-        WoolCount=Convert.ToInt32(data[currentIndex++]);
     }
 }

@@ -3,14 +3,14 @@ using EdcHost.SlaveServers;
 
 namespace EdcHost;
 
-public partial class EdcHost : IEdcHost
+partial class EdcHost : IEdcHost
 {
-    private void HandleAfterGameStartEvent(object? sender, AfterGameStartEventArgs e)
+    void HandleAfterGameStartEvent(object? sender, AfterGameStartEventArgs e)
     {
-        Serilog.Log.Information("Game started.");
+        //Do nothing
     }
 
-    private void HandleAfterGameTickEvent(object? sender, AfterGameTickEventArgs e)
+    void HandleAfterGameTickEvent(object? sender, AfterGameTickEventArgs e)
     {
         try
         {
@@ -23,9 +23,15 @@ public partial class EdcHost : IEdcHost
 
             for (int i = 0; i < 2; i++)
             {
+                string? portName = _playerIdToPortName.GetValueOrDefault(e.Game.Players[i].PlayerId);
+                if (portName is null)
+                {
+                    continue;
+                }
+
                 packet = new PacketFromHost(
                     (int)e.Game.CurrentStage,
-                    (int)e.Game.ElapsedTime.TotalSeconds,
+                    e.Game.ElapsedTicks * Game.TicksPerSecondExpected,
                     heightOfChunks,
                     e.Game.Players[i].HasBed,
                     e.Game.Players[i].PlayerPosition.X,
@@ -39,26 +45,43 @@ public partial class EdcHost : IEdcHost
                     e.Game.Players[i].EmeraldCount,
                     e.Game.Players[i].WoolCount
                 );
-                _slaveServer.UpdatePacket(_game.Players[i].PlayerId, packet);
+
+                _slaveServer.Publish(
+                    portName: portName,
+                    gameStage: (int)e.Game.CurrentStage,
+                    elapsedTime: e.Game.ElapsedTicks,
+                    heightOfChunks: heightOfChunks,
+                    hasBed: e.Game.Players[i].HasBed,
+                    positionX: e.Game.Players[i].PlayerPosition.X,
+                    positionY: e.Game.Players[i].PlayerPosition.Y,
+                    positionOpponentX: e.Game.Players[(i == 0) ? 1 : 0].PlayerPosition.X,
+                    positionOpponentY: e.Game.Players[(i == 0) ? 1 : 0].PlayerPosition.Y,
+                    agility: e.Game.Players[i].ActionPoints,
+                    health: e.Game.Players[i].Health,
+                    maxHealth: e.Game.Players[i].MaxHealth,
+                    strength: e.Game.Players[i].Strength,
+                    emeraldCount: e.Game.Players[i].EmeraldCount,
+                    woolCount: e.Game.Players[i].WoolCount
+                );
             }
         }
         catch (Exception exception)
         {
-            Serilog.Log.Warning($"An exception is caught when updating packet: {exception}");
+            _logger.Warning($"An exception is caught when updating packet: {exception}");
         }
     }
 
-    private void HandleAfterJudgementEvent(object? sender, AfterJudgementEventArgs e)
+    void HandleAfterJudgementEvent(object? sender, AfterJudgementEventArgs e)
     {
         if (e.Winner is null)
         {
-            Serilog.Log.Information("No winner.");
+            _logger.Information("No winner.");
         }
         else
         {
-            Serilog.Log.Information($"Winner is {e.Winner?.PlayerId}");
+            _logger.Information($"Winner is {e.Winner?.PlayerId}");
         }
 
-        Stop();
+        _gameRunner.End();
     }
 }
