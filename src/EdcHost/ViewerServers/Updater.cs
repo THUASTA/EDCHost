@@ -6,14 +6,14 @@ namespace EdcHost.ViewerServers;
 public class Updater : IUpdater
 {
     public ICompetitionUpdate CachedMessage { get; private set; } = new CompetitionUpdate();
-    private bool _isRunning = false;
+    bool _isRunning = false;
     public event EventHandler<MessageTransferEventArgs>? SendEvent;
-    private readonly Thread _sendThread;
-    private bool _playerUpdate = false;
-    private bool _infoUpdate = false;
-    private bool _cameraUpdate = false;
-    private bool _chunkUpdate = false;
-    private bool _mineUpdate = false;
+    readonly Thread _sendThread;
+    bool _playerUpdate = false;
+    bool _infoUpdate = false;
+    bool _cameraUpdate = false;
+    bool _chunkUpdate = false;
+    bool _mineUpdate = false;
 
     public Updater()
     {
@@ -38,7 +38,7 @@ public class Updater : IUpdater
         _sendThread.Start();
     }
 
-    private void Clear()
+    void Clear()
     {
         CachedMessage = new CompetitionUpdate();
         _playerUpdate = false;
@@ -48,7 +48,7 @@ public class Updater : IUpdater
         _infoUpdate = false;
     }
 
-    private bool ReadyToSend()
+    bool ReadyToSend()
     {
         return _playerUpdate && _cameraUpdate && _chunkUpdate && _mineUpdate && _infoUpdate;
     }

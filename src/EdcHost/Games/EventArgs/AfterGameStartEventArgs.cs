@@ -7,14 +7,8 @@ public class AfterGameStartEventArgs : EventArgs
     /// </summary>
     public IGame Game { get; }
 
-    /// <summary>
-    /// Start time of the game.
-    /// </summary>
-    public DateTime? StartTime { get; }
-
-    public AfterGameStartEventArgs(IGame game, DateTime? startTime)
+    public AfterGameStartEventArgs(IGame game)
     {
         Game = game;
-        StartTime = startTime;
     }
 }

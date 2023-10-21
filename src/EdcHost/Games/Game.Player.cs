@@ -1,7 +1,9 @@
 namespace EdcHost.Games;
 
-public partial class Game : IGame
+partial class Game : IGame
 {
+    const int TicksBeforeRespawn = 300;
+
     /// <summary>
     /// Number of players.
     /// </summary>
@@ -15,7 +17,7 @@ public partial class Game : IGame
     /// <summary>
     /// The damage which will kill a player instantly.
     /// </summary>
-    private const int InstantDeathDamage = 255;
+    const int InstantDeathDamage = 114514;
 
     /// <summary>
     /// All players.
@@ -25,26 +27,12 @@ public partial class Game : IGame
     /// <summary>
     /// Whether all beds are destroyed or not.
     /// </summary>
-    private bool _allBedsDestroyed;
+    bool _isAllBedsDestroyed;
 
-    /// <summary>
-    /// Last attack time of each player.
-    /// </summary>
-    private readonly List<DateTime> _playerLastAttackTime;
+    readonly List<int?> _playerDeathTickList;
+    readonly List<int> _playerLastAttackTickList;
 
-    /// <summary>
-    /// Last time a player dies.
-    /// </summary>
-    private readonly List<DateTime?> _playerDeathTime;
-
-    /// <summary>
-    /// Cauculate commodity value.
-    /// </summary>
-    /// <param name="player">The player</param>
-    /// <param name="commodityKind">The commodity kind</param>
-    /// <returns>The value</returns>
-    /// <exception cref="ArgumentOutOfRangeException">No such commodity</exception>
-    private int CommodityValue(
+    int CommodityValue(
         IPlayer player, IPlayer.CommodityKindType commodityKind) => commodityKind switch
         {
             IPlayer.CommodityKindType.AgilityBoost => (int)Math.Pow(2, player.ActionPoints),
@@ -56,22 +44,12 @@ public partial class Game : IGame
                 nameof(commodityKind), $"No commodity {commodityKind}")
         };
 
-    /// <summary>
-    /// Time interval between two attack actions of a player.
-    /// </summary>
-    /// <param name="player">The player</param>
-    /// <returns>Time interval</returns>
-    private TimeSpan AttackTimeInterval(IPlayer player)
+    int AttackTickInterval(IPlayer player)
     {
-        return TimeSpan.FromSeconds((double)10.0d / (double)player.ActionPoints);
+        return 200 / player.ActionPoints;
     }
 
-    /// <summary>
-    /// Gets the opponent of a player.
-    /// </summary>
-    /// <param name="player">The player</param>
-    /// <returns>Opponent of the player</returns>
-    private IPlayer Opponent(IPlayer player)
+    IPlayer Opponent(IPlayer player)
     {
         return Players[(player.PlayerId == 0) ? 1 : 0];
     }

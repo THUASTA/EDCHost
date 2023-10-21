@@ -7,7 +7,8 @@ namespace EdcHost;
 
 class Program
 {
-    private const int DefaultServerPort = 8080;
+    const int DefaultServerPort = 8080;
+    const string SerilogTemplate = "[{Timestamp:HH:mm:ss} {Level:u3}] <{Component}> {Message:lj}{NewLine}{Exception}";
 
     static void Main()
     {
@@ -50,13 +51,15 @@ class Program
         List<Tuple<int, int>> gameIronMines = EnvReader.TryGetStringValue("GAME_IRON_MINES", out string? gameIronMinesString) ? ParseMineList(gameIronMinesString) : new();
         int serverPort = EnvReader.TryGetIntValue("SERVER_PORT", out serverPort) ? serverPort : DefaultServerPort;
 
-        IEdcHost edcHost = EdcHost.Create(new EdcHostOptions
+        IEdcHost edcHost = IEdcHost.Create(new IEdcHost.EdcHostOptions
         (
             gameDiamondMines: gameDiamondMines,
             gameGoldMines: gameGoldMines,
             gameIronMines: gameIronMines,
             serverPort: serverPort
         ));
+
+        edcHost.Start();
     }
 
     static void SetupDotEnv()
@@ -81,29 +84,56 @@ class Program
         {
             "Verbose" => new LoggerConfiguration()
                 .MinimumLevel.Verbose()
-                .WriteTo.Console()
+                .WriteTo.Console(outputTemplate: SerilogTemplate)
+                .Enrich.WithProperty("Component", "Program")
                 .CreateLogger(),
             "Debug" => new LoggerConfiguration()
                 .MinimumLevel.Debug()
-                .WriteTo.Console()
+                .WriteTo.Console(outputTemplate: SerilogTemplate)
+                .Enrich.WithProperty("Component", "Program")
                 .CreateLogger(),
             "Information" => new LoggerConfiguration()
                 .MinimumLevel.Information()
-                .WriteTo.Console()
+                .WriteTo.Console(outputTemplate: SerilogTemplate)
+                .Enrich.WithProperty("Component", "Program")
                 .CreateLogger(),
             "Warning" => new LoggerConfiguration()
                 .MinimumLevel.Warning()
-                .WriteTo.Console()
+                .WriteTo.Console(outputTemplate: SerilogTemplate)
+                .Enrich.WithProperty("Component", "Program")
                 .CreateLogger(),
             "Error" => new LoggerConfiguration()
                 .MinimumLevel.Error()
-                .WriteTo.Console()
+                .WriteTo.Console(outputTemplate: SerilogTemplate)
+                .Enrich.WithProperty("Component", "Program")
                 .CreateLogger(),
             "Fatal" => new LoggerConfiguration()
                 .MinimumLevel.Fatal()
-                .WriteTo.Console()
+                .WriteTo.Console(outputTemplate: SerilogTemplate)
+                .Enrich.WithProperty("Component", "Program")
                 .CreateLogger(),
             _ => throw new ArgumentOutOfRangeException(nameof(loggingLevelString), loggingLevelString, "invalid logging level")
+        };
+
+        // Configure Fleck logging
+        ILogger fleckLogger = Log.Logger.ForContext("Component", "Fleck");
+        Fleck.FleckLog.LogAction = (level, message, ex) =>
+        {
+            switch (level)
+            {
+                case Fleck.LogLevel.Debug:
+                    fleckLogger.Debug(message, ex);
+                    break;
+                case Fleck.LogLevel.Info:
+                    fleckLogger.Information(message, ex);
+                    break;
+                case Fleck.LogLevel.Warn:
+                    fleckLogger.Warning(message, ex);
+                    break;
+                case Fleck.LogLevel.Error:
+                    fleckLogger.Error(message, ex);
+                    break;
+            }
         };
     }
 }

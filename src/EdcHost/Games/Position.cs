@@ -4,7 +4,7 @@ namespace EdcHost.Games;
 /// Position represents a position in 2D space.
 /// </summary>
 /// <typeparam name="T">The type of the position.</typeparam>
-public class Position<T> : IPosition<T>
+struct Position<T> : IPosition<T>
 {
     /// <summary>
     /// The X coordinate of the position.

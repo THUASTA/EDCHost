@@ -1,3 +1,4 @@
+using System.IO.Ports;
 using EdcHost.SlaveServers.EventArgs;
 
 namespace EdcHost.SlaveServers;
@@ -7,18 +8,26 @@ namespace EdcHost.SlaveServers;
 /// </summary>
 public interface ISlaveServer
 {
-    public event EventHandler<PlayerTryAttackEventArgs>? PlayerTryAttackEvent;
-    public event EventHandler<PlayerTryUseEventArgs>? PlayerTryUseEvent;
-    public event EventHandler<PlayerTryTradeEventArgs>? PlayerTryTradeEvent;
+    event EventHandler<PlayerTryAttackEventArgs>? PlayerTryAttackEvent;
+    event EventHandler<PlayerTryUseEventArgs>? PlayerTryUseEvent;
+    event EventHandler<PlayerTryTradeEventArgs>? PlayerTryTradeEvent;
+
+    void AddPort(string portName, int baudRate, Parity parity, int dataBits, StopBits stopBits);
+
+    void RemovePort(string portName);
+
+    void Publish(string portName, int gameStage, int elapsedTime, List<int> heightOfChunks,
+        bool hasBed, bool hasBedOpponent, float positionX, float positionY, float positionOpponentX,
+        float positionOpponentY, int agility, int health, int maxHealth, int strength,
+        int emeraldCount, int woolCount);
 
     /// <summary>
     /// Starts the server.
     /// </summary>
-    public void Start();
+    void Start();
+
     /// <summary>
     /// Stops the server.
     /// </summary>
-    public void Stop();
-
-    public void UpdatePacket(int id, IPacket packet);
+    void Stop();
 }

@@ -9,8 +9,8 @@ public class GameController : IGameController
     public event EventHandler? EndGameEvent;
     public event EventHandler? ResetGameEvent;
     public event EventHandler<MessageTransferEventArgs>? GetHostConfigurationEvent;
-    private List<object>? _availablePorts;
-    private List<int>? _availableCameras;
+    List<object>? _availablePorts;
+    List<int>? _availableCameras;
 
     /// <summary>
     /// Starts the game.
