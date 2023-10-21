@@ -15,19 +15,19 @@ public partial class GamesTests
         game.Start();
         for (int i = 1; i < 8; i++)
         {
-             float x0 = game.Players[0].SpawnPoint.X;
-             float y0 = game.Players[0].SpawnPoint.Y;
-             float x1 = game.Players[1].SpawnPoint.X;
-             float y1 = game.Players[1].SpawnPoint.Y;
-             float move = i;
-             game.Players[0].Move(x0 + move, y0 + move);
-             game.Players[1].Move(x1 - move, y1 - move);
-             game.Tick();
-             Assert.StrictEqual(IGame.Stage.Running, game.CurrentStage);
-             Assert.StrictEqual(x0 + move, game.Players[0].PlayerPosition.X);
-             Assert.StrictEqual(y0 + move, game.Players[0].PlayerPosition.Y);
-             Assert.StrictEqual(x1 - move, game.Players[1].PlayerPosition.X);
-             Assert.StrictEqual(y1 - move, game.Players[1].PlayerPosition.Y);
+            float x0 = game.Players[0].SpawnPoint.X;
+            float y0 = game.Players[0].SpawnPoint.Y;
+            float x1 = game.Players[1].SpawnPoint.X;
+            float y1 = game.Players[1].SpawnPoint.Y;
+            float move = i;
+            game.Players[0].Move(x0 + move, y0 + move);
+            game.Players[1].Move(x1 - move, y1 - move);
+            game.Tick();
+            Assert.StrictEqual(IGame.Stage.Running, game.CurrentStage);
+            Assert.StrictEqual(x0 + move, game.Players[0].PlayerPosition.X);
+            Assert.StrictEqual(y0 + move, game.Players[0].PlayerPosition.Y);
+            Assert.StrictEqual(x1 - move, game.Players[1].PlayerPosition.X);
+            Assert.StrictEqual(y1 - move, game.Players[1].PlayerPosition.Y);
         }
 
         // Act2 InvalidMoveMent and Relive
@@ -35,12 +35,11 @@ public partial class GamesTests
         game.Tick();
         Assert.False(game.Players[0].IsAlive);
         Assert.Null(game.Winner);
-        for (int i= 0; i < TicksBeforeRespawn; i++)
+        for (int i = 0; i < TicksBeforeRespawn; i++)
         {
-             game.Tick();
-             Assert.False(game.Players[0].IsAlive);
+            game.Tick();
+            Assert.False(game.Players[0].IsAlive);
         }
-      
         game.Players[0].Move(game.Players[0].SpawnPoint.X, game.Players[0].SpawnPoint.Y);
         game.Tick();
         Assert.True(game.Players[0].IsAlive);
@@ -50,9 +49,9 @@ public partial class GamesTests
         game.Tick();
         Assert.False(game.Players[1].IsAlive);
         Assert.Null(game.Winner);
-        for (int i = 0; i < TicksBeforeRespawn / 2 ; i++)
+        for (int i = 0; i < TicksBeforeRespawn / 2; i++)
         {
-             game.Tick();
+            game.Tick();
         }
         game.Players[0].Move(game.Players[1].SpawnPoint.X, game.Players[1].SpawnPoint.Y);
         game.Tick();
