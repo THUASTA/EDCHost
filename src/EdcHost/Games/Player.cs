@@ -5,7 +5,7 @@ class Player : IPlayer
     public int PlayerId { get; private set; }
     public int EmeraldCount { get; private set; }
     public bool HasBed { get; private set; }
-    public bool HasBedOpponent{get; private set;}
+    public bool HasBedOpponent { get; private set; }
     public bool IsAlive { get; private set; }
     public IPosition<float> SpawnPoint { get; private set; }
     public IPosition<float> PlayerPosition { get; private set; }
