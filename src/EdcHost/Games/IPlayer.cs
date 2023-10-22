@@ -47,6 +47,7 @@ public interface IPlayer
     void Hurt(int EnemyStrength);
     void Spawn(int MaxHealth);
     void DestroyBed();
+    void DestroyBedOpponent();
     void DecreaseWoolCount();
     /// <summary>
     /// The Id of  the player 
@@ -65,9 +66,9 @@ public interface IPlayer
     /// </summary>
     bool HasBed { get; }
     /// <summary>
-    /// Whether the opponent player has a bed.
+    /// Whether the player has a bed.
     /// </summary>
-    public bool HasBedOpponent { get; }
+    bool HasBedOpponent { get; }
     /// <summary>
     /// The spawn point of the player.
     /// </summary>
