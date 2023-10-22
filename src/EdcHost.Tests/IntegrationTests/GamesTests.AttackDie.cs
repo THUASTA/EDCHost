@@ -18,13 +18,13 @@ public partial class GamesTests
         // Accumulate no ore and attack 20 times
         for (int i = 1; i <= AttackTimes; i++)
         {
-            game.Players[0].Attack(game.Players[1].PlayerPosition.X, game.Players[1].PlayerPosition.Y);
             game.Tick();
+            game.Players[0].Attack(game.Players[1].PlayerPosition.X, game.Players[1].PlayerPosition.Y);
             Assert.StrictEqual(game.Players[1].MaxHealth - i * game.Players[0].Strength, game.Players[1].Health);
             for (int j = 1; j <= AttackTickInterval; j++)
             {
-                game.Players[0].Attack(game.Players[1].PlayerPosition.X, game.Players[1].PlayerPosition.Y);
                 game.Tick();
+                game.Players[0].Attack(game.Players[1].PlayerPosition.X, game.Players[1].PlayerPosition.Y);
                 Assert.StrictEqual(game.Players[1].MaxHealth - i * game.Players[0].Strength, game.Players[1].Health);
             }
             game.Tick();
