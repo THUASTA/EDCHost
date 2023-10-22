@@ -33,6 +33,7 @@ public partial class GamesTests
         Assert.Null(game.Winner);
 
         // BedDestryed
+        game.Players[0].Move(3.4f, 3.4f);
         game.Players[0].Attack(game.Players[1].SpawnPoint.X, game.Players[1].SpawnPoint.Y);
         game.Tick();
         Assert.Null(game.Winner);
