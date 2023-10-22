@@ -38,20 +38,45 @@ partial class Game : IGame
     /// </summary>
     public List<IMine> Mines { get; private set; }
 
+    /// <summary>
+    /// Default players.
+    /// </summary>
+    readonly IPlayer[] _defaultPlayerList = {
+        new Player(0, 0.4f, 0.4f, 0.4f, 0.4f), new Player(1, 7.4f, 7.4f, 7.4f, 7.4f)};
+
+    /// <summary>
+    /// Default spawn points.
+    /// </summary>
+    readonly IPosition<int>[] _defaultSpawnPoints = {
+        new Position<int>(0, 0), new Position<int>(7, 7) };
+
     readonly ILogger _logger = Log.Logger.ForContext("Component", "Games");
 
-    public Game(List<Tuple<int, int>>? diamondMines = null,
-        List<Tuple<int, int>>? goldMines = null, List<Tuple<int, int>>? ironMines = null)
+    public Game(
+        List<Tuple<int, int>>? diamondMines = null,
+        List<Tuple<int, int>>? goldMines = null,
+        List<Tuple<int, int>>? ironMines = null,
+        List<IPlayer>? playerList = null,
+        IPosition<int>[]? spawnPoints = null
+    )
     {
-        var spawnPoints = new IPosition<int>[] { new Position<int>(0, 0), new Position<int>(7, 7) };
-        GameMap = new Map(spawnPoints);
+        spawnPoints ??= _defaultSpawnPoints;
+        playerList ??= new(_defaultPlayerList);
 
-        Players = new();
+        PlayerNum = playerList.Count;
+
+        if (PlayerNum != spawnPoints.Length)
+        {
+            throw new ArgumentException(
+                "Number of players does not match number of spawn points");
+        }
+
+        GameMap = new Map(spawnPoints);
 
         _playerLastAttackTickList = new();
         for (int i = 0; i < PlayerNum; i++)
         {
-            _playerLastAttackTickList.Add(ElapsedTicks);
+            _playerLastAttackTickList.Add(Never);
         }
 
         _playerDeathTickList = new();
@@ -69,12 +94,9 @@ partial class Game : IGame
 
         _isAllBedsDestroyed = false;
 
-        Players.Clear();
-
         //TODO: Set player's initial position and spawnpoint
 
-        Players.Add(new Player(0, 0.4f, 0.4f, 0.4f, 0.4f));
-        Players.Add(new Player(1, 7.4f, 7.4f, 7.4f, 7.4f));
+        Players = new(playerList);
 
         for (int i = 0; i < PlayerNum; i++)
         {
@@ -86,7 +108,7 @@ partial class Game : IGame
 
         for (int i = 0; i < PlayerNum; i++)
         {
-            _playerLastAttackTickList[i] = ElapsedTicks;
+            _playerLastAttackTickList[i] = Never;
         }
 
         for (int i = 0; i < PlayerNum; i++)
@@ -258,14 +280,15 @@ partial class Game : IGame
     /// <returns>True if finished, false otherwise.</returns>
     bool IsFinished()
     {
+        int remainingPlayers = PlayerNum;
         for (int i = 0; i < PlayerNum; i++)
         {
             if (Players[i].IsAlive == false && Players[i].HasBed == false)
             {
-                return true;
+                remainingPlayers--;
             }
         }
-        return false;
+        return (remainingPlayers <= 1);
     }
 
     /// <summary>
@@ -282,7 +305,7 @@ partial class Game : IGame
             }
         }
 
-        if (remainingPlayers == 0 || remainingPlayers == PlayerNum)
+        if (remainingPlayers == 0 || remainingPlayers > 1)
         {
             Winner = null;
         }
