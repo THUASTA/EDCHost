@@ -5,11 +5,6 @@ partial class Game : IGame
     const int TicksBeforeRespawn = 300;
 
     /// <summary>
-    /// Number of players.
-    /// </summary>
-    public const int PlayerNum = 2;
-
-    /// <summary>
     /// Maximum count of same type of items a player can hold.
     /// </summary>
     public const int MaximumItemCount = 64;
@@ -24,6 +19,11 @@ partial class Game : IGame
     /// after game started.
     /// </summary>
     const int Never = -3939;
+
+    /// <summary>
+    /// Number of players.
+    /// </summary>
+    public int PlayerNum { get; }
 
     /// <summary>
     /// All players.

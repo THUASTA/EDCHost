@@ -100,7 +100,7 @@ partial class Game : IGame
 
                 if (GameMap.GetChunkAt(ToIntPosition(e.Position)).IsVoid == true)
                 {
-                    for (int i = 0; i < 2; i++)
+                    for (int i = 0; i < PlayerNum; i++)
                     {
                         if (Players[i].HasBed == true && IsSamePosition(
                             ToIntPosition(Players[i].SpawnPoint), ToIntPosition(e.Position)) == true)

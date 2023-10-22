@@ -12,6 +12,12 @@ partial class Game : IGame
         return new Position<int>((int)floatPosition.X, (int)floatPosition.Y);
     }
 
+    IPosition<float> ToFloatPosition(IPosition<int> intPosition)
+    {
+        float offset = 0.4f;
+        return new Position<float>(offset + (float)intPosition.X, offset + (float) intPosition.Y);
+    }
+
     /// <summary>
     /// Whether the position is a valid position or not.
     /// </summary>
