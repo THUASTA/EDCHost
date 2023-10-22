@@ -103,7 +103,6 @@ partial class Game : IGame
             try
             {
                 GameMap.GetChunkAt(ToIntPosition(e.Position)).RemoveBlock();
-                Players[e.Player.PlayerId].DecreaseWoolCount();
                 _playerLastAttackTickList[e.Player.PlayerId] = ElapsedTicks;
 
                 if (GameMap.GetChunkAt(ToIntPosition(e.Position)).IsVoid == true)
@@ -138,6 +137,10 @@ partial class Game : IGame
             _logger.Warning($"Player {e.Player.PlayerId} is dead. Action rejected.");
             return;
         }
+        if (e.Player.WoolCount <= 0)
+        {
+            _logger.Warning($"Player {e.Player.PlayerId} doesn't have enough wool. Action rejected.");
+        }
         if (IsAdjacent(ToIntPosition(e.Player.PlayerPosition), ToIntPosition(e.Position)) == false)
         {
             _logger.Warning(@$"Position ({e.Position.X}, {e.Position.Y})
@@ -150,18 +153,13 @@ partial class Game : IGame
                 Action rejected.");
             return;
         }
-        if (IsAdjacent(ToIntPosition(e.Player.PlayerPosition), ToIntPosition(e.Position)) == false)
-        {
-            _logger.Warning(@$"Position ({e.Position.X}, {e.Position.Y})
-                is not adjacent to player {e.Player.PlayerId}. Action rejected.");
-            return;
-        }
 
         try
         {
             if (GameMap.GetChunkAt(ToIntPosition(e.Position)).CanPlaceBlock == true)
             {
                 GameMap.GetChunkAt(ToIntPosition(e.Position)).PlaceBlock();
+                Players[e.Player.PlayerId].DecreaseWoolCount();
             }
             else
             {
