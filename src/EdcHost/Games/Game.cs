@@ -280,14 +280,15 @@ partial class Game : IGame
     /// <returns>True if finished, false otherwise.</returns>
     bool IsFinished()
     {
+        int remainingPlayers = PlayerNum;
         for (int i = 0; i < PlayerNum; i++)
         {
             if (Players[i].IsAlive == false && Players[i].HasBed == false)
             {
-                return true;
+                remainingPlayers--;
             }
         }
-        return false;
+        return (remainingPlayers <= 1);
     }
 
     /// <summary>
@@ -304,7 +305,7 @@ partial class Game : IGame
             }
         }
 
-        if (remainingPlayers == 0 || remainingPlayers == PlayerNum)
+        if (remainingPlayers == 0 || remainingPlayers > 1)
         {
             Winner = null;
         }

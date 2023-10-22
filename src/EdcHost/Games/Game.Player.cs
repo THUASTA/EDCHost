@@ -55,9 +55,4 @@ partial class Game : IGame
         return 200 / player.ActionPoints;
     }
 
-    IPlayer Opponent(IPlayer player)
-    {
-        return Players[(player.PlayerId == 0) ? 1 : 0];
-    }
-
 }
