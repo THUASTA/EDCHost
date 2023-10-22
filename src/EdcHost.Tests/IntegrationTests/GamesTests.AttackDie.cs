@@ -5,7 +5,7 @@ namespace EdcHost.Tests.IntegrationTests;
 
 public partial class GamesTests
 {
-    const int AttackTickInterval = 20;
+    const int AttackTickInterval = 200;
     const int AttackTimes = 20;
     [Fact]
     public void Game_AttackDieTests()
@@ -28,6 +28,7 @@ public partial class GamesTests
                 Assert.StrictEqual(game.Players[1].MaxHealth - i * game.Players[0].Strength, game.Players[1].Health);
             }
             game.Tick();
+            Assert.StrictEqual(1 + i * (2 + AttackTickInterval), game.ElapsedTicks);
         }
         Assert.False(game.Players[1].IsAlive);
         Assert.Null(game.Winner);
