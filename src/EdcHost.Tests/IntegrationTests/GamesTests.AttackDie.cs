@@ -41,8 +41,10 @@ public partial class GamesTests
         game.Tick();
         game.Players[0].Attack(game.Players[1].SpawnPoint.X, game.Players[1].SpawnPoint.Y);
         game.Tick();
-        Assert.StrictEqual(IGame.Stage.Finished, game.CurrentStage);
+        Assert.False(game.Players[1].IsAlive);
+        Assert.False(game.Players[1].HasBed);
         Assert.StrictEqual(game.Players[0], game.Winner);
+        Assert.StrictEqual(IGame.Stage.Finished, game.CurrentStage);
 
     }
 }
