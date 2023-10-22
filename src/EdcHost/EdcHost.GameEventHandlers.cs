@@ -7,7 +7,7 @@ partial class EdcHost : IEdcHost
 {
     void HandleAfterGameStartEvent(object? sender, AfterGameStartEventArgs e)
     {
-
+        //Do nothing
     }
 
     void HandleAfterGameTickEvent(object? sender, AfterGameTickEventArgs e)
@@ -19,7 +19,6 @@ partial class EdcHost : IEdcHost
             {
                 heightOfChunks.Add(chunk.Height);
             }
-            IPacket? packet = null;
 
             for (int i = 0; i < 2; i++)
             {
@@ -29,29 +28,13 @@ partial class EdcHost : IEdcHost
                     continue;
                 }
 
-                packet = new PacketFromHost(
-                    (int)e.Game.CurrentStage,
-                    e.Game.ElapsedTicks * Game.TicksPerSecondExpected,
-                    heightOfChunks,
-                    e.Game.Players[i].HasBed,
-                    e.Game.Players[i].PlayerPosition.X,
-                    e.Game.Players[i].PlayerPosition.Y,
-                    e.Game.Players[(i == 0) ? 1 : 0].PlayerPosition.X,
-                    e.Game.Players[(i == 0) ? 1 : 0].PlayerPosition.Y,
-                    e.Game.Players[i].ActionPoints,
-                    e.Game.Players[i].Health,
-                    e.Game.Players[i].MaxHealth,
-                    e.Game.Players[i].Strength,
-                    e.Game.Players[i].EmeraldCount,
-                    e.Game.Players[i].WoolCount
-                );
-
                 _slaveServer.Publish(
                     portName: portName,
                     gameStage: (int)e.Game.CurrentStage,
                     elapsedTime: e.Game.ElapsedTicks,
                     heightOfChunks: heightOfChunks,
                     hasBed: e.Game.Players[i].HasBed,
+                    hasBedOpponent: e.Game.Players.Any(player => player.HasBed && player.PlayerId != e.Game.Players[i].PlayerId),
                     positionX: e.Game.Players[i].PlayerPosition.X,
                     positionY: e.Game.Players[i].PlayerPosition.Y,
                     positionOpponentX: e.Game.Players[(i == 0) ? 1 : 0].PlayerPosition.X,
@@ -82,6 +65,6 @@ partial class EdcHost : IEdcHost
             _logger.Information($"Winner is {e.Winner?.PlayerId}");
         }
 
-        Stop();
+        _gameRunner.End();
     }
 }

@@ -71,7 +71,7 @@ public class SlaveServer : ISlaveServer
     }
 
     public void Publish(string portName, int gameStage, int elapsedTime, List<int> heightOfChunks,
-        bool hasBed, float positionX, float positionY, float positionOpponentX,
+        bool hasBed, bool hasBedOpponent, float positionX, float positionY, float positionOpponentX,
         float positionOpponentY, int agility, int health, int maxHealth, int strength,
         int emeraldCount, int woolCount)
     {
@@ -81,7 +81,7 @@ public class SlaveServer : ISlaveServer
         }
 
         _portComponentBundles[portName].PacketsToSend.Enqueue(new PacketFromHost(gameStage, elapsedTime, heightOfChunks,
-            hasBed, positionX, positionY, positionOpponentX, positionOpponentY, agility, health, maxHealth, strength,
+            hasBed, hasBedOpponent, positionX, positionY, positionOpponentX, positionOpponentY, agility, health, maxHealth, strength,
             emeraldCount, woolCount));
     }
 

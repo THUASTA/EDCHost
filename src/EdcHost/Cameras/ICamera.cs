@@ -1,4 +1,3 @@
-using System.Drawing;
 using OpenCvSharp;
 
 namespace EdcHost.Cameras;
@@ -33,6 +32,7 @@ public interface ICamera
         return new Camera(videoCapture);
     }
 
-    Image? Image { get; }
-    IPosition<int>? TargetPosition { get; }
+    Mat? Frame { get; }
+    IPosition<float>? TargetPosition { get; }
 }
+

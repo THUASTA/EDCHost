@@ -27,7 +27,11 @@ public interface IEdcHost
 
     static IEdcHost Create(EdcHostOptions options)
     {
-        var game = IGame.Create();
+        var game = IGame.Create(
+            diamondMines: options.GameDiamondMines,
+            goldMines: options.GameGoldMines,
+            ironMines: options.GameIronMines
+        );
         var gameRunner = IGameRunner.Create(game);
         SlaveServers.SlaveServer slaveServer = new();
         ViewerServers.ViewerServer viewerServer = new(options.ServerPort);

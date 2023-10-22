@@ -5,6 +5,7 @@ class Player : IPlayer
     public int PlayerId { get; private set; }
     public int EmeraldCount { get; private set; }
     public bool HasBed { get; private set; }
+    public bool HasBedOpponent { get; private set; }
     public bool IsAlive { get; private set; }
     public IPosition<float> SpawnPoint { get; private set; }
     public IPosition<float> PlayerPosition { get; private set; }
@@ -77,6 +78,11 @@ class Player : IPlayer
         /// Destroy a player's bed.
         HasBed = false;
     }
+    public void DestroyBedOpponent()
+    {
+        /// Destroy a player's bed.
+        HasBedOpponent = false;
+    }
     public void DecreaseWoolCount()
     {
         /// Decrease wool count by 1.
@@ -88,6 +94,7 @@ class Player : IPlayer
         EmeraldCount = 0;
         IsAlive = true;
         HasBed = true;
+        HasBedOpponent = true;
         SpawnPoint = new Position<float>(initialX, initialY);
         PlayerPosition = new Position<float>(initialX2, initialY2);
         WoolCount = 0;

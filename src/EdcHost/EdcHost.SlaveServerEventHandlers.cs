@@ -156,9 +156,39 @@ partial class EdcHost : IEdcHost
     {
         try
         {
+            string portName = e.PortName;
+
+            int? playerId = _playerIdToPortName
+                .Where(kvp => kvp.Value == portName)
+                .Select(kvp => (int?)kvp.Key)
+                .FirstOrDefault((int?)null);
+
+            if (playerId is null)
+            {
+                return;
+            }
+
             switch ((ItemList)e.Item)
             {
-                //TODO: Trade
+                case ItemList.AgilityBoost:
+                    _game.Players[playerId.Value].Trade(IPlayer.CommodityKindType.AgilityBoost);
+                    break;
+
+                case ItemList.HealthBoost:
+                    _game.Players[playerId.Value].Trade(IPlayer.CommodityKindType.HealthBoost);
+                    break;
+
+                case ItemList.StrengthBoost:
+                    _game.Players[playerId.Value].Trade(IPlayer.CommodityKindType.StrengthBoost);
+                    break;
+
+                case ItemList.Wool:
+                    _game.Players[playerId.Value].Trade(IPlayer.CommodityKindType.Wool);
+                    break;
+
+                case ItemList.HealthPotion:
+                    _game.Players[playerId.Value].Trade(IPlayer.CommodityKindType.HealthPotion);
+                    break;
 
                 default:
                     Serilog.Log.Warning($"No item with id {e.Item}. Action rejected.");
