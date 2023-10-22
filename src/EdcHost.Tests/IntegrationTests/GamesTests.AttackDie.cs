@@ -20,13 +20,14 @@ public partial class GamesTests
         {
             game.Players[0].Attack(game.Players[1].PlayerPosition.X, game.Players[1].PlayerPosition.Y);
             game.Tick();
-            //Assert.StrictEqual(game.Players[1].MaxHealth - i * game.Players[0].Strength, game.Players[1].Health);
-            for (int j = 0; j <= AttackTickInterval; j++)
+            Assert.StrictEqual(game.Players[1].MaxHealth - i * game.Players[0].Strength, game.Players[1].Health);
+            for (int j = 1; j <= AttackTickInterval; j++)
             {
                 game.Players[0].Attack(game.Players[1].PlayerPosition.X, game.Players[1].PlayerPosition.Y);
                 game.Tick();
                 Assert.StrictEqual(game.Players[1].MaxHealth - i * game.Players[0].Strength, game.Players[1].Health);
             }
+            game.Tick();
         }
         Assert.False(game.Players[1].IsAlive);
         Assert.Null(game.Winner);
