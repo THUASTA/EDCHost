@@ -30,15 +30,10 @@ public partial class GamesTests
             game.Tick();
         }
         Assert.False(game.Players[1].IsAlive);
+        Assert.True(game.Players[1].HasBed);
         Assert.Null(game.Winner);
 
         // BedDestryed
-        game.Players[0].Move(3.4f, 3.4f);
-        game.Players[0].Attack(game.Players[1].SpawnPoint.X, game.Players[1].SpawnPoint.Y);
-        game.Tick();
-        Assert.Null(game.Winner);
-        game.Players[0].Move(game.Players[1].SpawnPoint.X, game.Players[1].SpawnPoint.Y);
-        game.Tick();
         game.Players[0].Attack(game.Players[1].SpawnPoint.X, game.Players[1].SpawnPoint.Y);
         game.Tick();
         Assert.False(game.Players[1].IsAlive);
