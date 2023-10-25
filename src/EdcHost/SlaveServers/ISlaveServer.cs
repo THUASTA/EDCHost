@@ -1,4 +1,3 @@
-using System.IO.Ports;
 using EdcHost.SlaveServers.EventArgs;
 
 namespace EdcHost.SlaveServers;
@@ -8,11 +7,18 @@ namespace EdcHost.SlaveServers;
 /// </summary>
 public interface ISlaveServer
 {
+    static ISlaveServer Create()
+    {
+        ISerialPortHub serialPortHub = new SerialPortHub();
+
+        return new SlaveServer(serialPortHub);
+    }
+
     event EventHandler<PlayerTryAttackEventArgs>? PlayerTryAttackEvent;
     event EventHandler<PlayerTryUseEventArgs>? PlayerTryUseEvent;
     event EventHandler<PlayerTryTradeEventArgs>? PlayerTryTradeEvent;
 
-    void AddPort(string portName, int baudRate, Parity parity, int dataBits, StopBits stopBits);
+    void AddPort(string portName);
 
     void RemovePort(string portName);
 

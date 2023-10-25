@@ -1,6 +1,4 @@
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.IO.Ports;
 using EdcHost.SlaveServers.EventArgs;
 using Serilog;
 
@@ -12,12 +10,12 @@ public class SlaveServer : ISlaveServer
     {
         public ConcurrentQueue<IPacketFromHost> PacketsToSend;
         public ConcurrentQueue<IPacketFromSlave> PacketsReceived;
-        public SerialPort SerialPort;
+        public ISerialPortWrapper SerialPort;
         public bool ShouldRun = false;
         public Task TaskForSending;
         public Task TaskForReceiving;
 
-        public PortComponentBundle(SerialPort serialPort, Task taskForSending,
+        public PortComponentBundle(ISerialPortWrapper serialPort, Task taskForSending,
             Task taskForReceiving, ConcurrentQueue<IPacketFromHost> packetsToSend,
             ConcurrentQueue<IPacketFromSlave> packetsReceived)
         {
@@ -33,24 +31,31 @@ public class SlaveServer : ISlaveServer
     public event EventHandler<PlayerTryUseEventArgs>? PlayerTryUseEvent;
     public event EventHandler<PlayerTryTradeEventArgs>? PlayerTryTradeEvent;
 
-    readonly ConcurrentDictionary<string, PortComponentBundle> _portComponentBundles = new();
     readonly ILogger _logger = Log.Logger.ForContext("Component", "SlaveServers");
+    readonly ConcurrentDictionary<string, PortComponentBundle> _portComponentBundles = new();
+    readonly ISerialPortHub _serialPortHub;
 
-    public void AddPort(string portName, int baudRate, Parity parity, int dataBits, StopBits stopBits)
+    public SlaveServer(ISerialPortHub serialPortHub) {
+        _serialPortHub = serialPortHub;
+    }
+
+    public void AddPort(string portName)
     {
         if (_portComponentBundles.Keys.Any(portName.Equals))
         {
             throw new ArgumentException($"port name already exists: {portName}");
         }
 
-        SerialPort serialPort = new(portName: portName, baudRate: baudRate, parity: parity,
-            dataBits: dataBits, stopBits: stopBits);
+        ISerialPortWrapper serialPort = _serialPortHub.Get(portName);
 
         ConcurrentQueue<IPacketFromHost> packetsToSend = new();
         ConcurrentQueue<IPacketFromSlave> packetsReceived = new();
 
         Task taskForSending = new(() => SendTaskFunc(portName));
         Task taskForReceiving = new(() => ReceiveTaskFunc(portName));
+
+        taskForSending.Start();
+        taskForReceiving.Start();
 
         _portComponentBundles.TryAdd(portName, new PortComponentBundle(serialPort, taskForSending,
             taskForReceiving, packetsToSend, packetsReceived));
@@ -121,22 +126,22 @@ public class SlaveServer : ISlaveServer
     {
         switch (packet.ActionType)
         {
-            case (int)ActionTypes.Attack:
-                if (Enum.IsDefined(typeof(Directions), packet.Param))
+            case (int)ActionKind.Attack:
+                if (Enum.IsDefined(typeof(DirectionKind), packet.Param))
                 {
                     PlayerTryAttackEvent?.Invoke(this, new PlayerTryAttackEventArgs(portName, packet.Param));
                 }
                 break;
 
-            case (int)ActionTypes.Use:
-                if (Enum.IsDefined(typeof(Directions), packet.Param))
+            case (int)ActionKind.Use:
+                if (Enum.IsDefined(typeof(DirectionKind), packet.Param))
                 {
                     PlayerTryUseEvent?.Invoke(this, new PlayerTryUseEventArgs(portName, packet.Param));
                 }
                 break;
 
-            case (int)ActionTypes.Trade:
-                if (Enum.IsDefined(typeof(ItemList), packet.Param))
+            case (int)ActionKind.Trade:
+                if (Enum.IsDefined(typeof(ItemKind), packet.Param))
                 {
                     PlayerTryTradeEvent?.Invoke(this, new PlayerTryTradeEventArgs(portName, packet.Param));
                 }
@@ -149,6 +154,8 @@ public class SlaveServer : ISlaveServer
 
     void SendTaskFunc(string portName)
     {
+        _logger.Debug("SendTaskFunc started");
+
         while (_portComponentBundles.GetValueOrDefault(portName)?.ShouldRun ?? false)
         {
             try
@@ -164,10 +171,14 @@ public class SlaveServer : ISlaveServer
                 _logger.Error(e, "error while sending packet");
             }
         }
+
+        _logger.Debug("SendTaskFunc stopped");
     }
 
     void ReceiveTaskFunc(string portName)
     {
+        _logger.Debug($"ReceiveTaskFunc of {portName} started");
+
         while (_portComponentBundles.GetValueOrDefault(portName)?.ShouldRun ?? false)
         {
             try
@@ -190,5 +201,7 @@ public class SlaveServer : ISlaveServer
                 _logger.Error(e, "error while receiving packet");
             }
         }
+
+        _logger.Debug("ReceiveTaskFunc of {portName} stopped");
     }
 }

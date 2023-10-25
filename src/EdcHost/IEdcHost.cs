@@ -1,4 +1,5 @@
 using EdcHost.Games;
+using EdcHost.SlaveServers;
 
 namespace EdcHost;
 
@@ -33,7 +34,7 @@ public interface IEdcHost
             ironMines: options.GameIronMines
         );
         var gameRunner = IGameRunner.Create(game);
-        SlaveServers.SlaveServer slaveServer = new();
+        ISlaveServer slaveServer = ISlaveServer.Create();
         ViewerServers.ViewerServer viewerServer = new(options.ServerPort);
 
         return new EdcHost(

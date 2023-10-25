@@ -33,7 +33,7 @@ class Program
     static List<Tuple<int, int>> ParseMineList(string input)
     {
         List<Tuple<int, int>> mines = new();
-        Regex regex = new(@"\((\d+),(\d+)\)");
+        Regex regex = new(@"\((\d+),\s?(\d+)\)");
         MatchCollection matches = regex.Matches(input);
         foreach (Match match in matches.Cast<Match>())
         {

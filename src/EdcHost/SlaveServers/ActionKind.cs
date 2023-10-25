@@ -1,6 +1,6 @@
 namespace EdcHost.SlaveServers;
 
-enum ActionTypes
+enum ActionKind
 {
     Attack = 0,
     Use,

@@ -26,44 +26,44 @@ partial class EdcHost : IEdcHost
 
             IPosition<float> current = _game.Players[playerId.Value].PlayerPosition;
             IPosition<float>? target = null;
-            switch ((Directions)e.TargetChunk)
+            switch ((DirectionKind)e.TargetChunk)
             {
-                case Directions.Up:
+                case DirectionKind.Up:
                     target = new Position<float>(current.X, current.Y + 1.0f);
                     _game.Players[playerId.Value].Attack(target.X, target.Y);
                     break;
 
-                case Directions.Down:
+                case DirectionKind.Down:
                     target = new Position<float>(current.X, current.Y - 1.0f);
                     _game.Players[playerId.Value].Attack(target.X, target.Y);
                     break;
 
-                case Directions.Left:
+                case DirectionKind.Left:
                     target = new Position<float>(current.X - 1.0f, current.Y);
                     _game.Players[playerId.Value].Attack(target.X, target.Y);
                     break;
 
-                case Directions.Right:
+                case DirectionKind.Right:
                     target = new Position<float>(current.X + 1.0f, current.Y);
                     _game.Players[playerId.Value].Attack(target.X, target.Y);
                     break;
 
-                case Directions.UpLeft:
+                case DirectionKind.UpLeft:
                     target = new Position<float>(current.X - 1.0f, current.Y + 1.0f);
                     _game.Players[playerId.Value].Attack(target.X, target.Y);
                     break;
 
-                case Directions.UpRight:
+                case DirectionKind.UpRight:
                     target = new Position<float>(current.X + 1.0f, current.Y + 1.0f);
                     _game.Players[playerId.Value].Attack(target.X, target.Y);
                     break;
 
-                case Directions.DownLeft:
+                case DirectionKind.DownLeft:
                     target = new Position<float>(current.X - 1.0f, current.Y - 1.0f);
                     _game.Players[playerId.Value].Attack(target.X, target.Y);
                     break;
 
-                case Directions.DownRight:
+                case DirectionKind.DownRight:
                     target = new Position<float>(current.X + 1.0f, current.Y - 1.0f);
                     _game.Players[playerId.Value].Attack(target.X, target.Y);
                     break;
@@ -98,44 +98,44 @@ partial class EdcHost : IEdcHost
 
             IPosition<float> current = _game.Players[playerId.Value].PlayerPosition;
             IPosition<float>? target = null;
-            switch ((Directions)e.TargetChunk)
+            switch ((DirectionKind)e.TargetChunk)
             {
-                case Directions.Up:
+                case DirectionKind.Up:
                     target = new Position<float>(current.X, current.Y + 1.0f);
                     _game.Players[playerId.Value].Place(target.X, target.Y);
                     break;
 
-                case Directions.Down:
+                case DirectionKind.Down:
                     target = new Position<float>(current.X, current.Y - 1.0f);
                     _game.Players[playerId.Value].Place(target.X, target.Y);
                     break;
 
-                case Directions.Left:
+                case DirectionKind.Left:
                     target = new Position<float>(current.X - 1.0f, current.Y);
                     _game.Players[playerId.Value].Place(target.X, target.Y);
                     break;
 
-                case Directions.Right:
+                case DirectionKind.Right:
                     target = new Position<float>(current.X + 1.0f, current.Y);
                     _game.Players[playerId.Value].Place(target.X, target.Y);
                     break;
 
-                case Directions.UpLeft:
+                case DirectionKind.UpLeft:
                     target = new Position<float>(current.X - 1.0f, current.Y + 1.0f);
                     _game.Players[playerId.Value].Place(target.X, target.Y);
                     break;
 
-                case Directions.UpRight:
+                case DirectionKind.UpRight:
                     target = new Position<float>(current.X + 1.0f, current.Y + 1.0f);
                     _game.Players[playerId.Value].Place(target.X, target.Y);
                     break;
 
-                case Directions.DownLeft:
+                case DirectionKind.DownLeft:
                     target = new Position<float>(current.X - 1.0f, current.Y - 1.0f);
                     _game.Players[playerId.Value].Place(target.X, target.Y);
                     break;
 
-                case Directions.DownRight:
+                case DirectionKind.DownRight:
                     target = new Position<float>(current.X + 1.0f, current.Y - 1.0f);
                     _game.Players[playerId.Value].Place(target.X, target.Y);
                     break;
@@ -168,25 +168,25 @@ partial class EdcHost : IEdcHost
                 return;
             }
 
-            switch ((ItemList)e.Item)
+            switch ((ItemKind)e.Item)
             {
-                case ItemList.AgilityBoost:
+                case ItemKind.AgilityBoost:
                     _game.Players[playerId.Value].Trade(IPlayer.CommodityKindType.AgilityBoost);
                     break;
 
-                case ItemList.HealthBoost:
+                case ItemKind.HealthBoost:
                     _game.Players[playerId.Value].Trade(IPlayer.CommodityKindType.HealthBoost);
                     break;
 
-                case ItemList.StrengthBoost:
+                case ItemKind.StrengthBoost:
                     _game.Players[playerId.Value].Trade(IPlayer.CommodityKindType.StrengthBoost);
                     break;
 
-                case ItemList.Wool:
+                case ItemKind.Wool:
                     _game.Players[playerId.Value].Trade(IPlayer.CommodityKindType.Wool);
                     break;
 
-                case ItemList.HealthPotion:
+                case ItemKind.HealthPotion:
                     _game.Players[playerId.Value].Trade(IPlayer.CommodityKindType.HealthPotion);
                     break;
 

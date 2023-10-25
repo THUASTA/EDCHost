@@ -1,6 +1,6 @@
 namespace EdcHost.SlaveServers;
 
-enum Directions
+enum DirectionKind
 {
     Up = 0,
     Down,
