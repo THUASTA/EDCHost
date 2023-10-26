@@ -8,4 +8,6 @@ public interface ICompetitionUpdate : IMessage
     public object Info { get; set; }
     public List<object> Mines { get; }
     public List<object> Players { get; }
+
+    
 }

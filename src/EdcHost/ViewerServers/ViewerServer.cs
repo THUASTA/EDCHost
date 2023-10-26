@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using EdcHost.ViewerServers.EventArgs;
 using EdcHost.ViewerServers.Messages;
+using System.Collections.Concurrent;
 
 using Fleck;
 
@@ -15,29 +16,24 @@ namespace EdcHost.ViewerServers;
 /// </summary>
 public class ViewerServer : IViewerServer
 {
-    readonly WebSocketServer _webSocketServer;
+    public ConcurrentQueue<IMessage> PacketsToSend = new();
+
     readonly ILogger _logger = Log.Logger.ForContext("Component", "ViewerServers");
-    IWebSocketConnection? _socket = null;
-    public IUpdater CompetitionUpdater { get; } = new Updater();
     public IGameController Controller { get; } = new GameController();
     public event EventHandler<SetPortEventArgs>? SetPortEvent;
     public event EventHandler<SetCameraEventArgs>? SetCameraEvent;
 
-    public ViewerServer(int port)
-    {
-        //_webSocketServer = new WebSocketServer("ws://localhost:" + port)
-        _webSocketServer = new WebSocketServer("ws://127.0.0.1:" + port)
-        {
-            RestartAfterListenError = true
-        };
-    }
+    IWebSocketConnection? _socket = null;
+    readonly IWebSocketServer _webSocketServer;
 
-    public ViewerServer()
+    public Task TaskForSending;
+
+
+    public ViewerServer(IWebSocketServer webSocketServer, IGameController controller)
     {
-        _webSocketServer = new WebSocketServer("ws://localhost:11451")
-        {
-            RestartAfterListenError = true
-        };
+        _webSocketServer = webSocketServer;
+        Controller = controller;
+        TaskForSending = new(() => SendTaskFunc());
     }
 
     /// <summary>
@@ -47,14 +43,11 @@ public class ViewerServer : IViewerServer
     {
         _logger.Information("Starting...");
 
-        CompetitionUpdater.SendEvent += (sender, args) => Send(args.Message);
-
-        Controller.GetHostConfigurationEvent += (sender, args) => Send(args.Message);
         WebSocketServerStart();
-        CompetitionUpdater.StartUpdate();
-        CompetitionUpdater.SendEvent += (sender, args) => Send(args.Message);
 
-        Controller.GetHostConfigurationEvent += (sender, args) => Send(args.Message);
+        Controller.GetHostConfigurationEvent += (sender, args) => Publish(args.Message);
+
+        TaskForSending.Start();
 
         _logger.Information("Started.");
     }
@@ -66,30 +59,43 @@ public class ViewerServer : IViewerServer
         _logger.Information("Stopping...");
         _webSocketServer.Dispose();
         _socket?.Close();
-        CompetitionUpdater.End();
         _logger.Information("Stopped.");
+    }
+
+    public void Publish(IMessage message)
+    {
+        PacketsToSend.Enqueue(message);
     }
 
     /// <summary>
     /// Sends the message to the viewer.
     /// </summary>
     /// <param name="message">the message to send.</param>
-    public void Send(IMessage message)
+    public void SendTaskFunc()
     {
-        try
+        _logger.Debug("SendTaskFunc started");
+
+        while (true)
         {
-            byte[] bytes = message.SerializeToUtf8Bytes();
-            if (_socket == null)
+            try
             {
-                throw new Exception("Socket not specified.");
+                if (PacketsToSend.TryDequeue(out IMessage? message))
+                {
+                    byte[] bytes = message.SerializeToUtf8Bytes();
+                    if (_socket == null)
+                    {
+                        throw new Exception("Socket not specified.");
+                    }
+                    _socket?.Send(bytes);
+                }
             }
-            _socket?.Send(bytes);
+            catch (Exception e)
+            {
+                RaiseError((int)ErrorCode.NoSocketConnection, e.Message);
+                _logger.Error(e, "Error while sending message.");
+            }
         }
-        catch (Exception e)
-        {
-            RaiseError((int)ErrorCode.NoSocketConnection, e.Message);
-            _logger.Error(e, "Error while sending message.");
-        }
+        // _logger.Debug("SendTaskFunc ended");
     }
 
     /// <summary>
@@ -260,6 +266,6 @@ public class ViewerServer : IViewerServer
     /// <param name="errorMessage"></param>
     public void RaiseError(int errorCode, string errorMessage)
     {
-        Send(new Error(errorCode, errorMessage));
+        Publish(new Error(errorCode, errorMessage));
     }
 }

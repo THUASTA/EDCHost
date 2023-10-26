@@ -20,6 +20,10 @@ class Player : IPlayer
     public event EventHandler<PlayerAttackEventArgs> OnAttack = delegate { };
     public event EventHandler<PlayerPlaceEventArgs> OnPlace = delegate { };
     public event EventHandler<PlayerDieEventArgs> OnDie = delegate { };
+    
+    // TODO: Implement the event
+    // public event EventHandler<PlayerDigEventArgs> OnDig = delegate { };
+    // public event EventHandler<PlayerPickUpEventArgs> OnPickUp = delegate { };
 
     public void EmeraldAdd(int count)
     {
@@ -70,7 +74,7 @@ class Player : IPlayer
         {
             IsAlive = true;
             Health = MaxHealth;
-            SpawnPoint = PlayerPosition;
+            PlayerPosition = SpawnPoint;
         }
     }
     public void DestroyBed()

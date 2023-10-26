@@ -6,5 +6,5 @@ enum ItemKind
     HealthBoost,
     StrengthBoost,
     Wool,
-    HealthPotion
+    PotionOfHealing
 }

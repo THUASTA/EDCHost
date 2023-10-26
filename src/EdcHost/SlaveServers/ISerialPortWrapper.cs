@@ -1,9 +1,24 @@
 namespace EdcHost.SlaveServers;
 
-public interface ISerialPortWrapper {
-    int BytesToRead { get; }
+public interface ISerialPortWrapper: IDisposable
+{
+    class AfterReceiveEventArgs : System.EventArgs
+    {
+        public byte[] Bytes { get; }
+        public string PortName { get; }
+
+        public AfterReceiveEventArgs(string portName, byte[] bytes)
+        {
+            PortName = portName;
+            Bytes = bytes;
+        }
+    }
+
+    event EventHandler<AfterReceiveEventArgs> AfterReceive;
+
+    string PortName { get; }
+
     void Close();
     void Open();
-    void Read(byte[] buffer, int offset, int count);
-    void Write(byte[] buffer, int offset, int count);
+    void Send(byte[] bytes);
 }

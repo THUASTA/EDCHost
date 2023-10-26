@@ -74,5 +74,5 @@ public interface IPacket
     /// <summary>
     /// Get the data from the byte array without header to the packet object
     /// </summary>
-   byte[] ToBytes();
+    byte[] ToBytes();
 }
