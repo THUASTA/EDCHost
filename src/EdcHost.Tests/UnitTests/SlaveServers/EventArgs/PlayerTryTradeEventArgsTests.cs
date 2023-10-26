@@ -1,7 +1,7 @@
-using EdcHost.SlaveServers.EventArgs;
+using EdcHost.SlaveServers;
 using Xunit;
 
-namespace EdcHost.Tests.UnitTests.SlaveServers.EventArgs;
+namespace EdcHost.Tests.UnitTests.SlaveServers;
 
 public class PlayerTryTradeEventArgsTests
 {

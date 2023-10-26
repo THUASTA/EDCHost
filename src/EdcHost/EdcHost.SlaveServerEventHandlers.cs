@@ -1,8 +1,5 @@
-using System.Diagnostics;
-using System.Linq;
 using EdcHost.Games;
 using EdcHost.SlaveServers;
-using EdcHost.SlaveServers.EventArgs;
 
 namespace EdcHost;
 
@@ -12,6 +9,9 @@ partial class EdcHost : IEdcHost
     {
         try
         {
+            // Store the event info to the queue
+            this._playerEventQueue.Enqueue(e);
+
             string portName = e.PortName;
 
             int? playerId = _playerIdToPortName
@@ -25,54 +25,7 @@ partial class EdcHost : IEdcHost
             }
 
             IPosition<float> current = _game.Players[playerId.Value].PlayerPosition;
-            IPosition<float>? target = null;
-            switch ((Directions)e.TargetChunk)
-            {
-                case Directions.Up:
-                    target = new Position<float>(current.X, current.Y + 1.0f);
-                    _game.Players[playerId.Value].Attack(target.X, target.Y);
-                    break;
-
-                case Directions.Down:
-                    target = new Position<float>(current.X, current.Y - 1.0f);
-                    _game.Players[playerId.Value].Attack(target.X, target.Y);
-                    break;
-
-                case Directions.Left:
-                    target = new Position<float>(current.X - 1.0f, current.Y);
-                    _game.Players[playerId.Value].Attack(target.X, target.Y);
-                    break;
-
-                case Directions.Right:
-                    target = new Position<float>(current.X + 1.0f, current.Y);
-                    _game.Players[playerId.Value].Attack(target.X, target.Y);
-                    break;
-
-                case Directions.UpLeft:
-                    target = new Position<float>(current.X - 1.0f, current.Y + 1.0f);
-                    _game.Players[playerId.Value].Attack(target.X, target.Y);
-                    break;
-
-                case Directions.UpRight:
-                    target = new Position<float>(current.X + 1.0f, current.Y + 1.0f);
-                    _game.Players[playerId.Value].Attack(target.X, target.Y);
-                    break;
-
-                case Directions.DownLeft:
-                    target = new Position<float>(current.X - 1.0f, current.Y - 1.0f);
-                    _game.Players[playerId.Value].Attack(target.X, target.Y);
-                    break;
-
-                case Directions.DownRight:
-                    target = new Position<float>(current.X + 1.0f, current.Y - 1.0f);
-                    _game.Players[playerId.Value].Attack(target.X, target.Y);
-                    break;
-
-                default:
-                    Serilog.Log.Warning(@$"Failed to convert {e.TargetChunk} to a chunk.
-                    Action rejeccted.");
-                    break;
-            }
+            _game.Players[playerId.Value].Attack(e.TargetChunkId / _mapWidth, e.TargetChunkId % _mapWidth);
         }
         catch (Exception exception)
         {
@@ -80,10 +33,13 @@ partial class EdcHost : IEdcHost
         }
     }
 
-    void HandlePlayerTryUseEvent(object? sender, PlayerTryUseEventArgs e)
+    void HandlePlayerTryPlaceBlockEvent(object? sender, PlayerTryPlaceBlockEventArgs e)
     {
         try
         {
+            // Store the event info to the queue
+            this._playerEventQueue.Enqueue(e);
+
             string portName = e.PortName;
 
             int? playerId = _playerIdToPortName
@@ -97,54 +53,7 @@ partial class EdcHost : IEdcHost
             }
 
             IPosition<float> current = _game.Players[playerId.Value].PlayerPosition;
-            IPosition<float>? target = null;
-            switch ((Directions)e.TargetChunk)
-            {
-                case Directions.Up:
-                    target = new Position<float>(current.X, current.Y + 1.0f);
-                    _game.Players[playerId.Value].Place(target.X, target.Y);
-                    break;
-
-                case Directions.Down:
-                    target = new Position<float>(current.X, current.Y - 1.0f);
-                    _game.Players[playerId.Value].Place(target.X, target.Y);
-                    break;
-
-                case Directions.Left:
-                    target = new Position<float>(current.X - 1.0f, current.Y);
-                    _game.Players[playerId.Value].Place(target.X, target.Y);
-                    break;
-
-                case Directions.Right:
-                    target = new Position<float>(current.X + 1.0f, current.Y);
-                    _game.Players[playerId.Value].Place(target.X, target.Y);
-                    break;
-
-                case Directions.UpLeft:
-                    target = new Position<float>(current.X - 1.0f, current.Y + 1.0f);
-                    _game.Players[playerId.Value].Place(target.X, target.Y);
-                    break;
-
-                case Directions.UpRight:
-                    target = new Position<float>(current.X + 1.0f, current.Y + 1.0f);
-                    _game.Players[playerId.Value].Place(target.X, target.Y);
-                    break;
-
-                case Directions.DownLeft:
-                    target = new Position<float>(current.X - 1.0f, current.Y - 1.0f);
-                    _game.Players[playerId.Value].Place(target.X, target.Y);
-                    break;
-
-                case Directions.DownRight:
-                    target = new Position<float>(current.X + 1.0f, current.Y - 1.0f);
-                    _game.Players[playerId.Value].Place(target.X, target.Y);
-                    break;
-
-                default:
-                    Serilog.Log.Warning(@$"Failed to convert {e.TargetChunk} to a chunk.
-                        Action rejeccted.");
-                    break;
-            }
+            _game.Players[playerId.Value].Place(e.TargetChunkId / _mapWidth, e.TargetChunkId % _mapWidth);
         }
         catch (Exception exception)
         {
@@ -156,6 +65,9 @@ partial class EdcHost : IEdcHost
     {
         try
         {
+            // Store the event info to the queue
+            this._playerEventQueue.Enqueue(e);
+
             string portName = e.PortName;
 
             int? playerId = _playerIdToPortName
@@ -168,25 +80,25 @@ partial class EdcHost : IEdcHost
                 return;
             }
 
-            switch ((ItemList)e.Item)
+            switch ((ItemKind)e.Item)
             {
-                case ItemList.AgilityBoost:
+                case ItemKind.AgilityBoost:
                     _game.Players[playerId.Value].Trade(IPlayer.CommodityKindType.AgilityBoost);
                     break;
 
-                case ItemList.HealthBoost:
+                case ItemKind.HealthBoost:
                     _game.Players[playerId.Value].Trade(IPlayer.CommodityKindType.HealthBoost);
                     break;
 
-                case ItemList.StrengthBoost:
+                case ItemKind.StrengthBoost:
                     _game.Players[playerId.Value].Trade(IPlayer.CommodityKindType.StrengthBoost);
                     break;
 
-                case ItemList.Wool:
+                case ItemKind.Wool:
                     _game.Players[playerId.Value].Trade(IPlayer.CommodityKindType.Wool);
                     break;
 
-                case ItemList.HealthPotion:
+                case ItemKind.PotionOfHealing:
                     _game.Players[playerId.Value].Trade(IPlayer.CommodityKindType.HealthPotion);
                     break;
 

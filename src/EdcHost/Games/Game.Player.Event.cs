@@ -57,6 +57,7 @@ partial class Game : IGame
                 Action rejected.");
             return;
         }
+
         if (IsAdjacent(ToIntPosition(e.Player.PlayerPosition), ToIntPosition(e.Position)) == false)
         {
             _logger.Warning(@$"Position ({e.Position.X}, {e.Position.Y})

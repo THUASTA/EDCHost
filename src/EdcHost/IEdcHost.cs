@@ -1,5 +1,3 @@
-using EdcHost.Games;
-
 namespace EdcHost;
 
 /// <summary>
@@ -9,8 +7,6 @@ public interface IEdcHost
 {
     class EdcHostOptions
     {
-        const int DefaultServerPort = 8080;
-
         public List<Tuple<int, int>> GameDiamondMines { get; }
         public List<Tuple<int, int>> GameGoldMines { get; }
         public List<Tuple<int, int>> GameIronMines { get; }
@@ -27,14 +23,14 @@ public interface IEdcHost
 
     static IEdcHost Create(EdcHostOptions options)
     {
-        var game = IGame.Create(
+        var game = Games.IGame.Create(
             diamondMines: options.GameDiamondMines,
             goldMines: options.GameGoldMines,
             ironMines: options.GameIronMines
         );
-        var gameRunner = IGameRunner.Create(game);
-        SlaveServers.SlaveServer slaveServer = new();
-        ViewerServers.ViewerServer viewerServer = new(options.ServerPort);
+        var gameRunner = Games.IGameRunner.Create(game);
+        SlaveServers.ISlaveServer slaveServer = SlaveServers.ISlaveServer.Create();
+        ViewerServers.IViewerServer viewerServer = ViewerServers.IViewerServer.Create(options.ServerPort);
 
         return new EdcHost(
             game: game,

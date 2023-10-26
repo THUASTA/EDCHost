@@ -7,6 +7,7 @@ namespace EdcHost;
 
 class Program
 {
+    const string DefaultLoggingLevel = "Information";
     const int DefaultServerPort = 8080;
     const string SerilogTemplate = "[{Timestamp:HH:mm:ss} {Level:u3}] <{Component}> {Message:lj}{NewLine}{Exception}";
 
@@ -20,8 +21,16 @@ class Program
         try
         {
             SetupDotEnv();
-            SetupSerilog();
-            SetupAndRunEdcHost();
+            
+            List<Tuple<int, int>> gameDiamondMines = EnvReader.TryGetStringValue("GAME_DIAMOND_MINES", out string? gameDiamondMinesString) ? ParseMineList(gameDiamondMinesString) : new();
+            List<Tuple<int, int>> gameGoldMines = EnvReader.TryGetStringValue("GAME_GOLD_MINES", out string? gameGoldMinesString) ? ParseMineList(gameGoldMinesString) : new();
+            List<Tuple<int, int>> gameIronMines = EnvReader.TryGetStringValue("GAME_IRON_MINES", out string? gameIronMinesString) ? ParseMineList(gameIronMinesString) : new();
+            string loggingLevel = EnvReader.TryGetStringValue("LOGGING_LEVEL", out loggingLevel) ? loggingLevel : DefaultLoggingLevel;
+            int serverPort = EnvReader.TryGetIntValue("SERVER_PORT", out serverPort) ? serverPort : DefaultServerPort;
+
+            SetupSerilog(loggingLevel);
+
+            SetupAndRunEdcHost(gameDiamondMines, gameGoldMines, gameIronMines, serverPort);
 
         }
         catch (Exception exception)
@@ -33,7 +42,7 @@ class Program
     static List<Tuple<int, int>> ParseMineList(string input)
     {
         List<Tuple<int, int>> mines = new();
-        Regex regex = new(@"\((\d+),(\d+)\)");
+        Regex regex = new(@"\((\d+),\s?(\d+)\)");
         MatchCollection matches = regex.Matches(input);
         foreach (Match match in matches.Cast<Match>())
         {
@@ -44,13 +53,8 @@ class Program
         return mines;
     }
 
-    static void SetupAndRunEdcHost()
+    static void SetupAndRunEdcHost(List<Tuple<int, int>> gameDiamondMines, List<Tuple<int, int>> gameGoldMines, List<Tuple<int, int>> gameIronMines, int serverPort)
     {
-        List<Tuple<int, int>> gameDiamondMines = EnvReader.TryGetStringValue("GAME_DIAMOND_MINES", out string? gameDiamondMinesString) ? ParseMineList(gameDiamondMinesString) : new();
-        List<Tuple<int, int>> gameGoldMines = EnvReader.TryGetStringValue("GAME_GOLD_MINES", out string? gameGoldMinesString) ? ParseMineList(gameGoldMinesString) : new();
-        List<Tuple<int, int>> gameIronMines = EnvReader.TryGetStringValue("GAME_IRON_MINES", out string? gameIronMinesString) ? ParseMineList(gameIronMinesString) : new();
-        int serverPort = EnvReader.TryGetIntValue("SERVER_PORT", out serverPort) ? serverPort : DefaultServerPort;
-
         IEdcHost edcHost = IEdcHost.Create(new IEdcHost.EdcHostOptions
         (
             gameDiamondMines: gameDiamondMines,
@@ -70,15 +74,8 @@ class Program
         ));
     }
 
-    static void SetupSerilog()
+    static void SetupSerilog(string loggingLevelString)
     {
-        // Get logging level from environment variables
-        if (EnvReader.TryGetStringValue("LOGGING_LEVEL", out string? loggingLevelString) == false)
-        {
-            Log.Warning("LOGGING_LEVEL not set, using default value: Information");
-            loggingLevelString = "Information";
-        }
-
         // Configure Serilog
         Log.Logger = loggingLevelString switch
         {
@@ -135,5 +132,7 @@ class Program
                     break;
             }
         };
+
+        Log.Information($"logging level set to {loggingLevelString}");
     }
 }

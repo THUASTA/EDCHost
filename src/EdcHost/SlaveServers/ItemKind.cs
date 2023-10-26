@@ -1,10 +1,10 @@
 namespace EdcHost.SlaveServers;
 
-enum ItemList
+enum ItemKind
 {
     AgilityBoost = 0,
     HealthBoost,
     StrengthBoost,
     Wool,
-    HealthPotion
+    PotionOfHealing
 }

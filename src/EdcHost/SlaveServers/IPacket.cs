@@ -2,7 +2,7 @@ namespace EdcHost.SlaveServers;
 
 public interface IPacket
 {
-    public static byte CalculateChecksum(byte[] bytes)
+    static byte CalculateChecksum(byte[] bytes)
     {
         byte checksum = 0x00;
         foreach (byte byte_item in bytes)
@@ -13,13 +13,33 @@ public interface IPacket
     }
 
     /// <summary>
+    /// Generate the header of some data.
+    /// </summary>
+    /// <param name="packetId">The packet ID.</param>
+    /// <param name="data">The data.</param>
+    /// <returns></returns>
+    static byte[] GeneratePacketHeader(byte[] data)
+    {
+        short dataLength = (short)data.Length;
+        byte checksum = IPacket.CalculateChecksum(data);
+
+        byte[] header = new byte[5];
+        header[0] = (byte)0x55;
+        header[1] = (byte)0xAA;
+        Array.Copy(BitConverter.GetBytes(dataLength), 0, header, 2, 2);
+        header[4] = checksum;
+
+        return header;
+    }
+
+    /// <summary>
     /// Extract the data from a packet in raw byte array form.
     /// </summary>
     /// <param name="bytes">
     /// The packet in raw byte array form.
     /// </param>
     /// <returns>The data.</returns>
-    public static byte[] GetPacketData(byte[] bytes)
+    static byte[] GetPacketData(byte[] bytes)
     {
         // Validate the byte array
         if (bytes.Length < 5)
@@ -52,29 +72,7 @@ public interface IPacket
     }
 
     /// <summary>
-    /// Generate the header of some data.
-    /// </summary>
-    /// <param name="packetId">The packet ID.</param>
-    /// <param name="data">The data.</param>
-    /// <returns></returns>
-    public static byte[] GeneratePacketHeader(byte[] data)
-    {
-        short dataLength = (short)data.Length;
-        byte checksum = IPacket.CalculateChecksum(data);
-
-        byte[] header = new byte[5];
-        header[0] = (byte)0x55;
-        header[1] = (byte)0xAA;
-        Array.Copy(BitConverter.GetBytes(dataLength), 0, header, 2, 2);
-        header[4] = checksum;
-
-        return header;
-    }
-
-    /// <summary>
     /// Get the data from the byte array without header to the packet object
     /// </summary>
-
-
-    public byte[] ToBytes();
+    byte[] ToBytes();
 }
