@@ -204,56 +204,37 @@ public class ViewerServer : IViewerServer
                         = JsonSerializer.Deserialize<HostConfigurationFromClient>(text)!;
                     Type Player = hostConfiguration.Players.GetType().GetGenericArguments()[0];
                     PropertyInfo[] playerProperties = Player.GetProperties();
-                    foreach (object player in hostConfiguration.Players)
+                    List<int> playerIds = new();
+                    List<int> cameraIds = new();
+                    foreach (PlayerConfiguration player in hostConfiguration.Players)
                     {
-                        int playerId = -1;
-                        foreach (PropertyInfo property in playerProperties)
+                        if (player.PlayerId < 0 || playerIds.Contains(player.PlayerId))
                         {
-                            if (property.Name == "id")
-                            {
-                                playerId = (int)property.GetValue(player)!;
-                                if (playerId < 0)
-                                {
-                                    RaiseError((int)ErrorCode.InvalidPlayer, "Invalid player id.");
-                                    throw new Exception("Invalid player id.");
-                                }
-                            }
-                            else if (property.Name == "camera")
-                            {
-                                object? cameraConfiguration = null;
-                                cameraConfiguration = property.GetValue(player);
-                                if (cameraConfiguration == null)
-                                {
-                                    RaiseError((int)ErrorCode.InvalidCamera, "Invalid camera configuration.");
-                                    throw new Exception("Invalid camera configuration.");
-                                }
-                                SetCameraEvent?.Invoke(this, new SetCameraEventArgs(playerId, cameraConfiguration));
-                            }
-                            else if (property.Name == "serialPort")
-                            {
-                                Type Port = property.GetValue(player)!.GetType();
-                                PropertyInfo[] portProperties = Port.GetProperties();
-                                string? portName = null;
-                                int baudRate = 0;
-                                foreach (PropertyInfo portProperty in portProperties)
-                                {
-                                    if (portProperty.Name == "portName")
-                                    {
-                                        portName = (string?)portProperty.GetValue(property.GetValue(player));
-                                    }
-                                    else if (portProperty.Name == "baudRate")
-                                    {
-                                        baudRate = (int)portProperty.GetValue(property.GetValue(player))!;
-                                    }
-                                }
-                                if (portName == null || baudRate == 0)
-                                {
-                                    RaiseError((int)ErrorCode.InvalidPort, "Invalid port configuration.");
-                                    throw new Exception("Invalid port configuration.");
-                                }
-                                SetPortEvent?.Invoke(this, new SetPortEventArgs(playerId, portName, baudRate));
-                            }
+                            RaiseError((int)ErrorCode.InvalidPlayer, "Invalid player id.");
+                            throw new Exception("Invalid player id.");
                         }
+                        playerIds.Add(player.PlayerId);
+
+                        if (playerIds.Contains(player.Camera.CameraId))
+                        {
+                            RaiseError((int)ErrorCode.InvalidCamera, "Invalid camera configuration.");
+                            throw new Exception("Invalid camera configuration.");
+                        }
+                        cameraIds.Add(player.Camera.CameraId);
+                        SetCameraEvent?.Invoke(this, new SetCameraEventArgs(player.PlayerId, player.Camera));
+
+                        if (player.SerialPort.PortName == null || player.SerialPort.BaudRate == 0)
+                        {
+                            RaiseError((int)ErrorCode.InvalidPort, "Invalid port configuration.");
+                            throw new Exception("Invalid port configuration.");
+                        }
+
+                        SetPortEvent?.Invoke(
+                            this,
+                            new SetPortEventArgs(player.PlayerId, player.SerialPort.PortName, player.SerialPort.BaudRate)
+                        );
+                        
+                        _logger.Debug($"Player {player.PlayerId} configured.");
                     }
                     break;
 
