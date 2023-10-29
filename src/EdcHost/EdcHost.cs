@@ -346,8 +346,8 @@ partial class EdcHost : IEdcHost
                     },
                     position = new ViewerServers.CompetitionUpdateMessage.Player.Position()
                     {
-                        x = player.PlayerPosition.X,
-                        y = player.PlayerPosition.Y
+                        x = player.PlayerPosition.X == float.NaN ? float.MinValue : player.PlayerPosition.X,
+                        y = player.PlayerPosition.Y == float.NaN ? float.MinValue : player.PlayerPosition.Y
                     }
                 }).ToList()
             });

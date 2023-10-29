@@ -10,23 +10,27 @@ Download the latest release from [here](https://github.com/THUASTA/EDCHost/relea
 
 Run `EdcHost.exe` to launch the program.
 
-See API references at [Slave API documentation](https://thuasta.github.io/EDCHost/api/slave/) and [Viewer API documentation](https://thuasta.github.io/EDCHost/api/viewer/).
+See API references at [API documentation](https://thuasta.github.io/EDCHost/api).
 
 ### Configuration
 
-Create a `.env` file under the workspace with content below:
+When first running the app, a `config.json` file will be created under current work directory. You can edit the configurations inside it.
 
-```sh
-# Mines
-GAME_DIAMOND_MINES="(0, 0) (4, 4)"
-GAME_GOLD_MINES="(1, 3)"
-GAME_IRON_MINES=""
+Here is an example:
 
-# Logging
-LOGGING_LEVEL=Debug
-
-# RESTful API server
-SERVER_PORT=8080
+```json
+{
+  "loggingLevel": "Information",
+  "serverPort": 8080,
+  "game": {
+    "diamondMines": [
+      [1, 3],
+      [4, 4]
+    ],
+    "goldMines": [],
+    "ironMines": []
+  }
+}
 ```
 
 ## Contributing

@@ -154,62 +154,72 @@ partial class EdcHost : IEdcHost
         _viewerServer.Publish(configMessage);
     }
 
+
     void HandleUpdateConfiguration(ViewerServers.HostConfigurationFromClientMessage message)
     {
-        foreach (ViewerServers.HostConfigurationFromClientMessage.PlayerType player in message.Players)
+        try
         {
-            // Do not need to check if a player exists because we do not care.
-
-            PlayerHardwareInfo playerHardwareInfo = new();
-
-            if (player.Camera is not null)
+            foreach (ViewerServers.HostConfigurationFromClientMessage.PlayerType player in message.Players)
             {
-                playerHardwareInfo.CameraIndex = player.Camera.CameraId;
+                // Do not need to check if a player exists because we do not care.
 
-                CameraServers.ICamera camera = _cameraServer.GetCamera(player.Camera.CameraId)
-                    ?? _cameraServer.OpenCamera(player.Camera.CameraId, new CameraServers.Locator());
+                PlayerHardwareInfo playerHardwareInfo = new();
 
-                CameraServers.RecognitionOptions recognitionOptions = new()
+                if (player.Camera is not null)
                 {
-                    HueCenter = player.Camera.Recognition.HueCenter,
-                    HueRange = player.Camera.Recognition.HueRange,
-                    SaturationCenter = player.Camera.Recognition.SaturationCenter,
-                    SaturationRange = player.Camera.Recognition.SaturationRange,
-                    ValueCenter = player.Camera.Recognition.ValueCenter,
-                    ValueRange = player.Camera.Recognition.ValueRange,
-                    MinArea = player.Camera.Recognition.MinArea,
-                    ShowMask = player.Camera.Recognition.ShowMask
-                };
+                    playerHardwareInfo.CameraIndex = player.Camera.CameraId;
 
-                if (player.Camera.Calibration is not null)
-                {
-                    recognitionOptions.Calibrate = true;
+                    CameraServers.ICamera camera = _cameraServer.GetCamera(player.Camera.CameraId)
+                        ?? _cameraServer.OpenCamera(player.Camera.CameraId, new CameraServers.Locator());
 
-                    recognitionOptions.TopLeftX = player.Camera.Calibration.TopLeft.X;
-                    recognitionOptions.TopLeftY = player.Camera.Calibration.TopLeft.Y;
-                    recognitionOptions.TopRightX = player.Camera.Calibration.TopRight.X;
-                    recognitionOptions.TopRightY = player.Camera.Calibration.TopRight.Y;
-                    recognitionOptions.BottomLeftX = player.Camera.Calibration.BottomLeft.X;
-                    recognitionOptions.BottomLeftY = player.Camera.Calibration.BottomLeft.Y;
-                    recognitionOptions.BottomRightX = player.Camera.Calibration.BottomRight.X;
-                    recognitionOptions.BottomRightY = player.Camera.Calibration.BottomRight.Y;
+                    CameraServers.RecognitionOptions recognitionOptions = new()
+                    {
+                        HueCenter = player.Camera.Recognition.HueCenter,
+                        HueRange = player.Camera.Recognition.HueRange,
+                        SaturationCenter = player.Camera.Recognition.SaturationCenter,
+                        SaturationRange = player.Camera.Recognition.SaturationRange,
+                        ValueCenter = player.Camera.Recognition.ValueCenter,
+                        ValueRange = player.Camera.Recognition.ValueRange,
+                        MinArea = player.Camera.Recognition.MinArea,
+                        ShowMask = player.Camera.Recognition.ShowMask
+                    };
+
+                    if (player.Camera.Calibration is not null)
+                    {
+                        recognitionOptions.Calibrate = true;
+
+                        recognitionOptions.TopLeftX = player.Camera.Calibration.TopLeft.X;
+                        recognitionOptions.TopLeftY = player.Camera.Calibration.TopLeft.Y;
+                        recognitionOptions.TopRightX = player.Camera.Calibration.TopRight.X;
+                        recognitionOptions.TopRightY = player.Camera.Calibration.TopRight.Y;
+                        recognitionOptions.BottomLeftX = player.Camera.Calibration.BottomLeft.X;
+                        recognitionOptions.BottomLeftY = player.Camera.Calibration.BottomLeft.Y;
+                        recognitionOptions.BottomRightX = player.Camera.Calibration.BottomRight.X;
+                        recognitionOptions.BottomRightY = player.Camera.Calibration.BottomRight.Y;
+                    }
+
+                    camera.Locator = new CameraServers.Locator(recognitionOptions);
                 }
 
-                camera.Locator = new CameraServers.Locator(recognitionOptions);
+                if (player.SerialPort is not null)
+                {
+                    playerHardwareInfo.PortName = player.SerialPort.PortName;
+                    playerHardwareInfo.BaudRate = player.SerialPort.BaudRate;
+
+                    _slaveServer.OpenPort(
+                        portName: player.SerialPort.PortName,
+                        baudRate: player.SerialPort.BaudRate
+                    );
+                }
+
+                _playerHardwareInfo.AddOrUpdate(player.PlayerId, playerHardwareInfo, (_, _) => playerHardwareInfo);
             }
-
-            if (player.SerialPort is not null)
-            {
-                playerHardwareInfo.PortName = player.SerialPort.PortName;
-                playerHardwareInfo.BaudRate = player.SerialPort.BaudRate;
-
-                _slaveServer.OpenPort(
-                    portName: player.SerialPort.PortName,
-                    baudRate: player.SerialPort.BaudRate
-                );
-            }
-
-            _playerHardwareInfo.AddOrUpdate(player.PlayerId, playerHardwareInfo, (_, _) => playerHardwareInfo);
+        }
+        catch (Exception e)
+        {
+            _logger.Error("Error updating configuration: {0}", e.Message);
+            _viewerServer.Publish(new ViewerServers.ErrorMessage());
         }
     }
+
 }
