@@ -28,36 +28,39 @@ public partial class GamesTests
             Assert.StrictEqual(y0 + move, game.Players[0].PlayerPosition.Y);
             Assert.StrictEqual(x1 - move, game.Players[1].PlayerPosition.X);
             Assert.StrictEqual(y1 - move, game.Players[1].PlayerPosition.Y);
+            Assert.False(game.Players[0].IsAlive);
         }
 
         // Act2 InvalidMoveMent and Relive
-        game.Players[0].Move(8f, 8f);
+        game.Players[1].Move(8f, 8f);
         game.Tick();
-        Assert.False(game.Players[0].IsAlive);
+        Assert.False(game.Players[1].IsAlive);
         Assert.Null(game.Winner);
         for (int i = 0; i < TicksBeforeRespawn; i++)
         {
             game.Tick();
-            Assert.False(game.Players[0].IsAlive);
+            Assert.False(game.Players[1].IsAlive);
         }
+        game.Players[1].Move(game.Players[1].SpawnPoint.X, game.Players[1].SpawnPoint.Y);
         game.Players[0].Move(game.Players[0].SpawnPoint.X, game.Players[0].SpawnPoint.Y);
         game.Tick();
+        Assert.True(game.Players[1].IsAlive);
         Assert.True(game.Players[0].IsAlive);
 
         // Act3 InvalidMoveMent and Die
-        game.Players[1].Move(-0.4f, -0.4f);
+        game.Players[0].Move(-0.4f, -0.4f);
         game.Tick();
-        Assert.False(game.Players[1].IsAlive);
+        Assert.False(game.Players[0].IsAlive);
         Assert.Null(game.Winner);
         for (int i = 0; i < TicksBeforeRespawn / 2; i++)
         {
             game.Tick();
         }
-        game.Players[0].Move(game.Players[1].SpawnPoint.X, game.Players[1].SpawnPoint.Y);
+        game.Players[1].Move(game.Players[0].SpawnPoint.X, game.Players[0].SpawnPoint.Y);
         game.Tick();
-        game.Players[0].Attack(game.Players[1].SpawnPoint.X, game.Players[1].SpawnPoint.Y);
+        game.Players[1].Attack(game.Players[0].SpawnPoint.X, game.Players[0].SpawnPoint.Y);
         game.Tick();
-        Assert.StrictEqual(game.Players[0], game.Winner);
+        Assert.StrictEqual(game.Players[1], game.Winner);
         Assert.StrictEqual(IGame.Stage.Finished, game.CurrentStage);
 
     }
