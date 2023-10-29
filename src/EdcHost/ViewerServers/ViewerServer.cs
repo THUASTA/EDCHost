@@ -161,101 +161,111 @@ public class ViewerServer : IViewerServer
     /// <exception cref="InvalidDataException"></exception>
     void DeserializeMessage(string text)
     {
-        IMessage message = JsonSerializer.Deserialize<Message>(text)!;
-        switch (message.MessageType)
+        try
         {
-            case "COMPETITION_CONTROL_COMMAND":
-                ICompetitionControlCommand command
-                    = JsonSerializer.Deserialize<CompetitionControlCommand>(text)!;
-                switch (command.Command)
-                {
-                    case "START":
-                        Controller.StartGame();
-                        break;
-                    case "END":
-                        Controller.EndGame();
-                        break;
-                    case "RESET":
-                        Controller.ResetGame();
-                        break;
-                    case "GET_HOST_CONFIGURATION":
-                        try
-                        {
-                            Controller.GetHostConfiguration();
-                        }
-                        catch (Exception e)
-                        {
-                            RaiseError((int)ErrorCode.NoDeviceAvailable, e.Message);
-                            throw new Exception(e.Message);
-                        }
-                        break;
-                    default:
-                        RaiseError((int)ErrorCode.InvalidCommand, $"Invalid command: {command.Command}");
-                        throw new Exception($"Invalid command: {command.Command}");
-                }
-                break;
-
-            case "HOST_CONFIGURATION_FROM_CLIENT":
-                IHostConfigurationFromClient hostConfiguration
-                    = JsonSerializer.Deserialize<HostConfigurationFromClient>(text)!;
-                Type Player = hostConfiguration.Players.GetType().GetGenericArguments()[0];
-                PropertyInfo[] playerProperties = Player.GetProperties();
-                foreach (object player in hostConfiguration.Players)
-                {
-                    int playerId = -1;
-                    foreach (PropertyInfo property in playerProperties)
+            IMessage message = JsonSerializer.Deserialize<Message>(text)!;
+            switch (message.MessageType)
+            {
+                case "COMPETITION_CONTROL_COMMAND":
+                    _logger.Debug("Received COMPETITION_CONTROL_COMMAND.");
+                    ICompetitionControlCommand command
+                        = JsonSerializer.Deserialize<CompetitionControlCommand>(text)!;
+                    switch (command.Command)
                     {
-                        if (property.Name == "id")
-                        {
-                            playerId = (int)property.GetValue(player)!;
-                            if (playerId < 0)
+                        case "START":
+                            Controller.StartGame();
+                            break;
+                        case "END":
+                            Controller.EndGame();
+                            break;
+                        case "RESET":
+                            Controller.ResetGame();
+                            break;
+                        case "GET_HOST_CONFIGURATION":
+                            try
                             {
-                                RaiseError((int)ErrorCode.InvalidPlayer, "Invalid player id.");
-                                throw new Exception("Invalid player id.");
+                                Controller.GetHostConfiguration();
                             }
-                        }
-                        else if (property.Name == "camera")
-                        {
-                            object? cameraConfiguration = null;
-                            cameraConfiguration = property.GetValue(player);
-                            if (cameraConfiguration == null)
+                            catch (Exception e)
                             {
-                                RaiseError((int)ErrorCode.InvalidCamera, "Invalid camera configuration.");
-                                throw new Exception("Invalid camera configuration.");
+                                RaiseError((int)ErrorCode.NoDeviceAvailable, e.Message);
+                                throw new Exception(e.Message);
                             }
-                            SetCameraEvent?.Invoke(this, new SetCameraEventArgs(playerId, cameraConfiguration));
-                        }
-                        else if (property.Name == "serialPort")
+                            break;
+                        default:
+                            RaiseError((int)ErrorCode.InvalidCommand, $"Invalid command: {command.Command}");
+                            throw new Exception($"Invalid command: {command.Command}");
+                    }
+                    break;
+
+                case "HOST_CONFIGURATION_FROM_CLIENT":
+                    _logger.Debug("Received HOST_CONFIGURATION_FROM_CLIENT.");
+                    IHostConfigurationFromClient hostConfiguration
+                        = JsonSerializer.Deserialize<HostConfigurationFromClient>(text)!;
+                    Type Player = hostConfiguration.Players.GetType().GetGenericArguments()[0];
+                    PropertyInfo[] playerProperties = Player.GetProperties();
+                    foreach (object player in hostConfiguration.Players)
+                    {
+                        int playerId = -1;
+                        foreach (PropertyInfo property in playerProperties)
                         {
-                            Type Port = property.GetValue(player)!.GetType();
-                            PropertyInfo[] portProperties = Port.GetProperties();
-                            string? portName = null;
-                            int baudRate = 0;
-                            foreach (PropertyInfo portProperty in portProperties)
+                            if (property.Name == "id")
                             {
-                                if (portProperty.Name == "portName")
+                                playerId = (int)property.GetValue(player)!;
+                                if (playerId < 0)
                                 {
-                                    portName = (string?)portProperty.GetValue(property.GetValue(player));
-                                }
-                                else if (portProperty.Name == "baudRate")
-                                {
-                                    baudRate = (int)portProperty.GetValue(property.GetValue(player))!;
+                                    RaiseError((int)ErrorCode.InvalidPlayer, "Invalid player id.");
+                                    throw new Exception("Invalid player id.");
                                 }
                             }
-                            if (portName == null || baudRate == 0)
+                            else if (property.Name == "camera")
                             {
-                                RaiseError((int)ErrorCode.InvalidPort, "Invalid port configuration.");
-                                throw new Exception("Invalid port configuration.");
+                                object? cameraConfiguration = null;
+                                cameraConfiguration = property.GetValue(player);
+                                if (cameraConfiguration == null)
+                                {
+                                    RaiseError((int)ErrorCode.InvalidCamera, "Invalid camera configuration.");
+                                    throw new Exception("Invalid camera configuration.");
+                                }
+                                SetCameraEvent?.Invoke(this, new SetCameraEventArgs(playerId, cameraConfiguration));
                             }
-                            SetPortEvent?.Invoke(this, new SetPortEventArgs(playerId, portName, baudRate));
+                            else if (property.Name == "serialPort")
+                            {
+                                Type Port = property.GetValue(player)!.GetType();
+                                PropertyInfo[] portProperties = Port.GetProperties();
+                                string? portName = null;
+                                int baudRate = 0;
+                                foreach (PropertyInfo portProperty in portProperties)
+                                {
+                                    if (portProperty.Name == "portName")
+                                    {
+                                        portName = (string?)portProperty.GetValue(property.GetValue(player));
+                                    }
+                                    else if (portProperty.Name == "baudRate")
+                                    {
+                                        baudRate = (int)portProperty.GetValue(property.GetValue(player))!;
+                                    }
+                                }
+                                if (portName == null || baudRate == 0)
+                                {
+                                    RaiseError((int)ErrorCode.InvalidPort, "Invalid port configuration.");
+                                    throw new Exception("Invalid port configuration.");
+                                }
+                                SetPortEvent?.Invoke(this, new SetPortEventArgs(playerId, portName, baudRate));
+                            }
                         }
                     }
-                }
-                break;
+                    break;
 
-            default:
-                RaiseError((int)ErrorCode.InvalidMessageType, $"Invalid message type: {message.MessageType}");
-                throw new Exception($"Invalid message type: {message.MessageType}");
+                default:
+                    RaiseError((int)ErrorCode.InvalidMessageType, $"Invalid message type: {message.MessageType}");
+                    throw new Exception($"Invalid message type: {message.MessageType}");
+            }
+        }
+        catch
+        {
+            RaiseError((int)ErrorCode.InvalidMessage, "Invalid message.");
+            _logger.Error("Invalid message.");
         }
     }
 

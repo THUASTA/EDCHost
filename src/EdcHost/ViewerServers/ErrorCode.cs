@@ -9,5 +9,6 @@ enum ErrorCode
     InvalidCommand,
     InvalidPort,
     InvalidCamera,
-    InvalidPlayer
+    InvalidPlayer,
+    InvalidMessage
 }
