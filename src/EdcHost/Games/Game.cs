@@ -9,6 +9,8 @@ partial class Game : IGame
 {
     const int TickBattlingModeStart = 12000;
     public const int TicksPerSecondExpected = 20;
+    const int TicksBattlingDamageInterval = 100;
+    const int BattlingDamage = 1;
 
     /// <summary>
     /// Current stage of the game.
@@ -184,11 +186,11 @@ partial class Game : IGame
                 _isAllBedsDestroyed = true;
             }
 
-            if ((ElapsedTicks - TickBattlingModeStart) % TicksPerSecondExpected == 0)
+            if ((ElapsedTicks - TickBattlingModeStart) % TicksBattlingDamageInterval == 0)
             {
                 for (int i = 0; i < PlayerNum; i++)
                 {
-                    Players[i].Hurt(1);
+                    Players[i].Hurt(BattlingDamage);
                 }
             }
         }
@@ -268,6 +270,9 @@ partial class Game : IGame
                     int collectedOre = Math.Min(capacity / value, mine.AccumulatedOreCount);
 
                     Players[i].EmeraldAdd(collectedOre * value);
+                    // Invoke the event
+                    Players[i].PickUpEventInvoker(mine.OreKind, collectedOre);
+
                     mine.PickUpOre(collectedOre);
                 }
             }

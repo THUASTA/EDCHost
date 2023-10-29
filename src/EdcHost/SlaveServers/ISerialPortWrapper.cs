@@ -1,8 +1,8 @@
 namespace EdcHost.SlaveServers;
 
-public interface ISerialPortWrapper: IDisposable
+public interface ISerialPortWrapper : IDisposable
 {
-    class AfterReceiveEventArgs : System.EventArgs
+    class AfterReceiveEventArgs : EventArgs
     {
         public byte[] Bytes { get; }
         public string PortName { get; }

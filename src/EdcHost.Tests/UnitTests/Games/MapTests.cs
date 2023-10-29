@@ -40,7 +40,7 @@ public class IMapTests
     public void GetChunkAt_DoNothing_ReturnsCorrectChunkPosition()
     {
         IMap map = IMap.Create(spawnPoints);
-        MockPosition positionMock = new MockPosition { X = 2, Y = 3 };
+        MockPosition positionMock = new() { X = 2, Y = 3 };
         IChunk expectedChunk = map.Chunks[19];
         IChunk actualChunk = map.GetChunkAt(positionMock);
         Assert.Equal(expectedChunk, actualChunk);
@@ -54,7 +54,7 @@ public class IMapTests
     public void GetChunkAt_ThrowsRightException(int x, int y)
     {
         IMap map = IMap.Create(spawnPoints);
-        MockPosition positionMock = new MockPosition { X = x, Y = y };
+        MockPosition positionMock = new() { X = x, Y = y };
         Assert.Throws<ArgumentException>(() => map.GetChunkAt(positionMock));
     }
 }

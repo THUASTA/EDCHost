@@ -5,7 +5,7 @@ namespace EdcHost.Tests.IntegrationTests;
 
 public partial class GamesTests
 {
-    const int AttackTickInterval = 200;
+    const int AttackTickInterval = (int)(8.5 * 20);
     const int AttackTimes = 20;
     [Fact]
     public void Game_AttackDieTests()

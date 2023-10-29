@@ -10,68 +10,76 @@ class SerialPortWrapper : ISerialPortWrapper
 
     public string PortName => _serialPort.PortName;
 
-    bool _isOpen = false;
     readonly Serilog.ILogger _logger = Serilog.Log.Logger.ForContext("Component", "SlaveServers");
     readonly ConcurrentQueue<byte[]> _queueOfBytesToSend = new();
     readonly SerialPort _serialPort;
     Task? _taskForReceiving = null;
     Task? _taskForSending = null;
 
-    public SerialPortWrapper(string portName)
+    public SerialPortWrapper(string portName, int baudRate)
     {
-        _serialPort = new(portName: portName);
+        _serialPort = new(portName: portName, baudRate: baudRate);
     }
 
     public int BytesToRead => _serialPort.BytesToRead;
 
-    public void Close() {
-        if (!_isOpen){
+    public void Close()
+    {
+        if (!_serialPort.IsOpen)
+        {
             throw new InvalidOperationException("port is not open");
         }
 
         Debug.Assert(_taskForReceiving != null);
         Debug.Assert(_taskForSending != null);
 
-        _isOpen = false;
+        _serialPort.Close();
 
         _taskForReceiving.Wait();
         _taskForSending.Wait();
-        _serialPort.Close();
 
         _taskForSending.Dispose();
         _taskForReceiving.Dispose();
     }
 
-    public void Dispose() {
+    public void Dispose()
+    {
         _serialPort.Dispose();
+        _taskForReceiving?.Dispose();
+        _taskForSending?.Dispose();
     }
 
-    public void Open() {
-        if (_isOpen){
+    public void Open()
+    {
+        if (_serialPort.IsOpen)
+        {
             throw new InvalidOperationException("port is already open");
         }
 
-        _isOpen = true;
-
         _serialPort.Open();
+
         _taskForReceiving = Task.Run(TaskForReceivingFunc);
         _taskForSending = Task.Run(TaskForSendingFunc);
     }
 
-    public void Send(byte[] bytes) {
-        if (!_isOpen){
+    public void Send(byte[] bytes)
+    {
+        if (!_serialPort.IsOpen)
+        {
             throw new InvalidOperationException("port is not open");
         }
 
         _queueOfBytesToSend.Enqueue(bytes);
     }
 
-    private async Task TaskForReceivingFunc() {
-        while (_isOpen) {
-            await Task.Delay(0);
-
-            try {
-                if (_serialPort.BytesToRead == 0) {
+    private void TaskForReceivingFunc()
+    {
+        while (_serialPort.IsOpen)
+        {
+            try
+            {
+                if (_serialPort.BytesToRead == 0)
+                {
                     continue;
                 }
 
@@ -80,26 +88,35 @@ class SerialPortWrapper : ISerialPortWrapper
 
                 AfterReceive?.Invoke(this, new(_serialPort.PortName, bytes));
             }
-            catch (Exception e) {
-                _logger.Error(e, "error while sending bytes");
+            catch (Exception)
+            {
+                _logger.Error("Error while receiving bytes.");
+
+#if DEBUG
+                throw;
+#endif
             }
         }
     }
 
-    private async Task TaskForSendingFunc()
+    private void TaskForSendingFunc()
     {
-        while (_isOpen)
+        while (_serialPort.IsOpen)
         {
-            await Task.Delay(0);
-
-            try {
+            try
+            {
                 if (_queueOfBytesToSend.TryDequeue(out byte[]? bytes))
                 {
                     _serialPort.Write(bytes, 0, bytes.Length);
                 }
             }
-            catch (Exception e) {
-                _logger.Error(e, "error while sending bytes");
+            catch (Exception)
+            {
+                _logger.Error("Error while sending bytes.");
+
+#if DEBUG
+                throw;
+#endif
             }
         }
     }

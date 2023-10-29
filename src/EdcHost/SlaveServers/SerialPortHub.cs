@@ -6,5 +6,5 @@ class SerialPortHub : ISerialPortHub
 {
     public List<string> PortNames => SerialPort.GetPortNames().ToList();
 
-    public ISerialPortWrapper Get(string portName) => new SerialPortWrapper(portName);
+    public ISerialPortWrapper Get(string portName, int baudRate) => new SerialPortWrapper(portName, baudRate);
 }

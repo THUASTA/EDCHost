@@ -39,6 +39,8 @@ public interface IPlayer
     event EventHandler<PlayerAttackEventArgs> OnAttack;
     event EventHandler<PlayerPlaceEventArgs> OnPlace;
     event EventHandler<PlayerDieEventArgs> OnDie;
+    event EventHandler<PlayerDigEventArgs> OnDig;
+    event EventHandler<PlayerPickUpEventArgs> OnPickUp;
 
     void EmeraldAdd(int count);
     void Move(float newX, float newY);
@@ -49,6 +51,9 @@ public interface IPlayer
     void DestroyBed();
     void DestroyBedOpponent();
     void DecreaseWoolCount();
+    void DigEventInvoker(int targetChunk);
+    void PickUpEventInvoker(IMine.OreKindType mineType, int count);
+
     /// <summary>
     /// The Id of  the player 
     /// </summary>

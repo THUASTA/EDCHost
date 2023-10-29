@@ -6,9 +6,12 @@ class GameRunner : IGameRunner
 {
     const int TicksPerSecondExpected = 20;
 
+    public bool IsRunning { get; private set; } = false;
+
+    public double ActualTps => Game.CurrentStage is not IGame.Stage.Running ? 0 : 1000 / _lastTickDuration.TotalMilliseconds;
     public IGame Game { get; }
 
-    bool _shouldRun = false;
+    TimeSpan _lastTickDuration = TimeSpan.MaxValue;
     Task? _task = null;
 
     public GameRunner(IGame game)
@@ -16,23 +19,21 @@ class GameRunner : IGameRunner
         Game = game;
     }
 
-    public async Task Start()
+    public void Start()
     {
         if (Game.CurrentStage is not IGame.Stage.Ready)
         {
             throw new InvalidOperationException("game is not ready");
         }
 
-        _shouldRun = true;
+        IsRunning = true;
 
         Game.Start();
 
-        _task = Run();
-
-        await Task.Delay(0);
+        _task = Task.Run(TaskFunc);
     }
 
-    public async Task End()
+    public void End()
     {
         if (Game.CurrentStage is not IGame.Stage.Running && Game.CurrentStage is not IGame.Stage.Battling)
         {
@@ -41,42 +42,34 @@ class GameRunner : IGameRunner
 
         Debug.Assert(_task is not null);
 
-        _shouldRun = false;
-        await _task;
+        IsRunning = false;
+        _task.Wait();
     }
 
-    async Task Run()
+    void TaskFunc()
     {
-        try
-        {
-            DateTime lastTickStartTime = DateTime.Now;
+        DateTime lastTickStartTime = DateTime.Now;
 
-            while (_shouldRun)
+        while (IsRunning)
+        {
+            if (Game.CurrentStage is not IGame.Stage.Running && Game.CurrentStage is not IGame.Stage.Battling)
             {
-                if (Game.CurrentStage is not IGame.Stage.Running && Game.CurrentStage is not IGame.Stage.Battling)
-                {
-                    break;
-                }
-
-                // Wait for next tick
-                DateTime currentTickStartTime = lastTickStartTime.AddMilliseconds((double)1000 / TicksPerSecondExpected);
-                if (currentTickStartTime > DateTime.Now)
-                {
-                    await Task.Delay(currentTickStartTime - DateTime.Now);
-                }
-                else
-                {
-                    currentTickStartTime = DateTime.Now;
-                }
-
-                Game.Tick();
-
-                lastTickStartTime = currentTickStartTime;
+                break;
             }
-        }
-        catch (Exception e)
-        {
-            Serilog.Log.Error($"an error occurred when running the game: {e.Message}");
+
+            // Wait for next tick
+            DateTime currentTickStartTime = lastTickStartTime.AddMilliseconds((double)1000 / TicksPerSecondExpected);
+            if (currentTickStartTime > DateTime.Now)
+            {
+                Task.Delay(currentTickStartTime - DateTime.Now).Wait();
+            }
+            currentTickStartTime = DateTime.Now;
+
+            _lastTickDuration = DateTime.Now - lastTickStartTime;
+
+            Game.Tick();
+
+            lastTickStartTime = currentTickStartTime;
         }
     }
 }

@@ -1,6 +1,4 @@
-using EdcHost.ViewerServers.EventArgs;
 using Fleck;
-using EdcHost.ViewerServers.Messages;
 namespace EdcHost.ViewerServers;
 
 /// <summary>
@@ -10,20 +8,21 @@ public interface IViewerServer
 {
     static IViewerServer Create(int port)
     {
-        var webSocketServer = new WebSocketServer($"ws://0.0.0.0:{port}");
-        return new ViewerServer(webSocketServer, new GameController());
+        WebSocketServerHub wsServerHub = new();
+        return new ViewerServer(port, wsServerHub);
     }
-    IGameController Controller { get; }
-    public event EventHandler<SetPortEventArgs>? SetPortEvent;
-    public event EventHandler<SetCameraEventArgs>? SetCameraEvent;
+
+    event EventHandler<AfterMessageReceiveEventArgs>? AfterMessageReceiveEvent;
+
     /// <summary>
     /// Starts the server.
     /// </summary>
     void Start();
+
     /// <summary>
     /// Stops the server.
     /// </summary>
     void Stop();
 
-    void Publish(IMessage message);
+    void Publish(Message message);
 }

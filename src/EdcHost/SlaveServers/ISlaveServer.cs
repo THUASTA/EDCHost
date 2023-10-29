@@ -3,7 +3,7 @@ namespace EdcHost.SlaveServers;
 /// <summary>
 /// SlaveServer handles the communication with the slaves via UART.
 /// </summary>
-public interface ISlaveServer
+public interface ISlaveServer : IDisposable
 {
     static ISlaveServer Create()
     {
@@ -31,7 +31,7 @@ public interface ISlaveServer
     /// </summary>
     void Stop();
 
-    void OpenPort(string portName);
+    void OpenPort(string portName, int baudRate);
 
     void ClosePort(string portName);
 

@@ -7,7 +7,11 @@ public interface IGameRunner
         return new GameRunner(game);
     }
 
+    double ActualTps { get; }
     IGame Game { get; }
-    Task Start();
-    Task End();
+
+    void Start();
+    void End();
+
+    bool IsRunning { get; }
 }

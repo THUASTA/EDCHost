@@ -9,7 +9,7 @@ public partial class GamesTests
     public void Simple()
     {
         const int TicksBeforeBattling = 12000;
-        const int TicksBattling = 400;
+        const int TicksBattling = 2000;
 
         // Arrange
         var game = IGame.Create();

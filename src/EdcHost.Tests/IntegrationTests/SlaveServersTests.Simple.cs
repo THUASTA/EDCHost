@@ -3,7 +3,7 @@ using Xunit;
 
 namespace EdcHost.Tests.IntegrationTests;
 
-public partial class SlaveServerTests
+public partial class SlaveServersTests
 {
     [Fact]
     public void Simple()
@@ -33,7 +33,7 @@ public partial class SlaveServerTests
         Assert.Empty(serialPortWrapperMock.WriteBuffer);
 
         // Act
-        slaveServer.OpenPort(PortName);
+        slaveServer.OpenPort(PortName, 0);
 
         Assert.Single(serialPortHubMock.SerialPorts);
         Assert.True(serialPortWrapperMock.IsOpen);
@@ -161,15 +161,5 @@ public partial class SlaveServerTests
         Assert.Single(serialPortHubMock.SerialPorts);
         Assert.False(serialPortWrapperMock.IsOpen);
         Assert.Equal(HostToSlaveBytesCount, serialPortWrapperMock.WriteBuffer.Count);
-    }
-
-    static byte CalculateChecksum(byte[] bytes)
-    {
-        byte checksum = 0x00;
-        foreach (byte byte_item in bytes)
-        {
-            checksum ^= byte_item;
-        }
-        return checksum;
     }
 }

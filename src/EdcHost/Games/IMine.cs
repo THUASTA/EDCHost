@@ -1,3 +1,5 @@
+using System;
+
 namespace EdcHost.Games;
 
 /// <summary>
@@ -19,6 +21,10 @@ public interface IMine
         GoldIngot,
         Diamond,
     }
+    /// <summary>
+    /// The id of the mine
+    /// </summary>
+    Guid MineId { get; }
 
     /// <summary>
     /// The count of accumulated ores.

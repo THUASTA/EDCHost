@@ -10,12 +10,12 @@ partial class EdcHost : IEdcHost
         try
         {
             // Store the event info to the queue
-            this._playerEventQueue.Enqueue(e);
+            _playerEventQueue.Enqueue(e);
 
             string portName = e.PortName;
 
-            int? playerId = _playerIdToPortName
-                .Where(kvp => kvp.Value == portName)
+            int? playerId = _playerHardwareInfo
+                .Where(kvp => kvp.Value.PortName == portName)
                 .Select(kvp => (int?)kvp.Key)
                 .FirstOrDefault((int?)null);
 
@@ -25,11 +25,15 @@ partial class EdcHost : IEdcHost
             }
 
             IPosition<float> current = _game.Players[playerId.Value].PlayerPosition;
-            _game.Players[playerId.Value].Attack(e.TargetChunkId / _mapWidth, e.TargetChunkId % _mapWidth);
+            _game.Players[playerId.Value].Attack(e.TargetChunkId / MapWidth, e.TargetChunkId % MapWidth);
         }
-        catch (Exception exception)
+        catch (Exception ex)
         {
-            Serilog.Log.Warning($"Action failed: {exception}");
+            _logger.Error($"PlayerTryAttack failed: {ex.Message}");
+
+#if DEBUG
+            throw;
+#endif
         }
     }
 
@@ -38,12 +42,12 @@ partial class EdcHost : IEdcHost
         try
         {
             // Store the event info to the queue
-            this._playerEventQueue.Enqueue(e);
+            _playerEventQueue.Enqueue(e);
 
             string portName = e.PortName;
 
-            int? playerId = _playerIdToPortName
-                .Where(kvp => kvp.Value == portName)
+            int? playerId = _playerHardwareInfo
+                .Where(kvp => kvp.Value.PortName == portName)
                 .Select(kvp => (int?)kvp.Key)
                 .FirstOrDefault((int?)null);
 
@@ -53,11 +57,15 @@ partial class EdcHost : IEdcHost
             }
 
             IPosition<float> current = _game.Players[playerId.Value].PlayerPosition;
-            _game.Players[playerId.Value].Place(e.TargetChunkId / _mapWidth, e.TargetChunkId % _mapWidth);
+            _game.Players[playerId.Value].Place(e.TargetChunkId / MapWidth, e.TargetChunkId % MapWidth);
         }
-        catch (Exception exception)
+        catch (Exception ex)
         {
-            Serilog.Log.Warning($"Action failed: {exception}");
+            _logger.Error($"PlayerTryPlaceBlock failed: {ex.Message}");
+
+#if DEBUG
+            throw;
+#endif
         }
     }
 
@@ -66,12 +74,12 @@ partial class EdcHost : IEdcHost
         try
         {
             // Store the event info to the queue
-            this._playerEventQueue.Enqueue(e);
+            _playerEventQueue.Enqueue(e);
 
             string portName = e.PortName;
 
-            int? playerId = _playerIdToPortName
-                .Where(kvp => kvp.Value == portName)
+            int? playerId = _playerHardwareInfo
+                .Where(kvp => kvp.Value.PortName == portName)
                 .Select(kvp => (int?)kvp.Key)
                 .FirstOrDefault((int?)null);
 
@@ -103,13 +111,17 @@ partial class EdcHost : IEdcHost
                     break;
 
                 default:
-                    Serilog.Log.Warning($"No item with id {e.Item}. Action rejected.");
+                    _logger.Error($"No item with id {e.Item}. Action rejected."); // Do not throw exception here.
                     break;
             }
         }
-        catch (Exception exception)
+        catch (Exception ex)
         {
-            Serilog.Log.Warning($"Action failed: {exception}");
+            _logger.Error($"PlayerTryTrade failed: {ex.Message}");
+
+#if DEBUG
+            throw;
+#endif
         }
     }
 }

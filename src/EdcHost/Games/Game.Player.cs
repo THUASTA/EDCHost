@@ -38,21 +38,9 @@ partial class Game : IGame
     readonly List<int?> _playerDeathTickList;
     readonly List<int> _playerLastAttackTickList;
 
-    int CommodityValue(
-        IPlayer player, IPlayer.CommodityKindType commodityKind) => commodityKind switch
-        {
-            IPlayer.CommodityKindType.AgilityBoost => (int)Math.Pow(2, player.ActionPoints),
-            IPlayer.CommodityKindType.HealthBoost => player.MaxHealth - 20,
-            IPlayer.CommodityKindType.StrengthBoost => (int)Math.Pow(2, player.Strength),
-            IPlayer.CommodityKindType.Wool => 1,
-            IPlayer.CommodityKindType.HealthPotion => 4,
-            _ => throw new ArgumentOutOfRangeException(
-                nameof(commodityKind), $"No commodity {commodityKind}")
-        };
-
     int AttackTickInterval(IPlayer player)
     {
-        return 200 / player.ActionPoints;
+        return (int)(Math.Max(8.5 - 0.25 * player.ActionPoints, 0.5) * TicksPerSecondExpected);
     }
 
 }
