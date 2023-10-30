@@ -44,13 +44,17 @@ partial class Game : IGame
     /// Default players.
     /// </summary>
     readonly IPlayer[] _defaultPlayerList = {
-        new Player(0, 0.4f, 0.4f, 0.4f, 0.4f), new Player(1, 7.4f, 7.4f, 7.4f, 7.4f)};
+        new Player(0, 0.4f, 0.4f, 0.4f, 0.4f),
+        new Player(1, 7.4f, 7.4f, 7.4f, 7.4f)
+    };
 
     /// <summary>
     /// Default spawn points.
     /// </summary>
     readonly IPosition<int>[] _defaultSpawnPoints = {
-        new Position<int>(0, 0), new Position<int>(7, 7) };
+        new Position<int>(0, 0),
+        new Position<int>(7, 7)
+    };
 
     readonly ILogger _logger = Log.Logger.ForContext("Component", "Games");
 
@@ -119,11 +123,6 @@ partial class Game : IGame
         }
 
         //TODO: Start game after all players are ready
-
-        foreach (IMine mine in Mines)
-        {
-            mine.GenerateOre(ElapsedTicks);
-        }
 
         Winner = null;
 

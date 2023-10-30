@@ -9,7 +9,9 @@ partial class Game : IGame
     /// <returns>The int position</returns>
     IPosition<int> ToIntPosition(IPosition<float> floatPosition)
     {
-        return new Position<int>((int)floatPosition.X, (int)floatPosition.Y);
+        int x = (floatPosition.X < -1e-6) ? -(1 + (int)(-floatPosition.X)) : (int)floatPosition.X;
+        int y = (floatPosition.Y < -1e-6) ? -(1 + (int)(-floatPosition.Y)) : (int)floatPosition.Y;
+        return new Position<int>(x, y);
     }
 
     IPosition<float> ToFloatPosition(IPosition<int> intPosition)
