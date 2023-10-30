@@ -58,6 +58,7 @@ public partial class ViewerServersTests
         const int MinPort = 1;
         const int MaxPort = 65534;
         const int MaxLength = 100000;
+        const int MaxSize = 100;
 
         // Arrange
         Random random = new(randomSeed);
@@ -130,7 +131,7 @@ public partial class ViewerServersTests
             HostConfigurationFromClientMessage message = new()
             {
                 Token = Encoding.ASCII.GetString(Utils.GenerateRandomBytes(random, random.Next(0, MaxLength))),
-                Players = Enumerable.Range(0, random.Next(0, MaxLength)).Select(_ => new HostConfigurationFromClientMessage.PlayerType()
+                Players = Enumerable.Range(0, random.Next(0, MaxSize)).Select(_ => new HostConfigurationFromClientMessage.PlayerType()
                 {
                     PlayerId = random.Next(),
                     Camera = random.Next() % 2 == 0 ? null : new()

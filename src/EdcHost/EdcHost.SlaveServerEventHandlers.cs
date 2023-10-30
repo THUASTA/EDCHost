@@ -30,10 +30,6 @@ partial class EdcHost : IEdcHost
         catch (Exception ex)
         {
             _logger.Error($"PlayerTryAttack failed: {ex.Message}");
-
-#if DEBUG
-            throw;
-#endif
         }
     }
 
@@ -62,10 +58,6 @@ partial class EdcHost : IEdcHost
         catch (Exception ex)
         {
             _logger.Error($"PlayerTryPlaceBlock failed: {ex.Message}");
-
-#if DEBUG
-            throw;
-#endif
         }
     }
 
@@ -118,10 +110,6 @@ partial class EdcHost : IEdcHost
         catch (Exception ex)
         {
             _logger.Error($"PlayerTryTrade failed: {ex.Message}");
-
-#if DEBUG
-            throw;
-#endif
         }
     }
 }

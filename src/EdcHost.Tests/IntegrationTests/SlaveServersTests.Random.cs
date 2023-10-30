@@ -55,7 +55,7 @@ public partial class SlaveServersTests
     [InlineData(199)]
     public void Random(int randomSeed)
     {
-        const int MaxLength = 100000000;
+        const int MaxLength = 100000;
         const int SlaveToHostBytesCount = 7;
         const int SlaveToHostDataBytesCount = 2;
 

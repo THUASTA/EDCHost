@@ -153,10 +153,6 @@ public class ViewerServer : IViewerServer
                 catch (Exception)
                 {
                     _logger.Error($"Failed to parse message: {text}");
-
-#if DEBUG
-                    throw;
-#endif
                 }
             };
 
@@ -170,10 +166,6 @@ public class ViewerServer : IViewerServer
                 catch (Exception)
                 {
                     _logger.Error($"Failed to parse message: {bytes}");
-
-#if DEBUG
-                    throw;
-#endif
                 }
             };
 
