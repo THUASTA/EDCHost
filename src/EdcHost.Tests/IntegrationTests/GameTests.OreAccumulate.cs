@@ -46,7 +46,6 @@ public partial class GameTests
         game.Players[0].Place(game.Players[0].SpawnPoint.X, game.Players[0].SpawnPoint.Y);
         game.Tick();
         Assert.StrictEqual(1, game.Players[0].WoolCount);
-        
         Assert.StrictEqual(MaxHeight, game.GameMap.GetChunkAt(position).Height);
 
         //Act2 accumulate iron 7～11
@@ -68,7 +67,7 @@ public partial class GameTests
         Assert.StrictEqual(1, game.Players[0].WoolCount);
         game.Players[0].Place(-1f, 0f);
         Assert.StrictEqual(1, game.Players[0].WoolCount);
-        for (int i = 1;i < 6; i++)
+        for (int i = 1; i < 6; i++)
         {
             game.Players[0].Trade(IPlayer.CommodityKindType.Wool);
             game.Tick();

@@ -29,7 +29,7 @@ public partial class GameTests
         game.Players[0].Place(0f, 1f);
         game.Tick();
         game.Players[0].Move(1.4f, 0.4f);
-        for (int i = 0; i < 4 * OreAccumulationInterval;  i++)
+        for (int i = 0; i < 4 * OreAccumulationInterval; i++)
         {
             game.Tick();
         }
