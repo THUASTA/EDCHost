@@ -48,7 +48,7 @@ public partial class GamesTests
         Assert.True(game.Players[0].IsAlive);
 
         // Act3 InvalidMoveMent and Die
-        game.Players[0].Move(-0.4f, -0.4f);
+        game.Players[0].Move(1.4f, 0.4f);
         game.Tick();
         Assert.False(game.Players[0].IsAlive);
         Assert.Null(game.Winner);
