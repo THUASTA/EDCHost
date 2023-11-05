@@ -1,12 +1,12 @@
-using EdcHost.Games;
-
 namespace EdcHost.SlaveServers;
 
 public class PacketFromHost : IPacketFromHost
 {
+    const int ChunkCount = 64;
+
     public int GameStage { get; private set; }
     public int ElapsedTime { get; private set; }
-    public List<int> HeightOfChunks { get; private set; } = new List<int>();
+    public List<int> HeightOfChunks { get; private set; } = new();
     public bool HasBed { get; private set; }
     public bool HasBedOpponent { get; private set; }
     public float PositionX { get; private set; }
@@ -22,30 +22,54 @@ public class PacketFromHost : IPacketFromHost
 
     public PacketFromHost(byte[] bytes)
     {
+        int datalength = (
+           1 +                  //GameStage
+           4 +                  //ElapsedTime
+           1 * ChunkCount + //HeightOfChunk
+           1 +                  //HasBed
+           1 +                  //HasBedOpponet
+           4 * 4 +                // Position 
+           1 * 6                 //agility health maxHealth strength emeraldCount woolCount
+        );
+
+        if (bytes.Length != datalength + 5)
+        {
+            throw new ArgumentException("bytes.Length != datalength + 5");
+        }
+
+        byte[] data = IPacket.GetPacketData(bytes);
+        byte dataChecksum = IPacket.CalculateChecksum(data);
+        byte checksum = bytes[4];
+
+        if (dataChecksum != checksum)
+        {
+            throw new ArgumentException("dataChecksum != checksum");
+        }
+
         int currentIndex = 0;
-        GameStage = Convert.ToInt32(bytes[currentIndex++]);
-        ElapsedTime = BitConverter.ToInt32(bytes, currentIndex);
+        GameStage = Convert.ToInt32(data[currentIndex++]);
+        ElapsedTime = BitConverter.ToInt32(data, currentIndex);
         currentIndex += 4;
         for (int i = 0; i < 64; i++)
         {
-            HeightOfChunks.Add(Convert.ToInt32(bytes[currentIndex++]));
+            HeightOfChunks.Add(Convert.ToInt32(data[currentIndex++]));
         }
-        HasBed = Convert.ToBoolean(bytes[currentIndex++]);
-        HasBedOpponent = Convert.ToBoolean(bytes[currentIndex++]);
-        PositionX = BitConverter.ToSingle(bytes, currentIndex);
+        HasBed = Convert.ToBoolean(data[currentIndex++]);
+        HasBedOpponent = Convert.ToBoolean(data[currentIndex++]);
+        PositionX = BitConverter.ToSingle(data, currentIndex);
         currentIndex += 4;
-        PositionY = BitConverter.ToSingle(bytes, currentIndex);
+        PositionY = BitConverter.ToSingle(data, currentIndex);
         currentIndex += 4;
-        PositionOpponentX = BitConverter.ToSingle(bytes, currentIndex);
+        PositionOpponentX = BitConverter.ToSingle(data, currentIndex);
         currentIndex += 4;
-        PositionOpponentY = BitConverter.ToSingle(bytes, currentIndex);
+        PositionOpponentY = BitConverter.ToSingle(data, currentIndex);
         currentIndex += 4;
-        Agility = Convert.ToInt32(bytes[currentIndex++]);
-        Health = Convert.ToInt32(bytes[currentIndex++]);
-        MaxHealth = Convert.ToInt32(bytes[currentIndex++]);
-        Strength = Convert.ToInt32(bytes[currentIndex++]);
-        EmeraldCount = Convert.ToInt32(bytes[currentIndex++]);
-        WoolCount = Convert.ToInt32(bytes[currentIndex++]);
+        Agility = Convert.ToInt32(data[currentIndex++]);
+        Health = Convert.ToInt32(data[currentIndex++]);
+        MaxHealth = Convert.ToInt32(data[currentIndex++]);
+        Strength = Convert.ToInt32(data[currentIndex++]);
+        EmeraldCount = Convert.ToInt32(data[currentIndex++]);
+        WoolCount = Convert.ToInt32(data[currentIndex++]);
     }
 
     public PacketFromHost(
@@ -55,6 +79,11 @@ public class PacketFromHost : IPacketFromHost
         int emeraldCount, int woolCount
         )
     {
+        if (heightOfChunks.Count != ChunkCount)
+        {
+            throw new ArgumentException("heightOfChunks.Count != ChunkCount");
+        }
+
         GameStage = gameStage;
         ElapsedTime = elapsedTime;
         HeightOfChunks = new(heightOfChunks);
@@ -77,12 +106,13 @@ public class PacketFromHost : IPacketFromHost
         int datalength = (
            1 +                  //GameStage
            4 +                  //ElapsedTime
-           1 * HeightOfChunks.Count + //HeightOfChunk
+           1 * ChunkCount + //HeightOfChunk
            1 +                  //HasBed
            1 +                  //HasBedOpponet
            4 * 4 +                // Position 
            1 * 6                 //agility health maxHealth strength emeraldCount woolCount
-       );
+        );
+
         byte[] data = new byte[datalength];
 
         int currentIndex = 0;
