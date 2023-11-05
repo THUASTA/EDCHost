@@ -1,7 +1,7 @@
-using EdcHost.Games;
+using EdcHost.SlaveServers;
 using Xunit;
 
-namespace EdcHost.SlaveServers;
+namespace EdcHost.Tests.UnitTests.SlaveServers;
 
 public class PacketFromHostTests
 {
@@ -10,7 +10,7 @@ public class PacketFromHostTests
     {
         int exp_gameStage = 0;
         int exp_elapsedTime = 12000;
-        List<int> exp_heightOfChunks = new List<int> { 1, 2, 3, 6, 7 };
+        List<int> exp_heightOfChunks = Enumerable.Repeat(0, 64).ToList();
         bool exp_hasBed = true;
         bool exp_hasBedOpponent = true;
         float exp_positionX = 0.4f;
@@ -35,7 +35,7 @@ public class PacketFromHostTests
         Assert.Equal(exp_positionX, packetFromHost.PositionX);
         Assert.Equal(exp_positionY, packetFromHost.PositionY);
         Assert.Equal(exp_positionOpponentX, packetFromHost.PositionOpponentX);
-        Assert.Equal(exp_positionY, packetFromHost.PositionOpponentY);
+        Assert.Equal(exp_positionOpponentY, packetFromHost.PositionOpponentY);
         Assert.Equal(exp_agility, packetFromHost.Agility);
         Assert.Equal(exp_health, packetFromHost.Health);
         Assert.Equal(exp_MaxHealth, packetFromHost.MaxHealth);
@@ -50,7 +50,8 @@ public class PacketFromHostTests
     {
         int exp_gameStage = 0;
         int exp_elapsedTime = 12000;
-        List<int> exp_heightOfChunks = new List<int> { 1, 2, 3, 6, 7 };
+        // len=64 content all zero
+        List<int> exp_heightOfChunks = Enumerable.Repeat(0, 64).ToList();
         bool exp_hasBed = true;
         bool exp_hasBedOpponent = true;
         float exp_positionX = 0.4f;
@@ -67,10 +68,28 @@ public class PacketFromHostTests
             exp_gameStage, exp_elapsedTime, exp_heightOfChunks, exp_hasBed, exp_hasBedOpponent,
             exp_positionX, exp_positionY, exp_positionOpponentX, exp_positionOpponentY, exp_agility,
             exp_health, exp_MaxHealth, exp_strength, exp_emeraldCount, exp_woolcount);
-        byte[] data = new byte[39];
-        data = exp_Packet.ToBytes();
+        byte[] data = exp_Packet.ToBytes();
         PacketFromHost actualPacket = new PacketFromHost(data);
-        Assert.Equal(exp_Packet, actualPacket);
+        Assert.Equal(exp_Packet.GameStage, actualPacket.GameStage);
+        Assert.Equal(exp_Packet.ElapsedTime, actualPacket.ElapsedTime);
+        Assert.Equal(exp_Packet.HeightOfChunks.Count, actualPacket.HeightOfChunks.Count);
+        for (int i = 0; i < exp_Packet.HeightOfChunks.Count; i++)
+        {
+            Assert.Equal(exp_Packet.HeightOfChunks[i], actualPacket.HeightOfChunks[i]);
+        }
+
+        Assert.Equal(exp_Packet.HasBed, actualPacket.HasBed);
+        Assert.Equal(exp_Packet.HasBedOpponent, actualPacket.HasBedOpponent);
+        Assert.Equal(exp_Packet.PositionX, actualPacket.PositionX);
+        Assert.Equal(exp_Packet.PositionY, actualPacket.PositionY);
+        Assert.Equal(exp_Packet.PositionOpponentX, actualPacket.PositionOpponentX);
+        Assert.Equal(exp_Packet.PositionOpponentY, actualPacket.PositionOpponentY);
+        Assert.Equal(exp_Packet.Agility, actualPacket.Agility);
+        Assert.Equal(exp_Packet.Health, actualPacket.Health);
+        Assert.Equal(exp_Packet.MaxHealth, actualPacket.MaxHealth);
+        Assert.Equal(exp_Packet.Strength, actualPacket.Strength);
+        Assert.Equal(exp_Packet.EmeraldCount, actualPacket.EmeraldCount);
+        Assert.Equal(exp_Packet.WoolCount, actualPacket.WoolCount);
     }
 
 }

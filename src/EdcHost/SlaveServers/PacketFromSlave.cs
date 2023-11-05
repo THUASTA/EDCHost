@@ -2,27 +2,32 @@ namespace EdcHost.SlaveServers;
 
 public class PacketFromSlave : IPacketFromSlave
 {
+    const int HeaderLength = 5;
+    const int DataLength = 2;
+
     public int ActionType { get; private set; }
     public int Param { get; private set; }
 
     public PacketFromSlave(byte[] bytes)
     {
-        // Validate the byte array
-        if (bytes.Length < 5)
+        if (bytes.Length != HeaderLength + DataLength)
         {
-            throw new Exception("The header of the packet is broken.");
+            throw new Exception("The length of the packet is incorrect.");
         }
+
         if (bytes[0] != 0x55 || bytes[1] != 0xAA)
         {
             throw new Exception("The header of the packet is broken.");
         }
+
         short dataLength = BitConverter.ToInt16(bytes, 2);
-        byte checksum = bytes[4];
-        if (bytes.Length < dataLength + 5)
+        if (dataLength != DataLength)
         {
             throw new Exception("The data length of the packet is incorrect.");
         }
-        if (checksum != IPacket.CalculateChecksum(bytes[5..(dataLength + 5)]))
+
+        byte checksum = bytes[4];
+        if (checksum != IPacket.CalculateChecksum(IPacket.GetPacketData(bytes)))
         {
             throw new Exception("The checksum of the packet is incorrect.");
         }

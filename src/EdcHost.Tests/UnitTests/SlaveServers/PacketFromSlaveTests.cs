@@ -1,16 +1,17 @@
-using EdcHost.Games;
+using EdcHost.SlaveServers;
 using Xunit;
 
-namespace EdcHost.SlaveServers;
+namespace EdcHost.Tests.UnitTests.SlaveServers;
+
 public class PacketFromSlaverTests
 {
     [Fact]
     public void PacketFromSlave_ValidByteArray_ParsesDataCorrectly()
     {
-        byte[] bytes = new byte[] { 0x55, 0xAA, 0x00, 0x02, 0x01, 0x03, 0x04 };
+        byte[] bytes = new byte[] { 0x55, 0xAA, 0x02, 0x00, 0x07, 0x03, 0x04 };
         var packet = new PacketFromSlave(bytes);
-        Assert.Equal(1, packet.ActionType);
-        Assert.Equal(3, packet.Param);
+        Assert.Equal(3, packet.ActionType);
+        Assert.Equal(4, packet.Param);
     }
 
     [Fact]
@@ -59,7 +60,7 @@ public class PacketFromSlaverTests
         {
             0x55, 0xAA, // Header
             0x02, 0x00, // Data length (2 bytes)
-            0x0A,       // Checksum
+            0x03,       // Checksum
             0x01,       // ActionType
             0x02        // Param
         };
