@@ -41,6 +41,7 @@ partial class EdcHost : IEdcHost
         _gameRunner = Games.IGameRunner.Create(_game);
         _cameraServer = CameraServers.ICameraServer.Create();
         _slaveServer = SlaveServers.ISlaveServer.Create();
+
         _viewerServer = ViewerServers.IViewerServer.Create(_config.ServerPort);
 
         _game.AfterJudgementEvent += HandleAfterJudgementEvent;
@@ -134,7 +135,7 @@ partial class EdcHost : IEdcHost
                 // TODO: position may be null but legal.
                 if (position is null)
                 {
-                    player.Move(float.NaN, float.NaN);
+                    player.Move(float.MinValue, float.MinValue);
                 }
                 else
                 {
@@ -346,8 +347,8 @@ partial class EdcHost : IEdcHost
                     },
                     position = new ViewerServers.CompetitionUpdateMessage.Player.Position()
                     {
-                        x = player.PlayerPosition.X == float.NaN ? float.MinValue : player.PlayerPosition.X,
-                        y = player.PlayerPosition.Y == float.NaN ? float.MinValue : player.PlayerPosition.Y
+                        x = player.PlayerPosition.X,
+                        y = player.PlayerPosition.Y
                     }
                 }).ToList()
             });

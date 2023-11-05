@@ -270,7 +270,7 @@ partial class Game : IGame
 
                     Players[i].EmeraldAdd(collectedOre * value);
                     // Invoke the event
-                    Players[i].PickUpEventInvoker(mine.OreKind, collectedOre);
+                    Players[i].PickUpEventInvoker(mine.OreKind, collectedOre, mine.MineId.ToString());
 
                     mine.PickUpOre(collectedOre);
                 }

@@ -444,6 +444,7 @@ components:
         - playerId
         - itemType
         - itemCount
+        - mineId
       properties:
         eventType:
           type: string
@@ -457,6 +458,8 @@ components:
             - GOLD_INGOT
             - DIAMOND
         itemCount:
+          type: integer
+        mineId:
           type: integer
     PlayerPlaceBlockEvent:
       type: object

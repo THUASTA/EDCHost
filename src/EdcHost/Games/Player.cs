@@ -31,9 +31,9 @@ class Player : IPlayer
     public event EventHandler<PlayerPickUpEventArgs> OnPickUp = delegate { };
 
 
-    public void PickUpEventInvoker(IMine.OreKindType mineType, int count)
+    public void PickUpEventInvoker(IMine.OreKindType mineType, int count, string mineId)
     {
-        OnPickUp?.Invoke(this, new PlayerPickUpEventArgs(this, mineType, count));
+        OnPickUp?.Invoke(this, new PlayerPickUpEventArgs(this, mineType, count, mineId));
     }
     public void DigEventInvoker(int targetChunk)
     {

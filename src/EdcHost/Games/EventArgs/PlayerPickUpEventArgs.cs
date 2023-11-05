@@ -17,11 +17,15 @@ public class PlayerPickUpEventArgs : EventArgs
     /// </summary>
     public int ItemCount { get; }
 
-
-    public PlayerPickUpEventArgs(IPlayer player, IMine.OreKindType mineType, int itemCount)
+    /// <summary>
+    /// The id of the mine
+    /// </summary>
+    public string MineId { get; }
+    public PlayerPickUpEventArgs(IPlayer player, IMine.OreKindType mineType, int itemCount, string mineId)
     {
         Player = player;
         MineType = mineType;
         ItemCount = itemCount;
+        MineId = mineId;
     }
 }

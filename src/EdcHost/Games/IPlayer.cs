@@ -52,7 +52,7 @@ public interface IPlayer
     void DestroyBedOpponent();
     void DecreaseWoolCount();
     void DigEventInvoker(int targetChunk);
-    void PickUpEventInvoker(IMine.OreKindType mineType, int count);
+    void PickUpEventInvoker(IMine.OreKindType mineType, int count, string mineId);
 
     /// <summary>
     /// The Id of  the player 
