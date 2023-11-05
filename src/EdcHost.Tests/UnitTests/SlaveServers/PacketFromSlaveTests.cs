@@ -25,7 +25,7 @@ public class PacketFromSlaverTests
     [Fact]
     public void PacketFromSlave_InvalidDataLength_ThrowsException()
     {
-        byte[] bytes = new byte[] { 0x55, 0xAA, 0x00};
+        byte[] bytes = new byte[] { 0x55, 0xAA, 0x00 };
         Assert.Throws<Exception>(() => new PacketFromSlave(bytes));
     }
 
@@ -59,14 +59,11 @@ public class PacketFromSlaverTests
         {
             0x55, 0xAA, // Header
             0x02, 0x00, // Data length (2 bytes)
-            0x0A,       // Checksum
+            0x03,       // Checksum
             0x01,       // ActionType
             0x02        // Param
         };
         Assert.Equal(expectedBytes, result);
     }
-
-
-
 
 }
