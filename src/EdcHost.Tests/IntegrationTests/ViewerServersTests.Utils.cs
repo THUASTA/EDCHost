@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Text;
 using EdcHost.ViewerServers;
 using Fleck;
@@ -23,7 +24,7 @@ public partial class ViewerServersTests
 
     class WebSocketServerMock : IWebSocketServer
     {
-        public readonly List<IWebSocketConnection> Connections = new();
+        public readonly ConcurrentBag<IWebSocketConnection> Connections = new();
         readonly List<Action<IWebSocketConnection>> _configs = new();
         readonly int _port;
 

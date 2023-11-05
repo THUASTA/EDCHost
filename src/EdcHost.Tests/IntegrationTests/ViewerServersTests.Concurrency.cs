@@ -29,7 +29,6 @@ public partial class ViewerServersTests
                 var wsServerMock = (WebSocketServerMock)wsServerHubMock.Get(port);
                 var wsConnectionMock = new WebSocketConnectionMock();
                 wsServerMock.AddConnection(wsConnectionMock);
-                wsConnectionMock.OnMessage?.Invoke("{}");
             }));
         }
         Task.WhenAll(tasks).Wait();

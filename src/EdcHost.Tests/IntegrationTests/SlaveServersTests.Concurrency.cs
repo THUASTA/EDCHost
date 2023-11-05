@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Text;
 
 using EdcHost.SlaveServers;
@@ -9,11 +10,11 @@ namespace EdcHost.Tests.IntegrationTests;
 public partial class SlaveServersTests
 {
     [Theory]
-    [InlineData(new int[] { 1, 1 }, 100, "COM1", 9600)]
-    [InlineData(new int[] { 255, 255 }, 100, "COM1", 9600)]
-    [InlineData(new int[] { 0, 255 }, 100, "COM1", 9600)]
-    [InlineData(new int[] { 16, 1 }, 100, "COM1", 9600)]
-    [InlineData(new int[] { 170, 32 }, 100, "COM1", 9600)]
+    [InlineData(new int[] { 1, 1 }, 10000, "COM1", 9600)]
+    [InlineData(new int[] { 255, 255 }, 10000, "COM1", 9600)]
+    [InlineData(new int[] { 0, 255 }, 10000, "COM1", 9600)]
+    [InlineData(new int[] { 16, 1 }, 10000, "COM1", 9600)]
+    [InlineData(new int[] { 170, 32 }, 10000, "COM1", 9600)]
     public void Concurrency(int[] data, int clientCount, string portName, int baudRate)
     {
         SerialPortHubMock serialPortHubMock = new()
@@ -36,10 +37,9 @@ public partial class SlaveServersTests
         byte[] bytes = new byte[header.Length + byteData.Length];
         header.CopyTo(bytes, 0);
         byteData.CopyTo(bytes, header.Length);
-
+        ConcurrentBag<int> count = new ConcurrentBag<int>();
         //do concurrency test
         var tasks = new List<Task>();
-        int count = 0;
         var serialPortWrapperMock = (SerialPortWrapperMock)serialPortHubMock.Get(portName, baudRate);
         serialPortWrapperMock.AfterReceive += (sender, args) =>
         {
@@ -48,7 +48,7 @@ public partial class SlaveServersTests
             Assert.Equal(bytes, args.Bytes);
             Assert.Equal(packetReceived.ActionType, packetReceived.ActionType);
             Assert.Equal(packetReceived.Param, packetReceived.Param);
-            count++;
+            count.Add(1);
         };
         for (int i = 0; i < clientCount; i++)
         {
@@ -58,7 +58,7 @@ public partial class SlaveServersTests
             }));
         }
         Task.WhenAll(tasks).Wait();
-        Assert.Equal(clientCount, count);
+        Assert.Equal(clientCount, count.Count);
         slaveServer.Stop();
     }
 }
