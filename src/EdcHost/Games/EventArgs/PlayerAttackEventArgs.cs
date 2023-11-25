@@ -12,9 +12,9 @@ public class PlayerAttackEventArgs : EventArgs
     /// <summary>
     /// The position the player attack.
     /// </summary>
-    public IPosition<float> Position { get; }
+    public IPosition<int> Position { get; }
 
-    public PlayerAttackEventArgs(IPlayer player, int strength, IPosition<float> position)
+    public PlayerAttackEventArgs(IPlayer player, int strength, IPosition<int> position)
     {
         Player = player;
         Strength = strength;

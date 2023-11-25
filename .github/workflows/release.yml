@@ -32,7 +32,7 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          name: EDCHost-${{ matrix.runtime }}-${{ github.sha }}
+          name: edchost-${{ matrix.runtime }}-${{ github.sha }}
           path: bin
 
   upload-to-release:
@@ -51,11 +51,11 @@ jobs:
           - win-x64
           - win-x86
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: actions/download-artifact@v3
         with:
-          name: EDCHost-${{ matrix.runtime }}-${{ github.sha }}
+          name: edchost-${{ matrix.runtime }}-${{ github.sha }}
           path: bin
 
       - run: |
@@ -65,14 +65,15 @@ jobs:
         if: startsWith(matrix.runtime, 'win')
         run: |
           cd bin
-          zip -r ../EDCHost-${{ matrix.runtime }}-${{ github.ref_name }}.zip *
+          zip -r ../edchost-${{ matrix.runtime }}.zip *
           cd ..
   
-      - name: Pack artifact (Linux & macOS)
-        if: startsWith(matrix.runtime, 'linux') || startsWith(matrix.runtime, 'osx')
+      - name: Pack artifact (Others)
+        if: startsWith(matrix.runtime, 'win') == false
         run: |
           cd bin
-          tar -czvf ../EDCHost-${{ matrix.runtime }}-${{ github.ref_name }}.tar.gz *
+          chmod +x EdcHost
+          tar -czvf ../edchost-${{ matrix.runtime }}.tar.gz *
           cd ..
 
       - name: Upload artifact to release (Windows)
@@ -81,12 +82,12 @@ jobs:
         with:
           append_body: true
           files: |
-            EDCHost-${{ matrix.runtime }}-${{ github.ref_name }}.zip
+            edchost-${{ matrix.runtime }}.zip
 
-      - name: Upload artifact to release (Linux & macOS)
-        if: startsWith(matrix.runtime, 'linux') || startsWith(matrix.runtime, 'osx')
+      - name: Upload artifact to release (Others)
+        if: startsWith(matrix.runtime, 'win') == false
         uses: softprops/action-gh-release@v1
         with:
           append_body: true
           files: |
-            EDCHost-${{ matrix.runtime }}-${{ github.ref_name }}.tar.gz
+            edchost-${{ matrix.runtime }}.tar.gz

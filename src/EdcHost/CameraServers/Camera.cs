@@ -100,7 +100,7 @@ public class Camera : ICamera
             }
             else
             {
-                var image = frame.ToImage<Bgr, byte>();
+                var image = Locator.Mask.ToImage<Bgr, byte>();
                 JpegData = image.ToJpegData();
                 image.Dispose();
             }
@@ -112,8 +112,8 @@ public class Camera : ICamera
             }
             else
             {
-                TargetLocation = recognitionResult.Location;
-                TargetLocationNotCalibrated = recognitionResult.CalibratedLocation;
+                TargetLocation = recognitionResult.CalibratedLocation;
+                TargetLocationNotCalibrated = recognitionResult.Location;
             }
 
             frame.Dispose();

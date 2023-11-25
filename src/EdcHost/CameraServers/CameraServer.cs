@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Serilog;
 
 namespace EdcHost.CameraServers;
@@ -54,15 +55,19 @@ public class CameraServer : ICameraServer
 
         if (_cameras.Any(x => x.CameraIndex == cameraIndex))
         {
-            throw new ArgumentException($"camera index already exists: {cameraIndex}");
+            ICamera? camera = _cameras.Find(x => x.CameraIndex == cameraIndex);
+            Debug.Assert(camera is not null);
+            return camera;
         }
+        else
+        {
+            ICamera camera = _cameraFactory.Create(cameraIndex, locator);
+            _cameras.Add(camera);
 
-        ICamera camera = _cameraFactory.Create(cameraIndex, locator);
-        _cameras.Add(camera);
+            _logger.Information("Camera {cameraIndex} opened.", cameraIndex);
 
-        _logger.Information("Camera {cameraIndex} opened.", cameraIndex);
-
-        return camera;
+            return camera;
+        }
     }
 
     public void Start()

@@ -22,7 +22,7 @@ partial class Game : IGame
                 if (e.Player.IsAlive == false && e.Player.HasBed == true
                     && ElapsedTicks - _playerDeathTickList[e.Player.PlayerId] > TicksBeforeRespawn
                     && IsSamePosition(
-                        ToIntPosition(e.Position), ToIntPosition(e.Player.SpawnPoint)
+                        ToIntPosition(e.Position), e.Player.SpawnPoint
                         ) == true)
                 {
                     Players[e.Player.PlayerId].Spawn(e.Player.MaxHealth);
@@ -74,13 +74,13 @@ partial class Game : IGame
                 return;
             }
 
-            if (IsAdjacent(ToIntPosition(e.Player.PlayerPosition), ToIntPosition(e.Position)) == false)
+            if (IsAdjacent(ToIntPosition(e.Player.PlayerPosition), e.Position) == false)
             {
                 _logger.Error(@$"Position ({e.Position.X}, {e.Position.Y})
                 is not adjacent to player {e.Player.PlayerId}. Action rejected.");
                 return;
             }
-            if (IsValidPosition(ToIntPosition(e.Position)) == false)
+            if (IsValidPosition(e.Position) == false)
             {
                 _logger.Error(@$"Position ({e.Position.X}, {e.Position.Y}) is not valid.
                 Action rejected.");
@@ -91,7 +91,7 @@ partial class Game : IGame
             for (int i = 0; i < PlayerNum; i++)
             {
                 if (Players[i].PlayerId != e.Player.PlayerId && Players[i].IsAlive == true
-                    && IsSamePosition(ToIntPosition(e.Position),
+                    && IsSamePosition(e.Position,
                         ToIntPosition(Players[i].PlayerPosition)) == true)
                 {
                     Players[i].Hurt(e.Player.Strength);
@@ -105,7 +105,7 @@ partial class Game : IGame
             }
             else
             {
-                if (GameMap.GetChunkAt(ToIntPosition(e.Position)).CanRemoveBlock == false)
+                if (GameMap.GetChunkAt(e.Position).CanRemoveBlock == false)
                 {
                     _logger.Error("Target chunk is empty. Action rejected.");
                     return;
@@ -113,15 +113,15 @@ partial class Game : IGame
 
                 try
                 {
-                    GameMap.GetChunkAt(ToIntPosition(e.Position)).RemoveBlock();
+                    GameMap.GetChunkAt(e.Position).RemoveBlock();
                     _playerLastAttackTickList[e.Player.PlayerId] = ElapsedTicks;
 
-                    if (GameMap.GetChunkAt(ToIntPosition(e.Position)).IsVoid == true)
+                    if (GameMap.GetChunkAt(e.Position).IsVoid == true)
                     {
                         for (int i = 0; i < PlayerNum; i++)
                         {
                             if (Players[i].HasBed == true && IsSamePosition(
-                                ToIntPosition(Players[i].SpawnPoint), ToIntPosition(e.Position)) == true)
+                                Players[i].SpawnPoint, e.Position) == true)
                             {
                                 Players[i].DestroyBed();
                             }
@@ -160,13 +160,13 @@ partial class Game : IGame
             {
                 _logger.Error($"Player {e.Player.PlayerId} doesn't have enough wool. Action rejected.");
             }
-            if (IsAdjacent(ToIntPosition(e.Player.PlayerPosition), ToIntPosition(e.Position)) == false)
+            if (IsAdjacent(ToIntPosition(e.Player.PlayerPosition), e.Position) == false)
             {
                 _logger.Error(@$"Position ({e.Position.X}, {e.Position.Y})
                 is not adjecant to player {e.Player.PlayerId}. Action rejected.");
                 return;
             }
-            if (IsValidPosition(ToIntPosition(e.Position)) == false)
+            if (IsValidPosition(e.Position) == false)
             {
                 _logger.Error(@$"Position ({e.Position.X}, {e.Position.Y}) is not valid.
                 Action rejected.");
@@ -175,9 +175,9 @@ partial class Game : IGame
 
             try
             {
-                if (GameMap.GetChunkAt(ToIntPosition(e.Position)).CanPlaceBlock == true)
+                if (GameMap.GetChunkAt(e.Position).CanPlaceBlock == true)
                 {
-                    GameMap.GetChunkAt(ToIntPosition(e.Position)).PlaceBlock();
+                    GameMap.GetChunkAt(e.Position).PlaceBlock();
                     Players[e.Player.PlayerId].DecreaseWoolCount();
                 }
                 else

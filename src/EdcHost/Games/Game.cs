@@ -44,8 +44,8 @@ partial class Game : IGame
     /// Default players.
     /// </summary>
     readonly IPlayer[] _defaultPlayerList = {
-        new Player(0, 0.4f, 0.4f, 0.4f, 0.4f),
-        new Player(1, 7.4f, 7.4f, 7.4f, 7.4f)
+        new Player(0, 0, 0, 0.5f, 0.5f),
+        new Player(1, 7, 7, 7.5f, 7.5f)
     };
 
     /// <summary>
@@ -209,7 +209,7 @@ partial class Game : IGame
         for (int i = 0; i < PlayerNum; i++)
         {
             if (Players[i].HasBed == true
-                && GameMap.GetChunkAt(ToIntPosition(Players[i].SpawnPoint)).IsVoid == true)
+                && GameMap.GetChunkAt(Players[i].SpawnPoint).IsVoid == true)
             {
                 Players[i].DestroyBed();
             }
@@ -217,7 +217,7 @@ partial class Game : IGame
             if (Players[i].IsAlive == false && Players[i].HasBed == true
                 && ElapsedTicks - _playerDeathTickList[i] > TicksBeforeRespawn
                 && IsSamePosition(
-                    ToIntPosition(Players[i].PlayerPosition), ToIntPosition(Players[i].SpawnPoint)
+                    ToIntPosition(Players[i].PlayerPosition), Players[i].SpawnPoint
                     ) == true)
             {
                 Players[i].Spawn(Players[i].MaxHealth);
@@ -253,7 +253,7 @@ partial class Game : IGame
             {
                 if (Players[i].IsAlive == true
                     && IsSamePosition(
-                        ToIntPosition(Players[i].PlayerPosition), ToIntPosition(mine.Position)
+                        ToIntPosition(Players[i].PlayerPosition), mine.Position
                         ) == true)
                 {
                     //Remaining capacity of a player
@@ -295,7 +295,7 @@ partial class Game : IGame
                 remainingPlayers--;
             }
         }
-        return (remainingPlayers <= 1);
+        return remainingPlayers <= 1;
     }
 
     /// <summary>

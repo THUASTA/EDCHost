@@ -10,6 +10,7 @@ class SerialPortWrapper : ISerialPortWrapper
 
     public string PortName => _serialPort.PortName;
 
+    const int FrequencyOfReceiving = 20;
     readonly Serilog.ILogger _logger = Serilog.Log.Logger.ForContext("Component", "SlaveServers");
     readonly ConcurrentQueue<byte[]> _queueOfBytesToSend = new();
     readonly SerialPort _serialPort;
@@ -74,8 +75,19 @@ class SerialPortWrapper : ISerialPortWrapper
 
     private void TaskForReceivingFunc()
     {
+        DateTime lastTickStartTime = DateTime.Now;
+
         while (_serialPort.IsOpen)
         {
+            // Wait for next tick
+            DateTime currentTickStartTime = lastTickStartTime.AddMilliseconds(
+                (double)1000 / FrequencyOfReceiving);
+            if (currentTickStartTime > DateTime.Now)
+            {
+                Task.Delay(currentTickStartTime - DateTime.Now).Wait();
+            }
+            lastTickStartTime = DateTime.Now;
+
             try
             {
                 if (_serialPort.BytesToRead == 0)

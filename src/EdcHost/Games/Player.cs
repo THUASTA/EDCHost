@@ -13,7 +13,7 @@ class Player : IPlayer
     public bool HasBed { get; private set; }
     public bool HasBedOpponent { get; private set; }
     public bool IsAlive { get; private set; }
-    public IPosition<float> SpawnPoint { get; private set; }
+    public IPosition<int> SpawnPoint { get; private set; }
     public IPosition<float> PlayerPosition { get; private set; }
     public int WoolCount { get; private set; }
 
@@ -55,18 +55,18 @@ class Player : IPlayer
         PlayerPosition.Y = newY;
     }
 
-    public void Attack(float newX, float newY)
+    public void Attack(int newX, int newY)
     {
         /// Trigger the OnAttack event to notify the attacked block
-        OnAttack?.Invoke(this, new PlayerAttackEventArgs(this, Strength, new Position<float>(newX, newY)));
+        OnAttack?.Invoke(this, new PlayerAttackEventArgs(this, Strength, new Position<int>(newX, newY)));
     }
-    public void Place(float newX, float newY)
+    public void Place(int newX, int newY)
     {
         /// Check if the player has wool in their inventory, and if so, process wool data.
         ///  Trigger the OnPlace event to notify the placed block
         if (WoolCount > 0)
         {
-            OnPlace?.Invoke(this, new PlayerPlaceEventArgs(this, new Position<float>(newX, newY)));
+            OnPlace?.Invoke(this, new PlayerPlaceEventArgs(this, new Position<int>(newX, newY)));
         }
     }
     public void Hurt(int EnemyStrength)
@@ -109,14 +109,14 @@ class Player : IPlayer
         /// Decrease wool count by 1.
         WoolCount -= 1;
     }
-    public Player(int id = 1, float initialX = 0, float initialY = 0, float initialX2 = 0, float initialY2 = 0)
+    public Player(int id = 1, int spawnPointX = 0, int spawnPointY = 0, float X = 0, float Y = 0)
     {
         PlayerId = id;
         IsAlive = true;
         HasBed = true;
         HasBedOpponent = true;
-        SpawnPoint = new Position<float>(initialX, initialY);
-        PlayerPosition = new Position<float>(initialX2, initialY2);
+        SpawnPoint = new Position<int>(spawnPointX, spawnPointY);
+        PlayerPosition = new Position<float>(X, Y);
 
         EmeraldCount = InitialEmeraldCount;
         WoolCount = InitialWoolCount;
@@ -126,7 +126,7 @@ class Player : IPlayer
         Strength = InitialStrength; /// Initial strength
         ActionPoints = InitialAgility; /// Initial action points
     }
-    public void PerformActionPosition(IPlayer.ActionKindType actionKind, float X, float Y)
+    public void PerformActionPosition(IPlayer.ActionKindType actionKind, int X, int Y)
     {
         switch (actionKind)
         {

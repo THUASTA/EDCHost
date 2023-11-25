@@ -40,7 +40,7 @@ public class SlaveServer : ISlaveServer
 
         if (_serialPorts.Any(x => x.PortName.Equals(portName)))
         {
-            throw new ArgumentException($"port name already exists: {portName}");
+            return;
         }
 
         ISerialPortWrapper serialPort = _serialPortHub.Get(portName, baudRate);

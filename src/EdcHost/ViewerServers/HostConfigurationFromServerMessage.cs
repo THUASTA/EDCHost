@@ -66,8 +66,9 @@ public record HostConfigurationFromServerMessage : Message
             [JsonPropertyName("cameraId")]
             public int CameraId { get; init; } = 0;
 
+            [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
             [JsonPropertyName("calibration")]
-            public CalibrationType Calibration { get; init; } = new();
+            public CalibrationType? Calibration { get; init; } = null;
 
             [JsonPropertyName("recognition")]
             public RecognitionType Recognition { get; init; } = new();
@@ -85,11 +86,13 @@ public record HostConfigurationFromServerMessage : Message
         [JsonPropertyName("playerId")]
         public int PlayerId { get; init; } = 0;
 
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         [JsonPropertyName("camera")]
-        public CameraType Camera { get; init; } = new();
+        public CameraType? Camera { get; init; } = null;
 
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         [JsonPropertyName("serialPort")]
-        public SerialPortType SerialPort { get; init; } = new();
+        public SerialPortType? SerialPort { get; init; } = null;
     }
 
     [JsonPropertyName("messageType")]

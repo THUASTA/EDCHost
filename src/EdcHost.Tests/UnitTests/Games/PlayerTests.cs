@@ -59,14 +59,12 @@ public class PlayerTests
     }
     [Theory]
     [InlineData(0, 0)]
-    [InlineData(0.5f, 0.5f)]
-    [InlineData(-0.5f, -0.5f)]
-    [InlineData(0.5f, -0.5f)]
-    [InlineData(1.0f / 3, 1.0f / 3)]
-    [InlineData(float.MaxValue, float.MaxValue)]
-    [InlineData(float.MinValue, float.MinValue)]
-    [InlineData(float.MaxValue, float.MinValue)]
-    public void SpawnPoint_DoNothing_ReturnsConstructorValue(float X, float Y)
+    [InlineData(1, 1)]
+    [InlineData(-1, -0.5f)]
+    [InlineData(int.MaxValue, int.MaxValue)]
+    [InlineData(int.MinValue, int.MinValue)]
+    [InlineData(int.MaxValue, int.MinValue)]
+    public void SpawnPoint_DoNothing_ReturnsConstructorValue(int X, int Y)
     {
         IPlayer player = IPlayer.Create(1, X, Y, 0, 0);
         Assert.Equal(X, player.SpawnPoint.X);
@@ -128,14 +126,12 @@ public class PlayerTests
 
     [Theory]
     [InlineData(0, 0)]
-    [InlineData(0.5f, 0.5f)]
-    [InlineData(-0.5f, -0.5f)]
-    [InlineData(0.5f, -0.5f)]
-    [InlineData(1.0f / 3, 1.0f / 3)]
-    [InlineData(float.MaxValue, float.MaxValue)]
-    [InlineData(float.MinValue, float.MinValue)]
-    [InlineData(float.MaxValue, float.MinValue)]
-    public void Attack_TestPosition_CheckEvent(float newX, float newY)
+    [InlineData(1, 1)]
+    [InlineData(-1, -1)]
+    [InlineData(int.MaxValue, int.MaxValue)]
+    [InlineData(int.MinValue, int.MinValue)]
+    [InlineData(int.MaxValue, int.MinValue)]
+    public void Attack_TestPosition_CheckEvent(int newX, int newY)
     {
         IPlayer player = IPlayer.Create();
         bool event_triggered = false;
@@ -155,14 +151,12 @@ public class PlayerTests
 
     [Theory]
     [InlineData(0, 0)]
-    [InlineData(0.5f, 0.5f)]
-    [InlineData(-0.5f, -0.5f)]
-    [InlineData(0.5f, -0.5f)]
-    [InlineData(1.0f / 3, 1.0f / 3)]
-    [InlineData(float.MaxValue, float.MaxValue)]
-    [InlineData(float.MinValue, float.MinValue)]
-    [InlineData(float.MaxValue, float.MinValue)]
-    public void Place_TestPosition_HasWool_EventTriggered(float newX, float newY)
+    [InlineData(1, 1)]
+    [InlineData(-1, -1)]
+    [InlineData(int.MaxValue, int.MaxValue)]
+    [InlineData(int.MinValue, int.MinValue)]
+    [InlineData(int.MaxValue, int.MinValue)]
+    public void Place_TestPosition_HasWool_EventTriggered(int newX, int newY)
     {
         IPlayer player = IPlayer.Create();
         player.EmeraldAdd(1);

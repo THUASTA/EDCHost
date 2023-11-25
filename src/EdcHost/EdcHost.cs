@@ -6,6 +6,7 @@ namespace EdcHost;
 
 partial class EdcHost : IEdcHost
 {
+    const int FrequencyOfReadingCamera = 60;
     const int FrequencyOfSendingToSlave = 20;
     const int FrequencyOfSendingToViewer = 60;
     const int MapHeight = 8;
@@ -120,8 +121,19 @@ partial class EdcHost : IEdcHost
 
     void TaskForReadingCameraFunc()
     {
+        DateTime lastTickStartTime = DateTime.Now;
+
         while (!_taskCancellationTokenSource?.IsCancellationRequested ?? false)
         {
+            // Wait for next tick
+            DateTime currentTickStartTime = lastTickStartTime.AddMilliseconds(
+                (double)1000 / FrequencyOfReadingCamera);
+            if (currentTickStartTime > DateTime.Now)
+            {
+                Task.Delay(currentTickStartTime - DateTime.Now).Wait();
+            }
+            lastTickStartTime = DateTime.Now;
+
             foreach (Games.IPlayer player in _game.Players)
             {
                 // Skip if no hardware info is found
@@ -167,7 +179,7 @@ partial class EdcHost : IEdcHost
             {
                 Task.Delay(currentTickStartTime - DateTime.Now).Wait();
             }
-            currentTickStartTime = DateTime.Now;
+            lastTickStartTime = DateTime.Now;
 
             List<int> heightOfChunks = new();
             foreach (Games.IChunk chunk in _game.GameMap.Chunks)
@@ -183,24 +195,31 @@ partial class EdcHost : IEdcHost
                     continue;
                 }
 
-                _slaveServer.Publish(
-                    portName: portName,
-                    gameStage: (int)_game.CurrentStage,
-                    elapsedTime: _game.ElapsedTicks,
-                    heightOfChunks: heightOfChunks,
-                    hasBed: _game.Players[i].HasBed,
-                    hasBedOpponent: _game.Players.Any(player => player.HasBed && player.PlayerId != _game.Players[i].PlayerId),
-                    positionX: _game.Players[i].PlayerPosition.X,
-                    positionY: _game.Players[i].PlayerPosition.Y,
-                    positionOpponentX: _game.Players[(i == 0) ? 1 : 0].PlayerPosition.X,
-                    positionOpponentY: _game.Players[(i == 0) ? 1 : 0].PlayerPosition.Y,
-                    agility: _game.Players[i].ActionPoints,
-                    health: _game.Players[i].Health,
-                    maxHealth: _game.Players[i].MaxHealth,
-                    strength: _game.Players[i].Strength,
-                    emeraldCount: _game.Players[i].EmeraldCount,
-                    woolCount: _game.Players[i].WoolCount
-                );
+                try
+                {
+                    _slaveServer.Publish(
+                        portName: portName,
+                        gameStage: (int)_game.CurrentStage,
+                        elapsedTime: _game.ElapsedTicks,
+                        heightOfChunks: heightOfChunks,
+                        hasBed: _game.Players[i].HasBed,
+                        hasBedOpponent: _game.Players.Any(player => player.HasBed && player.PlayerId != _game.Players[i].PlayerId),
+                        positionX: _game.Players[i].PlayerPosition.X,
+                        positionY: _game.Players[i].PlayerPosition.Y,
+                        positionOpponentX: _game.Players[(i == 0) ? 1 : 0].PlayerPosition.X,
+                        positionOpponentY: _game.Players[(i == 0) ? 1 : 0].PlayerPosition.Y,
+                        agility: _game.Players[i].ActionPoints,
+                        health: _game.Players[i].Health,
+                        maxHealth: _game.Players[i].MaxHealth,
+                        strength: _game.Players[i].Strength,
+                        emeraldCount: _game.Players[i].EmeraldCount,
+                        woolCount: _game.Players[i].WoolCount
+                    );
+                }
+                catch (Exception e)
+                {
+                    _logger.Error($"failed to publish to slave: ${e.Message}");
+                }
             }
         }
     }
@@ -218,7 +237,7 @@ partial class EdcHost : IEdcHost
             {
                 Task.Delay(currentTickStartTime - DateTime.Now).Wait();
             }
-            currentTickStartTime = DateTime.Now;
+            lastTickStartTime = DateTime.Now;
 
             List<ViewerServers.CompetitionUpdateMessage.Camera> cameraInfoList = new();
             foreach (int cameraIndex in _cameraServer.AvailableCameraIndexes)

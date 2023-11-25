@@ -24,9 +24,9 @@ public partial class GameTests
 
         // Act1 Accumulate diamond, EmeraldCount = 64
         Assert.StrictEqual(0, game.Players[0].EmeraldCount);
-        game.Players[0].Place(1f, 0f);
+        game.Players[0].Place(1, 0);
         game.Tick();
-        game.Players[0].Place(0f, 1f);
+        game.Players[0].Place(0, 1);
         game.Tick();
         game.Players[0].Move(1.4f, 0.4f);
         for (int i = 0; i < 4 * OreAccumulationInterval; i++)

@@ -5,9 +5,9 @@ namespace EdcHost.Games;
 /// </summary>
 public interface IPlayer
 {
-    static IPlayer Create(int id = 1, float initialX = 0, float initialY = 0, float initialX2 = 0, float initialY2 = 0)
+    static IPlayer Create(int id = 1, int spawnX = 0, int spawnY = 0, float x = 0, float y = 0)
     {
-        return new Player(id, initialX, initialY, initialX2, initialY2);
+        return new Player(id, spawnX, spawnY, x, y);
     }
 
     /// <summary>
@@ -44,8 +44,8 @@ public interface IPlayer
 
     void EmeraldAdd(int count);
     void Move(float newX, float newY);
-    void Attack(float newX, float newY);
-    void Place(float newX, float newY);
+    void Attack(int newX, int newY);
+    void Place(int newX, int newY);
     void Hurt(int EnemyStrength);
     void Spawn(int MaxHealth);
     void DestroyBed();
@@ -77,7 +77,7 @@ public interface IPlayer
     /// <summary>
     /// The spawn point of the player.
     /// </summary>
-    IPosition<float> SpawnPoint { get; }
+    IPosition<int> SpawnPoint { get; }
     /// <summary>
     /// The position of the player.
     /// </summary>
@@ -94,7 +94,7 @@ public interface IPlayer
     /// Performs an action.
     /// </summary>
     /// <param name="actionKind">The action kind.</param>
-    void PerformActionPosition(IPlayer.ActionKindType actionKind, float X, float Y);
+    void PerformActionPosition(ActionKindType actionKind, int X, int Y);
     /// <summary>
     /// Trades a commodity.
     /// </summary>
