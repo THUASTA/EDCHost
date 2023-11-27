@@ -6,6 +6,7 @@ namespace EdcHost;
 
 partial class EdcHost : IEdcHost
 {
+    const int FrequencyOfReadingCamera = 60;
     const int FrequencyOfSendingToSlave = 20;
     const int FrequencyOfSendingToViewer = 60;
     const int MapHeight = 8;
@@ -62,6 +63,7 @@ partial class EdcHost : IEdcHost
 
     public void Start()
     {
+
         _logger.Information("Starting...");
 
         Debug.Assert(_taskCancellationTokenSource is null);
@@ -69,18 +71,26 @@ partial class EdcHost : IEdcHost
         Debug.Assert(_taskForSendingToSlave is null);
         Debug.Assert(_taskForSendingToViewer is null);
 
-        _cameraServer.Start();
-        _slaveServer.Start();
-        _viewerServer.Start();
+        try
+        {
+            _cameraServer.Start();
+            _slaveServer.Start();
+            _viewerServer.Start();
 
-        _taskCancellationTokenSource = new CancellationTokenSource();
-        _taskForReadingCamera = Task.Run(TaskForReadingCameraFunc);
-        _taskForSendingToSlave = Task.Run(TaskForSendingToSlaveFunc);
-        _taskForSendingToViewer = Task.Run(TaskForSendingToViewerFunc);
+            _taskCancellationTokenSource = new CancellationTokenSource();
+            _taskForReadingCamera = Task.Run(TaskForReadingCameraFunc);
+            _taskForSendingToSlave = Task.Run(TaskForSendingToSlaveFunc);
+            _taskForSendingToViewer = Task.Run(TaskForSendingToViewerFunc);
 
-        IsRunning = true;
+            IsRunning = true;
 
-        _logger.Information("Started.");
+            _logger.Information("Started.");
+        }
+        catch (Exception ex)
+        {
+            _logger.Fatal($"An unhandled exception is caught when starting EdcHost: {ex}");
+        }
+
     }
 
     public void Stop()
@@ -111,8 +121,19 @@ partial class EdcHost : IEdcHost
 
     void TaskForReadingCameraFunc()
     {
+        DateTime lastTickStartTime = DateTime.Now;
+
         while (!_taskCancellationTokenSource?.IsCancellationRequested ?? false)
         {
+            // Wait for next tick
+            DateTime currentTickStartTime = lastTickStartTime.AddMilliseconds(
+                (double)1000 / FrequencyOfReadingCamera);
+            if (currentTickStartTime > DateTime.Now)
+            {
+                Task.Delay(currentTickStartTime - DateTime.Now).Wait();
+            }
+            lastTickStartTime = DateTime.Now;
+
             foreach (Games.IPlayer player in _game.Players)
             {
                 // Skip if no hardware info is found
@@ -158,7 +179,7 @@ partial class EdcHost : IEdcHost
             {
                 Task.Delay(currentTickStartTime - DateTime.Now).Wait();
             }
-            currentTickStartTime = DateTime.Now;
+            lastTickStartTime = DateTime.Now;
 
             List<int> heightOfChunks = new();
             foreach (Games.IChunk chunk in _game.GameMap.Chunks)
@@ -174,24 +195,31 @@ partial class EdcHost : IEdcHost
                     continue;
                 }
 
-                _slaveServer.Publish(
-                    portName: portName,
-                    gameStage: (int)_game.CurrentStage,
-                    elapsedTime: _game.ElapsedTicks,
-                    heightOfChunks: heightOfChunks,
-                    hasBed: _game.Players[i].HasBed,
-                    hasBedOpponent: _game.Players.Any(player => player.HasBed && player.PlayerId != _game.Players[i].PlayerId),
-                    positionX: _game.Players[i].PlayerPosition.X,
-                    positionY: _game.Players[i].PlayerPosition.Y,
-                    positionOpponentX: _game.Players[(i == 0) ? 1 : 0].PlayerPosition.X,
-                    positionOpponentY: _game.Players[(i == 0) ? 1 : 0].PlayerPosition.Y,
-                    agility: _game.Players[i].ActionPoints,
-                    health: _game.Players[i].Health,
-                    maxHealth: _game.Players[i].MaxHealth,
-                    strength: _game.Players[i].Strength,
-                    emeraldCount: _game.Players[i].EmeraldCount,
-                    woolCount: _game.Players[i].WoolCount
-                );
+                try
+                {
+                    _slaveServer.Publish(
+                        portName: portName,
+                        gameStage: (int)_game.CurrentStage,
+                        elapsedTime: _game.ElapsedTicks,
+                        heightOfChunks: heightOfChunks,
+                        hasBed: _game.Players[i].HasBed,
+                        hasBedOpponent: _game.Players.Any(player => player.HasBed && player.PlayerId != _game.Players[i].PlayerId),
+                        positionX: _game.Players[i].PlayerPosition.X,
+                        positionY: _game.Players[i].PlayerPosition.Y,
+                        positionOpponentX: _game.Players[(i == 0) ? 1 : 0].PlayerPosition.X,
+                        positionOpponentY: _game.Players[(i == 0) ? 1 : 0].PlayerPosition.Y,
+                        agility: _game.Players[i].ActionPoints,
+                        health: _game.Players[i].Health,
+                        maxHealth: _game.Players[i].MaxHealth,
+                        strength: _game.Players[i].Strength,
+                        emeraldCount: _game.Players[i].EmeraldCount,
+                        woolCount: _game.Players[i].WoolCount
+                    );
+                }
+                catch (Exception e)
+                {
+                    _logger.Error($"failed to publish to slave: ${e.Message}");
+                }
             }
         }
     }
@@ -209,7 +237,7 @@ partial class EdcHost : IEdcHost
             {
                 Task.Delay(currentTickStartTime - DateTime.Now).Wait();
             }
-            currentTickStartTime = DateTime.Now;
+            lastTickStartTime = DateTime.Now;
 
             List<ViewerServers.CompetitionUpdateMessage.Camera> cameraInfoList = new();
             foreach (int cameraIndex in _cameraServer.AvailableCameraIndexes)
@@ -325,7 +353,7 @@ partial class EdcHost : IEdcHost
                 {
                     playerId = (player.PlayerId),
 
-                    // TODO: Find the correspondence between the camera and the player 
+                    // TODO: Find the correspondence between the camera and the player
                     cameraId = player.PlayerId,
 
                     attributes = new()

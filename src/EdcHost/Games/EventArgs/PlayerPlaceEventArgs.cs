@@ -10,9 +10,9 @@ public class PlayerPlaceEventArgs : EventArgs
     /// <summary>
     /// The position the player place a block.
     /// </summary>
-    public IPosition<float> Position { get; }
+    public IPosition<int> Position { get; }
 
-    public PlayerPlaceEventArgs(IPlayer player, IPosition<float> position)
+    public PlayerPlaceEventArgs(IPlayer player, IPosition<int> position)
     {
         Player = player;
         Position = position;

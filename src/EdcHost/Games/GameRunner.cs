@@ -23,7 +23,7 @@ class GameRunner : IGameRunner
     {
         if (Game.CurrentStage is not IGame.Stage.Ready)
         {
-            throw new InvalidOperationException("game is not ready");
+            throw new InvalidOperationException($"Game is already at stage {Game.CurrentStage}");
         }
 
         IsRunning = true;
@@ -37,11 +37,12 @@ class GameRunner : IGameRunner
     {
         if (Game.CurrentStage is not IGame.Stage.Running && Game.CurrentStage is not IGame.Stage.Battling)
         {
-            throw new InvalidOperationException("game is not running");
+            throw new InvalidOperationException($"Game is already at stage {Game.CurrentStage}");
         }
 
         Debug.Assert(_task is not null);
 
+        Game.End();
         IsRunning = false;
         _task.Wait();
     }

@@ -52,8 +52,10 @@ partial class EdcHost : IEdcHost
 
     void HandleResetGame()
     {
+        _logger.Information("Resetting Game...");
         if (_gameRunner.IsRunning)
         {
+            _logger.Information("Game is running, Stopping.");
             _gameRunner.End();
         }
 
@@ -72,6 +74,7 @@ partial class EdcHost : IEdcHost
             _game.Players[i].OnPlace += HandlePlayerPlaceEvent;
             _game.Players[i].OnDig += HandlePlayerDigEvent;
         }
+        _logger.Information("Done.");
     }
 
     void HandleGetHostConfiguration()

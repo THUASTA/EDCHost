@@ -1,6 +1,7 @@
+using EdcHost.SlaveServers;
 using Xunit;
 
-namespace EdcHost.SlaveServers;
+namespace EdcHost.Tests.UnitTests.SlaveServers;
 public class IPacketTests
 {
     [Fact]

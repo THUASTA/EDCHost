@@ -26,7 +26,7 @@ public partial class SlaveServersTests
 
         int gameStage = 1;
         int elapsedTime = 100;
-        List<int> heightOfChunks = new List<int>() { 1, 2, 3, 4, 5, 6, 7, 8 };
+        List<int> heightOfChunks = Enumerable.Range(0, 64).ToList();
         bool hasBed = true;
         bool hasBedOpponent = true;
         double positionX = 1.0;

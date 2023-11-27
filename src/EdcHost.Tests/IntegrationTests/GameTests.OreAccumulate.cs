@@ -61,11 +61,11 @@ public partial class GameTests
         Assert.StrictEqual(10, game.Players[0].EmeraldCount);
 
         //Act3 Trade and Invalid Placement
-        game.Players[0].Place(3.4f, 2.4f);
+        game.Players[0].Place(3, 2);
         IPosition<int> position0 = new MockPosition { X = 3, Y = 2 };
         Assert.StrictEqual(0, game.GameMap.GetChunkAt(position0).Height);
         Assert.StrictEqual(1, game.Players[0].WoolCount);
-        game.Players[0].Place(-1f, 0f);
+        game.Players[0].Place(-1, 0);
         Assert.StrictEqual(1, game.Players[0].WoolCount);
         for (int i = 1; i < 6; i++)
         {
@@ -79,28 +79,28 @@ public partial class GameTests
         //Act4 Valid Placement and Accumulate gold and diamond
         IPosition<int> position1 = new MockPosition { X = 1, Y = 0 };
         Assert.StrictEqual(0, game.GameMap.GetChunkAt(position1).Height);
-        game.Players[0].Place(1.4f, 0.4f);
+        game.Players[0].Place(1, 0);
         game.Tick();
         Assert.StrictEqual(1, game.GameMap.GetChunkAt(position1).Height);
         game.Players[0].Move(1.4f, 0.4f);
         game.Tick();
-        game.Players[0].Place(1.4f, 1.4f);
+        game.Players[0].Place(1, 1);
         game.Tick();
         game.Players[0].Move(1.4f, 1.4f);
         game.Tick();
-        game.Players[0].Place(2.4f, 1.4f);
+        game.Players[0].Place(2, 1);
         game.Tick();
         game.Players[0].Move(2.4f, 1.4f);
         game.Tick();
-        game.Players[0].Place(3.4f, 1.4f);
+        game.Players[0].Place(3, 1);
         game.Tick();
         game.Players[0].Move(3.4f, 1.4f);
         game.Tick();
-        game.Players[0].Place(3.4f, 2.4f);
+        game.Players[0].Place(3, 2);
         game.Tick();
         game.Players[0].Move(3.4f, 2.4f);
         game.Tick();
-        game.Players[0].Place(3.4f, 3.4f);
+        game.Players[0].Place(3, 3);
         game.Tick();
         game.Players[0].Move(3.4f, 3.4f);
         game.Tick();
@@ -113,19 +113,19 @@ public partial class GameTests
             Assert.StrictEqual(i, game.Players[0].WoolCount);
         }
         Assert.StrictEqual(0, game.Players[0].EmeraldCount);
-        game.Players[0].Place(4.4f, 3.4f);
+        game.Players[0].Place(4, 3);
         game.Tick();
         game.Players[0].Move(4.4f, 3.4f);
         game.Tick();
-        game.Players[0].Place(5.4f, 3.4f);
+        game.Players[0].Place(5, 3);
         game.Tick();
         game.Players[0].Move(5.4f, 3.4f);
         game.Tick();
-        game.Players[0].Place(5.4f, 4.4f);
+        game.Players[0].Place(5, 4);
         game.Tick();
         game.Players[0].Move(5.4f, 4.4f);
         game.Tick();
-        game.Players[0].Place(5.4f, 5.4f);
+        game.Players[0].Place(5, 5);
         game.Tick();
         game.Players[0].Move(5.4f, 5.4f);
         game.Tick();

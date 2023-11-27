@@ -23,7 +23,7 @@ class Mine : IMine
     /// <summary>
     /// The position of the mine.
     /// </summary>
-    public IPosition<float> Position { get; }
+    public IPosition<int> Position { get; }
 
     public int AccumulateOreInterval
     {
@@ -40,7 +40,7 @@ class Mine : IMine
     /// </summary>
     /// <param name="oreKind">The ore kind</param>
     /// <param name="position">The position</param>
-    public Mine(IMine.OreKindType oreKind, IPosition<float> position, int tick)
+    public Mine(IMine.OreKindType oreKind, IPosition<int> position, int tick)
     {
         MineId = Guid.NewGuid();
         AccumulatedOreCount = 0;

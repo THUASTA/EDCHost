@@ -83,7 +83,7 @@ public class Camera : ICamera
 
         while (!_taskCancellationTokenSource?.Token.IsCancellationRequested ?? false)
         {
-            using Mat frame = _capture.QueryFrame();
+            Mat frame = _capture.QueryFrame();
 
             if (frame is null)
             {
@@ -94,11 +94,15 @@ public class Camera : ICamera
 
             if (Locator.Mask is null)
             {
-                JpegData = frame.ToImage<Bgr, byte>().ToJpegData();
+                var image = frame.ToImage<Bgr, byte>();
+                JpegData = image.ToJpegData();
+                image.Dispose();
             }
             else
             {
-                JpegData = Locator.Mask.ToImage<Bgr, byte>().ToJpegData();
+                var image = Locator.Mask.ToImage<Bgr, byte>();
+                JpegData = image.ToJpegData();
+                image.Dispose();
             }
 
             if (recognitionResult is null)
@@ -108,9 +112,11 @@ public class Camera : ICamera
             }
             else
             {
-                TargetLocation = recognitionResult.Location;
-                TargetLocationNotCalibrated = recognitionResult.CalibratedLocation;
+                TargetLocation = recognitionResult.CalibratedLocation;
+                TargetLocationNotCalibrated = recognitionResult.Location;
             }
+
+            frame.Dispose();
         }
 
         JpegData = null;

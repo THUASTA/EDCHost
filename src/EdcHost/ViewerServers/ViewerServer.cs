@@ -43,12 +43,20 @@ public class ViewerServer : IViewerServer
 
         _logger.Information("Starting...");
 
-        _wsServer = _wsServerHub.Get(_port);
-        StartWsServer();
+        try
+        {
+            _wsServer = _wsServerHub.Get(_port);
+            StartWsServer();
 
-        _isRunning = true;
+            _isRunning = true;
 
-        _logger.Information("Started.");
+            _logger.Information("Started.");
+        }
+        catch (Exception ex)
+        {
+            _logger.Error($"Failed to start viewer server: {ex}");
+        }
+
     }
 
     /// <summary>
@@ -150,9 +158,9 @@ public class ViewerServer : IViewerServer
                 {
                     ParseMessage(text);
                 }
-                catch (Exception)
+                catch (Exception exception)
                 {
-                    _logger.Error($"Failed to parse message: {text}");
+                    _logger.Error($"Failed to parse message: {exception}");
                 }
             };
 
@@ -163,9 +171,9 @@ public class ViewerServer : IViewerServer
                     string text = Encoding.UTF8.GetString(bytes);
                     ParseMessage(text);
                 }
-                catch (Exception)
+                catch (Exception exception)
                 {
-                    _logger.Error($"Failed to parse message: {bytes}");
+                    _logger.Error($"Failed to parse message: {exception}");
                 }
             };
 

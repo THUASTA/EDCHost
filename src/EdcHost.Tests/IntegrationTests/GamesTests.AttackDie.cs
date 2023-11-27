@@ -19,12 +19,12 @@ public partial class GamesTests
         for (int i = 1; i <= AttackTimes; i++)
         {
             game.Tick();
-            game.Players[0].Attack(game.Players[1].PlayerPosition.X, game.Players[1].PlayerPosition.Y);
+            game.Players[0].Attack((int)game.Players[1].PlayerPosition.X, (int)game.Players[1].PlayerPosition.Y);
             Assert.StrictEqual(game.Players[1].MaxHealth - i * game.Players[0].Strength, game.Players[1].Health);
             for (int j = 1; j < AttackTickInterval; j++)
             {
                 game.Tick();
-                game.Players[0].Attack(game.Players[1].PlayerPosition.X, game.Players[1].PlayerPosition.Y);
+                game.Players[0].Attack((int)game.Players[1].PlayerPosition.X, (int)game.Players[1].PlayerPosition.Y);
                 Assert.StrictEqual(game.Players[1].MaxHealth - i * game.Players[0].Strength, game.Players[1].Health);
             }
             game.Tick();
