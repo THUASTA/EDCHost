@@ -181,41 +181,40 @@ partial class EdcHost : IEdcHost
                         {
                             Message = $"Camera {player.Camera.CameraId} is already opened."
                         });
+                        continue;
                     }
-                    else
+
+                    CameraServers.ICamera camera = _cameraServer.OpenCamera(player.Camera.CameraId, new CameraServers.Locator());
+
+                    _logger.Information($"Camera {player.Camera.CameraId} opened.");
+
+                    CameraServers.RecognitionOptions recognitionOptions = new()
                     {
-                        CameraServers.ICamera camera = _cameraServer.OpenCamera(player.Camera.CameraId, new CameraServers.Locator());
+                        HueCenter = player.Camera.Recognition.HueCenter,
+                        HueRange = player.Camera.Recognition.HueRange,
+                        SaturationCenter = player.Camera.Recognition.SaturationCenter,
+                        SaturationRange = player.Camera.Recognition.SaturationRange,
+                        ValueCenter = player.Camera.Recognition.ValueCenter,
+                        ValueRange = player.Camera.Recognition.ValueRange,
+                        MinArea = player.Camera.Recognition.MinArea,
+                        ShowMask = player.Camera.Recognition.ShowMask
+                    };
 
-                        _logger.Information($"Camera {player.Camera.CameraId} opened.");
+                    if (player.Camera.Calibration is not null)
+                    {
+                        recognitionOptions.Calibrate = true;
 
-                        CameraServers.RecognitionOptions recognitionOptions = new()
-                        {
-                            HueCenter = player.Camera.Recognition.HueCenter,
-                            HueRange = player.Camera.Recognition.HueRange,
-                            SaturationCenter = player.Camera.Recognition.SaturationCenter,
-                            SaturationRange = player.Camera.Recognition.SaturationRange,
-                            ValueCenter = player.Camera.Recognition.ValueCenter,
-                            ValueRange = player.Camera.Recognition.ValueRange,
-                            MinArea = player.Camera.Recognition.MinArea,
-                            ShowMask = player.Camera.Recognition.ShowMask
-                        };
-
-                        if (player.Camera.Calibration is not null)
-                        {
-                            recognitionOptions.Calibrate = true;
-
-                            recognitionOptions.TopLeftX = player.Camera.Calibration.TopLeft.X;
-                            recognitionOptions.TopLeftY = player.Camera.Calibration.TopLeft.Y;
-                            recognitionOptions.TopRightX = player.Camera.Calibration.TopRight.X;
-                            recognitionOptions.TopRightY = player.Camera.Calibration.TopRight.Y;
-                            recognitionOptions.BottomLeftX = player.Camera.Calibration.BottomLeft.X;
-                            recognitionOptions.BottomLeftY = player.Camera.Calibration.BottomLeft.Y;
-                            recognitionOptions.BottomRightX = player.Camera.Calibration.BottomRight.X;
-                            recognitionOptions.BottomRightY = player.Camera.Calibration.BottomRight.Y;
-                        }
-
-                        camera.Locator = new CameraServers.Locator(recognitionOptions);
+                        recognitionOptions.TopLeftX = player.Camera.Calibration.TopLeft.X;
+                        recognitionOptions.TopLeftY = player.Camera.Calibration.TopLeft.Y;
+                        recognitionOptions.TopRightX = player.Camera.Calibration.TopRight.X;
+                        recognitionOptions.TopRightY = player.Camera.Calibration.TopRight.Y;
+                        recognitionOptions.BottomLeftX = player.Camera.Calibration.BottomLeft.X;
+                        recognitionOptions.BottomLeftY = player.Camera.Calibration.BottomLeft.Y;
+                        recognitionOptions.BottomRightX = player.Camera.Calibration.BottomRight.X;
+                        recognitionOptions.BottomRightY = player.Camera.Calibration.BottomRight.Y;
                     }
+
+                    camera.Locator = new CameraServers.Locator(recognitionOptions);
                 }
 
                 if (player.SerialPort is not null)
