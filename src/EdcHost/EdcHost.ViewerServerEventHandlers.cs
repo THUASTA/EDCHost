@@ -1,3 +1,5 @@
+using EdcHost.ViewerServers;
+
 namespace EdcHost;
 
 partial class EdcHost : IEdcHost
@@ -172,36 +174,48 @@ partial class EdcHost : IEdcHost
                 {
                     playerHardwareInfo.CameraIndex = player.Camera.CameraId;
 
-                    CameraServers.ICamera camera = _cameraServer.GetCamera(player.Camera.CameraId)
-                        ?? _cameraServer.OpenCamera(player.Camera.CameraId, new CameraServers.Locator());
-
-                    CameraServers.RecognitionOptions recognitionOptions = new()
+                    if (_cameraServer.GetCamera(player.Camera.CameraId) != null)
                     {
-                        HueCenter = player.Camera.Recognition.HueCenter,
-                        HueRange = player.Camera.Recognition.HueRange,
-                        SaturationCenter = player.Camera.Recognition.SaturationCenter,
-                        SaturationRange = player.Camera.Recognition.SaturationRange,
-                        ValueCenter = player.Camera.Recognition.ValueCenter,
-                        ValueRange = player.Camera.Recognition.ValueRange,
-                        MinArea = player.Camera.Recognition.MinArea,
-                        ShowMask = player.Camera.Recognition.ShowMask
-                    };
-
-                    if (player.Camera.Calibration is not null)
-                    {
-                        recognitionOptions.Calibrate = true;
-
-                        recognitionOptions.TopLeftX = player.Camera.Calibration.TopLeft.X;
-                        recognitionOptions.TopLeftY = player.Camera.Calibration.TopLeft.Y;
-                        recognitionOptions.TopRightX = player.Camera.Calibration.TopRight.X;
-                        recognitionOptions.TopRightY = player.Camera.Calibration.TopRight.Y;
-                        recognitionOptions.BottomLeftX = player.Camera.Calibration.BottomLeft.X;
-                        recognitionOptions.BottomLeftY = player.Camera.Calibration.BottomLeft.Y;
-                        recognitionOptions.BottomRightX = player.Camera.Calibration.BottomRight.X;
-                        recognitionOptions.BottomRightY = player.Camera.Calibration.BottomRight.Y;
+                        _logger.Error($"Camera {player.Camera.CameraId} is already opened.");
+                        _viewerServer.Publish(new ViewerServers.ErrorMessage()
+                        {
+                            Message = $"Camera {player.Camera.CameraId} is already opened."
+                        });
                     }
+                    else
+                    {
+                        CameraServers.ICamera camera = _cameraServer.OpenCamera(player.Camera.CameraId, new CameraServers.Locator());
 
-                    camera.Locator = new CameraServers.Locator(recognitionOptions);
+                        _logger.Information($"Camera {player.Camera.CameraId} opened.");
+
+                        CameraServers.RecognitionOptions recognitionOptions = new()
+                        {
+                            HueCenter = player.Camera.Recognition.HueCenter,
+                            HueRange = player.Camera.Recognition.HueRange,
+                            SaturationCenter = player.Camera.Recognition.SaturationCenter,
+                            SaturationRange = player.Camera.Recognition.SaturationRange,
+                            ValueCenter = player.Camera.Recognition.ValueCenter,
+                            ValueRange = player.Camera.Recognition.ValueRange,
+                            MinArea = player.Camera.Recognition.MinArea,
+                            ShowMask = player.Camera.Recognition.ShowMask
+                        };
+
+                        if (player.Camera.Calibration is not null)
+                        {
+                            recognitionOptions.Calibrate = true;
+
+                            recognitionOptions.TopLeftX = player.Camera.Calibration.TopLeft.X;
+                            recognitionOptions.TopLeftY = player.Camera.Calibration.TopLeft.Y;
+                            recognitionOptions.TopRightX = player.Camera.Calibration.TopRight.X;
+                            recognitionOptions.TopRightY = player.Camera.Calibration.TopRight.Y;
+                            recognitionOptions.BottomLeftX = player.Camera.Calibration.BottomLeft.X;
+                            recognitionOptions.BottomLeftY = player.Camera.Calibration.BottomLeft.Y;
+                            recognitionOptions.BottomRightX = player.Camera.Calibration.BottomRight.X;
+                            recognitionOptions.BottomRightY = player.Camera.Calibration.BottomRight.Y;
+                        }
+
+                        camera.Locator = new CameraServers.Locator(recognitionOptions);
+                    }
                 }
 
                 if (player.SerialPort is not null)
