@@ -33,8 +33,26 @@ Here is an example:
                 "Item2": 4
             }
         ],
-        "goldMines": [],
-        "ironMines": []
+        "goldMines": [
+            {
+                "Item1": 2,
+                "Item2": 1
+            },
+            {
+                "Item1": 4,
+                "Item2": 7
+            }
+        ],
+        "ironMines": [
+            {
+                "Item1": 0,
+                "Item2": 1
+            },
+            {
+                "Item1": 7,
+                "Item2": 6
+            }
+        ]
     }
 }
 ```

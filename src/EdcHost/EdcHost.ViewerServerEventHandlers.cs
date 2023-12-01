@@ -1,3 +1,5 @@
+using EdcHost.ViewerServers;
+
 namespace EdcHost;
 
 partial class EdcHost : IEdcHost
@@ -172,8 +174,19 @@ partial class EdcHost : IEdcHost
                 {
                     playerHardwareInfo.CameraIndex = player.Camera.CameraId;
 
-                    CameraServers.ICamera camera = _cameraServer.GetCamera(player.Camera.CameraId)
-                        ?? _cameraServer.OpenCamera(player.Camera.CameraId, new CameraServers.Locator());
+                    if (_cameraServer.GetCamera(player.Camera.CameraId) != null)
+                    {
+                        _logger.Error($"Camera {player.Camera.CameraId} is already opened.");
+                        _viewerServer.Publish(new ViewerServers.ErrorMessage()
+                        {
+                            Message = $"Camera {player.Camera.CameraId} is already opened."
+                        });
+                        continue;
+                    }
+
+                    CameraServers.ICamera camera = _cameraServer.OpenCamera(player.Camera.CameraId, new CameraServers.Locator());
+
+                    _logger.Information($"Camera {player.Camera.CameraId} opened.");
 
                     CameraServers.RecognitionOptions recognitionOptions = new()
                     {
