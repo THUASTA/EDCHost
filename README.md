@@ -23,29 +23,38 @@ Here is an example:
     "loggingLevel": "Information",
     "serverPort": 8080,
     "game": {
-      "diamondMines": [{
-              "Item1": 1,
-              "Item2": 3
-          }, {
-              "Item1": 4,
-              "Item2": 4
-          }],
-      "goldMines": [{
-              "Item1": 2,
-              "Item2": 1
-          }, {
-              "Item1": 4,
-              "Item2": 7
-          }],
-      "ironMines": [{
-              "Item1": 0,
-              "Item2": 1
-          }, {
-              "Item1": 7,
-              "Item2": 6
-          }]
+        "diamondMines": [
+            {
+                "Item1": 1,
+                "Item2": 3
+            },
+            {
+                "Item1": 4,
+                "Item2": 4
+            }
+        ],
+        "goldMines": [
+            {
+                "Item1": 2,
+                "Item2": 1
+            },
+            {
+                "Item1": 4,
+                "Item2": 7
+            }
+        ],
+        "ironMines": [
+            {
+                "Item1": 0,
+                "Item2": 1
+            },
+            {
+                "Item1": 7,
+                "Item2": 6
+            }
+        ]
     }
-  }
+}
 ```
 
 ## Contributing
