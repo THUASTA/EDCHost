@@ -351,7 +351,6 @@ partial class EdcHost : IEdcHost
                 {
                     playerId = (player.PlayerId),
 
-                    // TODO: Find the correspondence between the camera and the player
                     cameraId = player.PlayerId,
 
                     attributes = new()
