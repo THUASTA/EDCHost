@@ -336,14 +336,7 @@ partial class EdcHost : IEdcHost
                 if (!_slaveServer.OpenPortNames.Contains(serialPort.PortName))
                 {
                     _logger.Information($"Opening serial port {serialPort.PortName}...");
-                    if (serialPort.BaudRate is not null)
-                    {
-                        _slaveServer.OpenPort(serialPort.PortName, serialPort.BaudRate.Value);
-                    }
-                    else
-                    {
-                        _slaveServer.OpenPort(serialPort.PortName);
-                    }
+                    _slaveServer.OpenPort(serialPort.PortName, serialPort.BaudRate);
                 }
             }
 

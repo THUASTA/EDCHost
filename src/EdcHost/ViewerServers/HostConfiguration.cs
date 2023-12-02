@@ -205,8 +205,8 @@ public record HostConfiguration
         public string PortName { get; init; } = "";
 
         [JsonPropertyName("baudRate")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public int? BaudRate { get; init; } = null;
+        [JsonRequired]
+        public int BaudRate { get; init; }
     }
 
     [JsonPropertyName("cameras")]
