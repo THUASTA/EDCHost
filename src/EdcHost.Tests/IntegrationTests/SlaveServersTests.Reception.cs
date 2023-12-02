@@ -26,12 +26,12 @@ public partial class SlaveServersTests
 
         byte[] bytes = MakePacket(packetData);
 
-        PacketFromSlave packet = new PacketFromSlave(bytes);
+        PacketFromSlave packet = new(bytes);
 
         var serialPortWrapperMock = (SerialPortWrapperMock)serialPortHubMock.Get(portName, baudRate);
         serialPortWrapperMock.AfterReceive += (sender, args) =>
         {
-            PacketFromSlave packetReceived = new PacketFromSlave(args.Bytes);
+            PacketFromSlave packetReceived = new(args.Bytes);
             // Assertion
             Assert.Equal(bytes, args.Bytes);
             Assert.Equal(packetReceived.ActionType, packet.ActionType);

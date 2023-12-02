@@ -34,6 +34,8 @@ public partial class SlaveServersTests
 
         public string PortName { get; }
 
+        public int BaudRate => 115200;
+
         public SerialPortWrapperMock(string portName)
         {
             PortName = portName;

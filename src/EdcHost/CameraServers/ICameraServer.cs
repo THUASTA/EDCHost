@@ -9,6 +9,8 @@ public interface ICameraServer : IDisposable
 
     List<int> AvailableCameraIndexes { get; }
 
+    List<int> OpenCameraIndexes { get; }
+
     void CloseCamera(int cameraIndex);
 
     ICamera? GetCamera(int cameraIndex);
