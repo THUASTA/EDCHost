@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Emgu.CV.CvEnum;
 
 namespace EdcHost;
 
@@ -98,19 +99,7 @@ partial class EdcHost : IEdcHost
                         {
                             CameraId = cameraIndex,
 
-                            Recognition = new ViewerServers.HostConfiguration.CameraType.RecognitionType()
-                            {
-                                HueCenter = camera.Locator.Options.HueCenter,
-                                HueRange = camera.Locator.Options.HueRange,
-                                SaturationCenter = camera.Locator.Options.SaturationCenter,
-                                SaturationRange = camera.Locator.Options.SaturationRange,
-                                ValueCenter = camera.Locator.Options.ValueCenter,
-                                ValueRange = camera.Locator.Options.ValueRange,
-                                MinArea = camera.Locator.Options.MinArea,
-                                ShowMask = camera.Locator.Options.ShowMask
-                            },
-
-                            Calibration = camera.Locator.Options.Calibrate == false ? new() : new()
+                            Calibration = camera.Locator.Options.Calibrate == false ? null : new()
                             {
                                 TopLeft = new ViewerServers.HostConfiguration.CameraType.CalibrationType.Point()
                                 {
@@ -132,9 +121,48 @@ partial class EdcHost : IEdcHost
                                     X = camera.Locator.Options.BottomRightX,
                                     Y = camera.Locator.Options.BottomRightY
                                 }
-                            }
+                            },
+
+                            Properties = new ViewerServers.HostConfiguration.CameraType.PropertiesType()
+                            {
+                                FrameWidth = camera.GetProperty(CapProp.FrameWidth),
+                                FrameHeight = camera.GetProperty(CapProp.FrameHeight),
+                                Fps = camera.GetProperty(CapProp.Fps),
+                                Brightness = camera.GetProperty(CapProp.Brightness),
+                                Contrast = camera.GetProperty(CapProp.Contrast),
+                                Saturation = camera.GetProperty(CapProp.Saturation),
+                                Hue = camera.GetProperty(CapProp.Hue),
+                                Gain = camera.GetProperty(CapProp.Gain),
+                                Exposure = camera.GetProperty(CapProp.Exposure),
+                                Monochrome = camera.GetProperty(CapProp.Monochrome),
+                                Sharpness = camera.GetProperty(CapProp.Sharpness),
+                                AutoExposure = camera.GetProperty(CapProp.AutoExposure),
+                                Gamma = camera.GetProperty(CapProp.Gamma),
+                                Temperature = camera.GetProperty(CapProp.Temperature),
+                                WhiteBalanceRedV = camera.GetProperty(CapProp.WhiteBalanceRedV),
+                                Zoom = camera.GetProperty(CapProp.Zoom),
+                                Focus = camera.GetProperty(CapProp.Focus),
+                                IsoSpeed = camera.GetProperty(CapProp.IsoSpeed),
+                                Iris = camera.GetProperty(CapProp.Iris),
+                                Autofocus = camera.GetProperty(CapProp.Autofocus),
+                                AutoWb = camera.GetProperty(CapProp.AutoWb),
+                                WbTemperature = camera.GetProperty(CapProp.WbTemperature),
+                            },
+
+                            Recognition = new ViewerServers.HostConfiguration.CameraType.RecognitionType()
+                            {
+                                HueCenter = camera.Locator.Options.HueCenter,
+                                HueRange = camera.Locator.Options.HueRange,
+                                SaturationCenter = camera.Locator.Options.SaturationCenter,
+                                SaturationRange = camera.Locator.Options.SaturationRange,
+                                ValueCenter = camera.Locator.Options.ValueCenter,
+                                ValueRange = camera.Locator.Options.ValueRange,
+                                MinArea = camera.Locator.Options.MinArea,
+                                ShowMask = camera.Locator.Options.ShowMask
+                            },
                         };
                     }).ToList(),
+
                 Players = _playerHardwareInfo.Select((kv) =>
                     {
                         int playerIndex = kv.Key;
@@ -147,6 +175,7 @@ partial class EdcHost : IEdcHost
                             SerialPort = playerHardwareInfo.PortName
                         };
                     }).ToList(),
+
                 SerialPorts = _slaveServer.OpenPortNames.Select((portName) =>
                     {
                         SlaveServers.ISlaveServer.PortInfo? portInfoOrNull = _slaveServer.GetPortInfo(portName);
@@ -164,7 +193,6 @@ partial class EdcHost : IEdcHost
 
         _viewerServer.Publish(configMessage);
     }
-
 
     void HandleUpdateConfiguration(ViewerServers.HostConfigurationFromClientMessage message)
     {
@@ -210,7 +238,97 @@ partial class EdcHost : IEdcHost
                     recognitionOptions.BottomRightY = camera.Calibration.BottomRight.Y;
                 }
 
-                // TODO: Update camera properties
+                if (camera.Properties is not null)
+                {
+                    if (camera.Properties.FrameWidth is not null)
+                    {
+                        cameraInstance.SetProperty(CapProp.FrameWidth, camera.Properties.FrameWidth.Value);
+                    }
+                    if (camera.Properties.FrameHeight is not null)
+                    {
+                        cameraInstance.SetProperty(CapProp.FrameHeight, camera.Properties.FrameHeight.Value);
+                    }
+                    if (camera.Properties.Fps is not null)
+                    {
+                        cameraInstance.SetProperty(CapProp.Fps, camera.Properties.Fps.Value);
+                    }
+                    if (camera.Properties.Brightness is not null)
+                    {
+                        cameraInstance.SetProperty(CapProp.Brightness, camera.Properties.Brightness.Value);
+                    }
+                    if (camera.Properties.Contrast is not null)
+                    {
+                        cameraInstance.SetProperty(CapProp.Contrast, camera.Properties.Contrast.Value);
+                    }
+                    if (camera.Properties.Saturation is not null)
+                    {
+                        cameraInstance.SetProperty(CapProp.Saturation, camera.Properties.Saturation.Value);
+                    }
+                    if (camera.Properties.Hue is not null)
+                    {
+                        cameraInstance.SetProperty(CapProp.Hue, camera.Properties.Hue.Value);
+                    }
+                    if (camera.Properties.Gain is not null)
+                    {
+                        cameraInstance.SetProperty(CapProp.Gain, camera.Properties.Gain.Value);
+                    }
+                    if (camera.Properties.Exposure is not null)
+                    {
+                        cameraInstance.SetProperty(CapProp.Exposure, camera.Properties.Exposure.Value);
+                    }
+                    if (camera.Properties.Monochrome is not null)
+                    {
+                        cameraInstance.SetProperty(CapProp.Monochrome, camera.Properties.Monochrome.Value);
+                    }
+                    if (camera.Properties.Sharpness is not null)
+                    {
+                        cameraInstance.SetProperty(CapProp.Sharpness, camera.Properties.Sharpness.Value);
+                    }
+                    if (camera.Properties.AutoExposure is not null)
+                    {
+                        cameraInstance.SetProperty(CapProp.AutoExposure, camera.Properties.AutoExposure.Value);
+                    }
+                    if (camera.Properties.Gamma is not null)
+                    {
+                        cameraInstance.SetProperty(CapProp.Gamma, camera.Properties.Gamma.Value);
+                    }
+                    if (camera.Properties.Temperature is not null)
+                    {
+                        cameraInstance.SetProperty(CapProp.Temperature, camera.Properties.Temperature.Value);
+                    }
+                    if (camera.Properties.WhiteBalanceRedV is not null)
+                    {
+                        cameraInstance.SetProperty(CapProp.WhiteBalanceRedV, camera.Properties.WhiteBalanceRedV.Value);
+                    }
+                    if (camera.Properties.Zoom is not null)
+                    {
+                        cameraInstance.SetProperty(CapProp.Zoom, camera.Properties.Zoom.Value);
+                    }
+                    if (camera.Properties.Focus is not null)
+                    {
+                        cameraInstance.SetProperty(CapProp.Focus, camera.Properties.Focus.Value);
+                    }
+                    if (camera.Properties.IsoSpeed is not null)
+                    {
+                        cameraInstance.SetProperty(CapProp.IsoSpeed, camera.Properties.IsoSpeed.Value);
+                    }
+                    if (camera.Properties.Iris is not null)
+                    {
+                        cameraInstance.SetProperty(CapProp.Iris, camera.Properties.Iris.Value);
+                    }
+                    if (camera.Properties.Autofocus is not null)
+                    {
+                        cameraInstance.SetProperty(CapProp.Autofocus, camera.Properties.Autofocus.Value);
+                    }
+                    if (camera.Properties.AutoWb is not null)
+                    {
+                        cameraInstance.SetProperty(CapProp.AutoWb, camera.Properties.AutoWb.Value);
+                    }
+                    if (camera.Properties.WbTemperature is not null)
+                    {
+                        cameraInstance.SetProperty(CapProp.WbTemperature, camera.Properties.WbTemperature.Value);
+                    }
+                }
             }
 
             foreach (ViewerServers.HostConfiguration.SerialPortType serialPort in message.Configuration.SerialPorts)

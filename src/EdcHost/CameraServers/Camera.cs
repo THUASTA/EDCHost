@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Emgu.CV;
 using Emgu.CV.Structure;
+using Emgu.CV.CvEnum;
 
 namespace EdcHost.CameraServers;
 
@@ -73,6 +74,16 @@ public class Camera : ICamera
 
         _taskCancellationTokenSource = new();
         _task = Task.Run(TaskFunc);
+    }
+
+    public double GetProperty(CapProp property)
+    {
+        return _capture.Get(property);
+    }
+
+    public void SetProperty(CapProp property, double value)
+    {
+        _capture.Set(property, value);
     }
 
     void TaskFunc()

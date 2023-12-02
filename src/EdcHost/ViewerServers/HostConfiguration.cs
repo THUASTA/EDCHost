@@ -40,91 +40,91 @@ public record HostConfiguration
         {
             [JsonPropertyName("frameWidth")]
             [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-            public float? FrameWidth { get; init; } = null;
+            public double? FrameWidth { get; init; } = null;
 
             [JsonPropertyName("frameHeight")]
             [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-            public float? FrameHeight { get; init; } = null;
+            public double? FrameHeight { get; init; } = null;
 
             [JsonPropertyName("fps")]
             [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-            public float? Fps { get; init; } = null;
+            public double? Fps { get; init; } = null;
 
             [JsonPropertyName("brightness")]
             [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-            public float? Brightness { get; init; } = null;
+            public double? Brightness { get; init; } = null;
 
             [JsonPropertyName("contrast")]
             [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-            public float? Contrast { get; init; } = null;
+            public double? Contrast { get; init; } = null;
 
             [JsonPropertyName("saturation")]
             [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-            public float? Saturation { get; init; } = null;
+            public double? Saturation { get; init; } = null;
 
             [JsonPropertyName("hue")]
             [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-            public float? Hue { get; init; } = null;
+            public double? Hue { get; init; } = null;
 
             [JsonPropertyName("gain")]
             [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-            public float? Gain { get; init; } = null;
+            public double? Gain { get; init; } = null;
 
             [JsonPropertyName("exposure")]
             [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-            public float? Exposure { get; init; } = null;
+            public double? Exposure { get; init; } = null;
 
             [JsonPropertyName("monochrome")]
             [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-            public bool? Monochrome { get; init; } = null;
+            public double? Monochrome { get; init; } = null;
 
             [JsonPropertyName("sharpness")]
             [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-            public float? Sharpness { get; init; } = null;
+            public double? Sharpness { get; init; } = null;
 
             [JsonPropertyName("autoExposure")]
             [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-            public bool? AutoExposure { get; init; } = null;
+            public double? AutoExposure { get; init; } = null;
 
             [JsonPropertyName("gamma")]
             [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-            public float? Gamma { get; init; } = null;
+            public double? Gamma { get; init; } = null;
 
             [JsonPropertyName("temperature")]
             [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-            public float? Temperature { get; init; } = null;
+            public double? Temperature { get; init; } = null;
 
             [JsonPropertyName("whiteBalanceRedV")]
             [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-            public float? WhiteBalanceRedV { get; init; } = null;
+            public double? WhiteBalanceRedV { get; init; } = null;
 
             [JsonPropertyName("zoom")]
             [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-            public float? Zoom { get; init; } = null;
+            public double? Zoom { get; init; } = null;
 
             [JsonPropertyName("focus")]
             [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-            public float? Focus { get; init; } = null;
+            public double? Focus { get; init; } = null;
 
             [JsonPropertyName("isoSpeed")]
             [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-            public float? IsoSpeed { get; init; } = null;
+            public double? IsoSpeed { get; init; } = null;
 
             [JsonPropertyName("iris")]
             [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-            public float? Iris { get; init; } = null;
+            public double? Iris { get; init; } = null;
 
-            [JsonPropertyName("autoFocus")]
+            [JsonPropertyName("autofocus")]
             [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-            public bool? AutoFocus { get; init; } = null;
+            public double? Autofocus { get; init; } = null;
 
             [JsonPropertyName("autoWb")]
             [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-            public bool? AutoWb { get; init; } = null;
+            public double? AutoWb { get; init; } = null;
 
             [JsonPropertyName("wbTemperature")]
             [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-            public float? WbTemperature { get; init; } = null;
+            public double? WbTemperature { get; init; } = null;
         }
 
         public record RecognitionType

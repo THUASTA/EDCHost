@@ -438,7 +438,7 @@ components:
                     type: number
                   iris:
                     type: number
-                  autoFocus:
+                  autofocus:
                     type: number
                   autoWb:
                     type: number

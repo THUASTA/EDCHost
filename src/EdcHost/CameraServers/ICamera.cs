@@ -1,3 +1,5 @@
+using Emgu.CV.CvEnum;
+
 namespace EdcHost.CameraServers;
 
 public interface ICamera : IDisposable
@@ -13,4 +15,6 @@ public interface ICamera : IDisposable
 
     void Close();
     void Open();
+    double GetProperty(CapProp property);
+    void SetProperty(CapProp property, double value);
 }
