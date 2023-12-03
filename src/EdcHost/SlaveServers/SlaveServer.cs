@@ -10,6 +10,10 @@ public class SlaveServer : ISlaveServer
     public event EventHandler<PlayerTryTradeEventArgs>? PlayerTryTradeEvent;
 
     public List<string> AvailablePortNames => _serialPortHub.PortNames;
+    public List<string> OpenPortNames => _serialPorts.Select(x => x.PortName).ToList();
+
+    public List<ISlaveServer.PortInfo> OpenPortInfoList => _serialPorts.Select(
+        x => new ISlaveServer.PortInfo { BaudRate = x.BaudRate }).ToList();
 
     bool _isRunning = false;
     readonly ILogger _logger = Log.Logger.ForContext("Component", "SlaveServers");
@@ -30,6 +34,8 @@ public class SlaveServer : ISlaveServer
 
         GC.SuppressFinalize(this);
     }
+
+
 
     public void OpenPort(string portName, int baudRate)
     {
@@ -73,6 +79,23 @@ public class SlaveServer : ISlaveServer
         serialPort.Close();
         serialPort.Dispose();
         _serialPorts.Remove(serialPort);
+    }
+
+    public ISlaveServer.PortInfo? GetPortInfo(string portName)
+    {
+        if (_isRunning is false)
+        {
+            throw new InvalidOperationException("not running");
+        }
+
+        ISerialPortWrapper? serialPort = _serialPorts.Find(x => x.PortName.Equals(portName));
+
+        if (serialPort is null)
+        {
+            return null;
+        }
+
+        return new ISlaveServer.PortInfo { BaudRate = serialPort.BaudRate };
     }
 
     public void Publish(string portName, int gameStage, int elapsedTime, List<int> heightOfChunks,

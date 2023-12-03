@@ -14,7 +14,7 @@ public partial class GameTests
     [Fact]
     public void TradeTests()
     {
-        List<Tuple<int, int>> diamond = new List<Tuple<int, int>>
+        List<Tuple<int, int>> diamond = new()
         {
             Tuple.Create(1, 0),
             Tuple.Create(0, 1)

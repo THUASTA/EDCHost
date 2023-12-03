@@ -100,8 +100,6 @@ partial class Game : IGame
 
         _isAllBedsDestroyed = false;
 
-        //TODO: Set player's initial position and spawnpoint
-
         Players = new(playerList);
 
         for (int i = 0; i < PlayerNum; i++)
@@ -121,8 +119,6 @@ partial class Game : IGame
         {
             _playerDeathTickList[i] = null;
         }
-
-        //TODO: Start game after all players are ready
 
         Winner = null;
 

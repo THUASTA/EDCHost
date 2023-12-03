@@ -37,13 +37,13 @@ public partial class SlaveServersTests
         byte[] bytes = new byte[header.Length + byteData.Length];
         header.CopyTo(bytes, 0);
         byteData.CopyTo(bytes, header.Length);
-        ConcurrentBag<int> count = new ConcurrentBag<int>();
+        ConcurrentBag<int> count = new();
         //do concurrency test
         var tasks = new List<Task>();
         var serialPortWrapperMock = (SerialPortWrapperMock)serialPortHubMock.Get(portName, baudRate);
         serialPortWrapperMock.AfterReceive += (sender, args) =>
         {
-            PacketFromSlave packetReceived = new PacketFromSlave(args.Bytes);
+            PacketFromSlave packetReceived = new(args.Bytes);
             // Assertion
             Assert.Equal(bytes, args.Bytes);
             Assert.Equal(packetReceived.ActionType, packetReceived.ActionType);

@@ -1,7 +1,7 @@
 asyncapi: "2.6.0"
 info:
   title: Viewer API
-  version: "0.1.0"
+  version: ""
 channels:
   /competition/control:
     subscribe:
@@ -438,7 +438,7 @@ components:
                     type: number
                   iris:
                     type: number
-                  autoFocus:
+                  autofocus:
                     type: number
                   autoWb:
                     type: number

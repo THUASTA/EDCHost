@@ -23,7 +23,7 @@ public class PacketFromHostTests
         int exp_strength = 4;
         int exp_emeraldCount = 64;
         int exp_woolcount = 64;
-        PacketFromHost packetFromHost = new PacketFromHost(
+        PacketFromHost packetFromHost = new(
             exp_gameStage, exp_elapsedTime, exp_heightOfChunks, exp_hasBed, exp_hasBedOpponent,
             exp_positionX, exp_positionY, exp_positionOpponentX, exp_positionOpponentY, exp_agility,
             exp_health, exp_MaxHealth, exp_strength, exp_emeraldCount, exp_woolcount);
@@ -64,12 +64,12 @@ public class PacketFromHostTests
         int exp_strength = 4;
         int exp_emeraldCount = 64;
         int exp_woolcount = 64;
-        PacketFromHost exp_Packet = new PacketFromHost(
+        PacketFromHost exp_Packet = new(
             exp_gameStage, exp_elapsedTime, exp_heightOfChunks, exp_hasBed, exp_hasBedOpponent,
             exp_positionX, exp_positionY, exp_positionOpponentX, exp_positionOpponentY, exp_agility,
             exp_health, exp_MaxHealth, exp_strength, exp_emeraldCount, exp_woolcount);
         byte[] data = exp_Packet.ToBytes();
-        PacketFromHost actualPacket = new PacketFromHost(data);
+        PacketFromHost actualPacket = new(data);
         Assert.Equal(exp_Packet.GameStage, actualPacket.GameStage);
         Assert.Equal(exp_Packet.ElapsedTime, actualPacket.ElapsedTime);
         Assert.Equal(exp_Packet.HeightOfChunks.Count, actualPacket.HeightOfChunks.Count);
