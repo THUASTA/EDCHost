@@ -35,7 +35,7 @@ public class SlaveServer : ISlaveServer
         GC.SuppressFinalize(this);
     }
 
-    
+
 
     public void OpenPort(string portName, int baudRate)
     {
