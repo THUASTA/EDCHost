@@ -45,153 +45,197 @@ partial class EdcHost : IEdcHost
 
     void HandleStartGame()
     {
-        _gameRunner.Start();
+        try
+        {
+            _gameRunner.Start();
+        }
+        catch (Exception e)
+        {
+            _logger.Error($"Failed to start game: {e}");
+            _viewerServer.Publish(new ViewerServers.ErrorMessage()
+            {
+                Message = e.Message
+            });
+        }
     }
 
     void HandleEndGame()
     {
-        _gameRunner.End();
+        try
+        {
+            _gameRunner.End();
+        }
+        catch (Exception e)
+        {
+            _logger.Error($"Failed to end game: {e}");
+            _viewerServer.Publish(new ViewerServers.ErrorMessage()
+            {
+                Message = e.Message
+            });
+        }
     }
 
     void HandleResetGame()
     {
-        _logger.Information("Resetting Game...");
-        if (_gameRunner.IsRunning)
+        try
         {
-            _logger.Information("Game is running, Stopping.");
-            _gameRunner.End();
+            _logger.Information("Resetting Game...");
+            if (_gameRunner.IsRunning)
+            {
+                _logger.Information("Game is running, Stopping.");
+                _gameRunner.End();
+            }
+
+            _game = Games.IGame.Create(
+                diamondMines: _config.Game.DiamondMines,
+                goldMines: _config.Game.GoldMines,
+                ironMines: _config.Game.IronMines
+            );
+            _gameRunner = Games.IGameRunner.Create(_game);
+
+            _game.AfterJudgementEvent += HandleAfterJudgementEvent;
+
+            for (int i = 0; i < _game.Players.Count; i++)
+            {
+                _game.Players[i].OnAttack += HandlePlayerAttackEvent;
+                _game.Players[i].OnPlace += HandlePlayerPlaceEvent;
+                _game.Players[i].OnDig += HandlePlayerDigEvent;
+            }
+            _logger.Information("Done.");
         }
-
-        _game = Games.IGame.Create(
-            diamondMines: _config.Game.DiamondMines,
-            goldMines: _config.Game.GoldMines,
-            ironMines: _config.Game.IronMines
-        );
-        _gameRunner = Games.IGameRunner.Create(_game);
-
-        _game.AfterJudgementEvent += HandleAfterJudgementEvent;
-
-        for (int i = 0; i < _game.Players.Count; i++)
+        catch (Exception e)
         {
-            _game.Players[i].OnAttack += HandlePlayerAttackEvent;
-            _game.Players[i].OnPlace += HandlePlayerPlaceEvent;
-            _game.Players[i].OnDig += HandlePlayerDigEvent;
+            _logger.Error($"Failed to reset game: {e}");
+            _viewerServer.Publish(new ViewerServers.ErrorMessage()
+            {
+                Message = e.Message
+            });
         }
-        _logger.Information("Done.");
     }
 
     void HandleGetHostConfiguration()
     {
-        ViewerServers.HostConfigurationFromServerMessage configMessage = new()
+        try
         {
-            AvailableCameras = _cameraServer.AvailableCameraIndexes,
-            AvailableSerialPorts = _slaveServer.AvailablePortNames,
-            Configuration = new()
+            ViewerServers.HostConfigurationFromServerMessage configMessage = new()
             {
-                Cameras = _cameraServer.OpenCameraIndexes.Select((cameraIndex) =>
-                    {
-                        CameraServers.ICamera? cameraOrNull = _cameraServer.GetCamera(cameraIndex);
-                        Debug.Assert(cameraOrNull != null);
-
-                        CameraServers.ICamera camera = cameraOrNull!;
-
-                        return new ViewerServers.HostConfiguration.CameraType()
+                AvailableCameras = _cameraServer.AvailableCameraIndexes,
+                AvailableSerialPorts = _slaveServer.AvailablePortNames,
+                Configuration = new()
+                {
+                    Cameras = _cameraServer.OpenCameraIndexes.Select((cameraIndex) =>
                         {
-                            CameraId = cameraIndex,
+                            CameraServers.ICamera? cameraOrNull = _cameraServer.GetCamera(cameraIndex);
+                            Debug.Assert(cameraOrNull != null);
 
-                            Calibration = camera.Locator.Options.Calibrate == false ? null : new()
+                            CameraServers.ICamera camera = cameraOrNull!;
+
+                            return new ViewerServers.HostConfiguration.CameraType()
                             {
-                                TopLeft = new ViewerServers.HostConfiguration.CameraType.CalibrationType.Point()
+                                CameraId = cameraIndex,
+
+                                Calibration = camera.Locator.Options.Calibrate == false ? null : new()
                                 {
-                                    X = camera.Locator.Options.TopLeftX,
-                                    Y = camera.Locator.Options.TopLeftY
+                                    TopLeft = new ViewerServers.HostConfiguration.CameraType.CalibrationType.Point()
+                                    {
+                                        X = camera.Locator.Options.TopLeftX,
+                                        Y = camera.Locator.Options.TopLeftY
+                                    },
+                                    TopRight = new ViewerServers.HostConfiguration.CameraType.CalibrationType.Point()
+                                    {
+                                        X = camera.Locator.Options.TopRightX,
+                                        Y = camera.Locator.Options.TopRightY
+                                    },
+                                    BottomLeft = new ViewerServers.HostConfiguration.CameraType.CalibrationType.Point()
+                                    {
+                                        X = camera.Locator.Options.BottomLeftX,
+                                        Y = camera.Locator.Options.BottomLeftY
+                                    },
+                                    BottomRight = new ViewerServers.HostConfiguration.CameraType.CalibrationType.Point()
+                                    {
+                                        X = camera.Locator.Options.BottomRightX,
+                                        Y = camera.Locator.Options.BottomRightY
+                                    }
                                 },
-                                TopRight = new ViewerServers.HostConfiguration.CameraType.CalibrationType.Point()
+
+                                Properties = new ViewerServers.HostConfiguration.CameraType.PropertiesType()
                                 {
-                                    X = camera.Locator.Options.TopRightX,
-                                    Y = camera.Locator.Options.TopRightY
+                                    FrameWidth = camera.GetProperty(CapProp.FrameWidth),
+                                    FrameHeight = camera.GetProperty(CapProp.FrameHeight),
+                                    Fps = camera.GetProperty(CapProp.Fps),
+                                    Brightness = camera.GetProperty(CapProp.Brightness),
+                                    Contrast = camera.GetProperty(CapProp.Contrast),
+                                    Saturation = camera.GetProperty(CapProp.Saturation),
+                                    Hue = camera.GetProperty(CapProp.Hue),
+                                    Gain = camera.GetProperty(CapProp.Gain),
+                                    Exposure = camera.GetProperty(CapProp.Exposure),
+                                    Monochrome = camera.GetProperty(CapProp.Monochrome),
+                                    Sharpness = camera.GetProperty(CapProp.Sharpness),
+                                    AutoExposure = camera.GetProperty(CapProp.AutoExposure),
+                                    Gamma = camera.GetProperty(CapProp.Gamma),
+                                    Temperature = camera.GetProperty(CapProp.Temperature),
+                                    WhiteBalanceRedV = camera.GetProperty(CapProp.WhiteBalanceRedV),
+                                    Zoom = camera.GetProperty(CapProp.Zoom),
+                                    Focus = camera.GetProperty(CapProp.Focus),
+                                    IsoSpeed = camera.GetProperty(CapProp.IsoSpeed),
+                                    Iris = camera.GetProperty(CapProp.Iris),
+                                    Autofocus = camera.GetProperty(CapProp.Autofocus),
+                                    AutoWb = camera.GetProperty(CapProp.AutoWb),
+                                    WbTemperature = camera.GetProperty(CapProp.WbTemperature),
                                 },
-                                BottomLeft = new ViewerServers.HostConfiguration.CameraType.CalibrationType.Point()
+
+                                Recognition = new ViewerServers.HostConfiguration.CameraType.RecognitionType()
                                 {
-                                    X = camera.Locator.Options.BottomLeftX,
-                                    Y = camera.Locator.Options.BottomLeftY
+                                    HueCenter = camera.Locator.Options.HueCenter,
+                                    HueRange = camera.Locator.Options.HueRange,
+                                    SaturationCenter = camera.Locator.Options.SaturationCenter,
+                                    SaturationRange = camera.Locator.Options.SaturationRange,
+                                    ValueCenter = camera.Locator.Options.ValueCenter,
+                                    ValueRange = camera.Locator.Options.ValueRange,
+                                    MinArea = camera.Locator.Options.MinArea,
+                                    ShowMask = camera.Locator.Options.ShowMask
                                 },
-                                BottomRight = new ViewerServers.HostConfiguration.CameraType.CalibrationType.Point()
-                                {
-                                    X = camera.Locator.Options.BottomRightX,
-                                    Y = camera.Locator.Options.BottomRightY
-                                }
-                            },
+                            };
+                        }).ToList(),
 
-                            Properties = new ViewerServers.HostConfiguration.CameraType.PropertiesType()
-                            {
-                                FrameWidth = camera.GetProperty(CapProp.FrameWidth),
-                                FrameHeight = camera.GetProperty(CapProp.FrameHeight),
-                                Fps = camera.GetProperty(CapProp.Fps),
-                                Brightness = camera.GetProperty(CapProp.Brightness),
-                                Contrast = camera.GetProperty(CapProp.Contrast),
-                                Saturation = camera.GetProperty(CapProp.Saturation),
-                                Hue = camera.GetProperty(CapProp.Hue),
-                                Gain = camera.GetProperty(CapProp.Gain),
-                                Exposure = camera.GetProperty(CapProp.Exposure),
-                                Monochrome = camera.GetProperty(CapProp.Monochrome),
-                                Sharpness = camera.GetProperty(CapProp.Sharpness),
-                                AutoExposure = camera.GetProperty(CapProp.AutoExposure),
-                                Gamma = camera.GetProperty(CapProp.Gamma),
-                                Temperature = camera.GetProperty(CapProp.Temperature),
-                                WhiteBalanceRedV = camera.GetProperty(CapProp.WhiteBalanceRedV),
-                                Zoom = camera.GetProperty(CapProp.Zoom),
-                                Focus = camera.GetProperty(CapProp.Focus),
-                                IsoSpeed = camera.GetProperty(CapProp.IsoSpeed),
-                                Iris = camera.GetProperty(CapProp.Iris),
-                                Autofocus = camera.GetProperty(CapProp.Autofocus),
-                                AutoWb = camera.GetProperty(CapProp.AutoWb),
-                                WbTemperature = camera.GetProperty(CapProp.WbTemperature),
-                            },
-
-                            Recognition = new ViewerServers.HostConfiguration.CameraType.RecognitionType()
-                            {
-                                HueCenter = camera.Locator.Options.HueCenter,
-                                HueRange = camera.Locator.Options.HueRange,
-                                SaturationCenter = camera.Locator.Options.SaturationCenter,
-                                SaturationRange = camera.Locator.Options.SaturationRange,
-                                ValueCenter = camera.Locator.Options.ValueCenter,
-                                ValueRange = camera.Locator.Options.ValueRange,
-                                MinArea = camera.Locator.Options.MinArea,
-                                ShowMask = camera.Locator.Options.ShowMask
-                            },
-                        };
-                    }).ToList(),
-
-                Players = _playerHardwareInfo.Select((kv) =>
-                    {
-                        int playerIndex = kv.Key;
-                        PlayerHardwareInfo playerHardwareInfo = kv.Value;
-
-                        return new ViewerServers.HostConfiguration.PlayerType()
+                    Players = _playerHardwareInfo.Select((kv) =>
                         {
-                            PlayerId = playerIndex,
-                            Camera = playerHardwareInfo.CameraIndex,
-                            SerialPort = playerHardwareInfo.PortName
-                        };
-                    }).ToList(),
+                            int playerIndex = kv.Key;
+                            PlayerHardwareInfo playerHardwareInfo = kv.Value;
 
-                SerialPorts = _slaveServer.OpenPortNames.Select((portName) =>
-                    {
-                        SlaveServers.ISlaveServer.PortInfo? portInfoOrNull = _slaveServer.GetPortInfo(portName);
-                        Debug.Assert(portInfoOrNull != null);
-                        SlaveServers.ISlaveServer.PortInfo portInfo = portInfoOrNull!;
+                            return new ViewerServers.HostConfiguration.PlayerType()
+                            {
+                                PlayerId = playerIndex,
+                                Camera = playerHardwareInfo.CameraIndex,
+                                SerialPort = playerHardwareInfo.PortName
+                            };
+                        }).ToList(),
 
-                        return new ViewerServers.HostConfiguration.SerialPortType()
+                    SerialPorts = _slaveServer.OpenPortNames.Select((portName) =>
                         {
-                            PortName = portName,
-                            BaudRate = portInfo.BaudRate
-                        };
-                    }).ToList(),
-            },
-        };
+                            SlaveServers.ISlaveServer.PortInfo? portInfoOrNull = _slaveServer.GetPortInfo(portName);
+                            Debug.Assert(portInfoOrNull != null);
+                            SlaveServers.ISlaveServer.PortInfo portInfo = portInfoOrNull!;
 
-        _viewerServer.Publish(configMessage);
+                            return new ViewerServers.HostConfiguration.SerialPortType()
+                            {
+                                PortName = portName,
+                                BaudRate = portInfo.BaudRate
+                            };
+                        }).ToList(),
+                },
+            };
+
+            _viewerServer.Publish(configMessage);
+        }
+        catch (Exception e)
+        {
+            _logger.Error($"Failed to get host configuration: {e}");
+            _viewerServer.Publish(new ViewerServers.ErrorMessage()
+            {
+                Message = e.Message
+            });
+        }
     }
 
     void HandleUpdateConfiguration(ViewerServers.HostConfigurationFromClientMessage message)
