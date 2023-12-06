@@ -24,7 +24,6 @@ public interface IGame
         Running,
         Battling,
         Finished,
-        Ended,
     }
 
     event EventHandler<AfterGameStartEventArgs>? AfterGameStartEvent;
@@ -75,4 +74,11 @@ public interface IGame
     void End();
 
     void Tick();
+
+    /// <summary>
+    /// Try to perform trade action.
+    /// </summary>
+    /// <param name="player">The player.</param>
+    /// <param name="commodityKind">The commodity kind.</param>
+    void TryTrade(IPlayer player, IPlayer.CommodityKindType commodityKind);
 }

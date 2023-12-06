@@ -17,34 +17,32 @@ partial class Game : IGame
 
         try
         {
-            lock (this)
+            if (e.Player.IsAlive == false && e.Player.HasBed == true
+                && ElapsedTicks - _playerDeathTickList[e.Player.PlayerId] > TicksBeforeRespawn
+                && IsSamePosition(
+                    ToIntPosition(e.Position), e.Player.SpawnPoint
+                    ) == true)
             {
-                if (e.Player.IsAlive == false && e.Player.HasBed == true
-                    && ElapsedTicks - _playerDeathTickList[e.Player.PlayerId] > TicksBeforeRespawn
-                    && IsSamePosition(
-                        ToIntPosition(e.Position), e.Player.SpawnPoint
-                        ) == true)
-                {
-                    Players[e.Player.PlayerId].Spawn(e.Player.MaxHealth);
-                    _playerDeathTickList[e.Player.PlayerId] = null;
-                }
-
-                //Kill fallen player. Use 'if' instead of 'else if' to avoid fake spawn.
-                if (e.Player.IsAlive == true && IsValidPosition(ToIntPosition(e.Position)) == false)
-                {
-                    Players[e.Player.PlayerId].Hurt(InstantDeathDamage);
-                    return;
-                }
-                if (e.Player.IsAlive == true && GameMap.GetChunkAt(ToIntPosition(e.Position)).IsVoid == true)
-                {
-                    Players[e.Player.PlayerId].Hurt(InstantDeathDamage);
-                    return;
-                }
+                Players[e.Player.PlayerId].Spawn(e.Player.MaxHealth);
+                _playerDeathTickList[e.Player.PlayerId] = null;
             }
+
+            //Kill fallen player. Use 'if' instead of 'else if' to avoid fake spawn.
+            if (e.Player.IsAlive == true && IsValidPosition(ToIntPosition(e.Position)) == false)
+            {
+                Players[e.Player.PlayerId].Hurt(InstantDeathDamage);
+                return;
+            }
+            if (e.Player.IsAlive == true && GameMap.GetChunkAt(ToIntPosition(e.Position)).IsVoid == true)
+            {
+                Players[e.Player.PlayerId].Hurt(InstantDeathDamage);
+                return;
+            }
+
         }
         catch (Exception exception)
         {
-            _logger.Error($"Action failed: {exception}");
+            _logger.Error($"Failed to move: {exception}");
         }
     }
 
@@ -60,79 +58,75 @@ partial class Game : IGame
             return;
         }
 
-        lock (this)
+        if (e.Player.IsAlive == false)
         {
-            if (e.Player.IsAlive == false)
-            {
-                _logger.Error($"Player {e.Player.PlayerId} is dead. Action rejected.");
-                return;
-            }
-            if (ElapsedTicks - _playerLastAttackTickList[e.Player.PlayerId] < AttackTickInterval(e.Player))
-            {
-                _logger.Error(@$"Player {e.Player.PlayerId} has already attacked recently.
+            _logger.Error($"Player {e.Player.PlayerId} is dead. Action rejected.");
+            return;
+        }
+        if (ElapsedTicks - _playerLastAttackTickList[e.Player.PlayerId] < AttackTickInterval(e.Player))
+        {
+            _logger.Error(@$"Player {e.Player.PlayerId} has already attacked recently.
                 Action rejected.");
-                return;
-            }
-
-            if (IsAdjacent(ToIntPosition(e.Player.PlayerPosition), e.Position) == false)
-            {
-                _logger.Error(@$"Position ({e.Position.X}, {e.Position.Y})
+            return;
+        }
+        if (IsAdjacent(ToIntPosition(e.Player.PlayerPosition), e.Position) == false)
+        {
+            _logger.Error(@$"Position ({e.Position.X}, {e.Position.Y})
                 is not adjacent to player {e.Player.PlayerId}. Action rejected.");
-                return;
-            }
-            if (IsValidPosition(e.Position) == false)
-            {
-                _logger.Error(@$"Position ({e.Position.X}, {e.Position.Y}) is not valid.
+            return;
+        }
+        if (IsValidPosition(e.Position) == false)
+        {
+            _logger.Error(@$"Position ({e.Position.X}, {e.Position.Y}) is not valid.
                 Action rejected.");
+            return;
+        }
+
+        bool attacked = false;
+        for (int i = 0; i < PlayerNum; i++)
+        {
+            if (Players[i].PlayerId != e.Player.PlayerId && Players[i].IsAlive == true
+                && IsSamePosition(e.Position,
+                    ToIntPosition(Players[i].PlayerPosition)) == true)
+            {
+                Players[i].Hurt(e.Player.Strength);
+                attacked = true;
+            }
+        }
+
+        if (attacked == true)
+        {
+            _playerLastAttackTickList[e.Player.PlayerId] = ElapsedTicks;
+        }
+        else
+        {
+            if (GameMap.GetChunkAt(e.Position).CanRemoveBlock == false)
+            {
+                _logger.Error("Target chunk is empty. Action rejected.");
                 return;
             }
 
-            bool attacked = false;
-            for (int i = 0; i < PlayerNum; i++)
+            try
             {
-                if (Players[i].PlayerId != e.Player.PlayerId && Players[i].IsAlive == true
-                    && IsSamePosition(e.Position,
-                        ToIntPosition(Players[i].PlayerPosition)) == true)
-                {
-                    Players[i].Hurt(e.Player.Strength);
-                    attacked = true;
-                }
-            }
-
-            if (attacked == true)
-            {
+                GameMap.GetChunkAt(e.Position).RemoveBlock();
                 _playerLastAttackTickList[e.Player.PlayerId] = ElapsedTicks;
-            }
-            else
-            {
-                if (GameMap.GetChunkAt(e.Position).CanRemoveBlock == false)
-                {
-                    _logger.Error("Target chunk is empty. Action rejected.");
-                    return;
-                }
 
-                try
+                if (GameMap.GetChunkAt(e.Position).IsVoid == true)
                 {
-                    GameMap.GetChunkAt(e.Position).RemoveBlock();
-                    _playerLastAttackTickList[e.Player.PlayerId] = ElapsedTicks;
-
-                    if (GameMap.GetChunkAt(e.Position).IsVoid == true)
+                    for (int i = 0; i < PlayerNum; i++)
                     {
-                        for (int i = 0; i < PlayerNum; i++)
+                        if (Players[i].HasBed == true && IsSamePosition(
+                            Players[i].SpawnPoint, e.Position) == true)
                         {
-                            if (Players[i].HasBed == true && IsSamePosition(
-                                Players[i].SpawnPoint, e.Position) == true)
-                            {
-                                Players[i].DestroyBed();
-                            }
+                            Players[i].DestroyBed();
                         }
                     }
                 }
-                catch (Exception exception)
-                {
-                    _logger.Error($"Action failed: {exception}");
-                    return;
-                }
+            }
+            catch (Exception exception)
+            {
+                _logger.Error($"Failed to dig: {exception}");
+                return;
             }
         }
     }
@@ -149,49 +143,45 @@ partial class Game : IGame
             return;
         }
 
-        lock (this)
+        if (e.Player.IsAlive == false)
         {
-            if (e.Player.IsAlive == false)
-            {
-                _logger.Error($"Player {e.Player.PlayerId} is dead. Action rejected.");
-                return;
-            }
-            if (e.Player.WoolCount <= 0)
-            {
-                _logger.Error($"Player {e.Player.PlayerId} doesn't have enough wool. Action rejected.");
-            }
-            if (IsAdjacent(ToIntPosition(e.Player.PlayerPosition), e.Position) == false)
-            {
-                _logger.Error(@$"Position ({e.Position.X}, {e.Position.Y})
+            _logger.Error($"Player {e.Player.PlayerId} is dead. Action rejected.");
+            return;
+        }
+        if (e.Player.WoolCount <= 0)
+        {
+            _logger.Error($"Player {e.Player.PlayerId} doesn't have enough wool. Action rejected.");
+        }
+        if (IsAdjacent(ToIntPosition(e.Player.PlayerPosition), e.Position) == false)
+        {
+            _logger.Error(@$"Position ({e.Position.X}, {e.Position.Y})
                 is not adjecant to player {e.Player.PlayerId}. Action rejected.");
-                return;
-            }
-            if (IsValidPosition(e.Position) == false)
-            {
-                _logger.Error(@$"Position ({e.Position.X}, {e.Position.Y}) is not valid.
+            return;
+        }
+        if (IsValidPosition(e.Position) == false)
+        {
+            _logger.Error(@$"Position ({e.Position.X}, {e.Position.Y}) is not valid.
                 Action rejected.");
-                return;
-            }
+            return;
+        }
 
-            try
+        try
+        {
+            if (GameMap.GetChunkAt(e.Position).CanPlaceBlock == true)
             {
-                if (GameMap.GetChunkAt(e.Position).CanPlaceBlock == true)
-                {
-                    GameMap.GetChunkAt(e.Position).PlaceBlock();
-                    Players[e.Player.PlayerId].DecreaseWoolCount();
-                }
-                else
-                {
-                    _logger.Error(@$"The chunk at position ({e.Position.X}, {e.Position.Y})
+                GameMap.GetChunkAt(e.Position).PlaceBlock();
+                Players[e.Player.PlayerId].DecreaseWoolCount();
+            }
+            else
+            {
+                _logger.Error(@$"The chunk at position ({e.Position.X}, {e.Position.Y})
                     has already reached its maximum height. Action rejected.");
-                }
             }
-            catch (Exception exception)
-            {
-                _logger.Error($"Action failed: {exception}");
-                return;
-            }
-
+        }
+        catch (Exception exception)
+        {
+            _logger.Error($"Failed to place wool: {exception}");
+            return;
         }
     }
 
@@ -207,16 +197,12 @@ partial class Game : IGame
             return;
         }
 
-        lock (this)
+        if (_playerDeathTickList[e.Player.PlayerId] is not null)
         {
-            if (_playerDeathTickList[e.Player.PlayerId] is not null)
-            {
-                _logger.Error($"Player {e.Player.PlayerId} is already dead. Action rejected.");
-                return;
-            }
-
-            _playerDeathTickList[e.Player.PlayerId] = ElapsedTicks;
-
+            _logger.Error($"Player {e.Player.PlayerId} is already dead. Action rejected.");
+            return;
         }
+
+        _playerDeathTickList[e.Player.PlayerId] = ElapsedTicks;
     }
 }
