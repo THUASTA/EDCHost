@@ -126,7 +126,7 @@ components:
                 - position
               properties:
                 mineId:
-                  type: integer
+                  type: string
                 accumulatedOreCount:
                   type: integer
                 oreType:
@@ -291,7 +291,7 @@ components:
         itemCount:
           type: integer
         mineId:
-          type: integer
+          type: string
     PlayerPlaceBlockEvent:
       type: object
       additionalProperties: false
