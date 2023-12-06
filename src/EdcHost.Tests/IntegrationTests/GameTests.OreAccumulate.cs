@@ -7,7 +7,7 @@ public partial class GameTests
 {
     const int WoolCount = 8;
     const int MaxHeight = 8;
-    const int MaximumItemCount = 64;
+    const int MaximumItemCount = 128;
     public class MockPosition : IPosition<int>
     {
         public int X { get; set; }

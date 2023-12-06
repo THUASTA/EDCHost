@@ -100,8 +100,6 @@ partial class Game : IGame
 
         _isAllBedsDestroyed = false;
 
-        //TODO: Set player's initial position and spawnpoint
-
         Players = new(playerList);
 
         for (int i = 0; i < PlayerNum; i++)
@@ -121,8 +119,6 @@ partial class Game : IGame
         {
             _playerDeathTickList[i] = null;
         }
-
-        //TODO: Start game after all players are ready
 
         Winner = null;
 
@@ -249,6 +245,9 @@ partial class Game : IGame
             {
                 mine.GenerateOre(ElapsedTicks);
             }
+
+            List<int> existingPlayerId = new();
+            existingPlayerId.Clear();
             for (int i = 0; i < PlayerNum; i++)
             {
                 if (Players[i].IsAlive == true
@@ -256,27 +255,34 @@ partial class Game : IGame
                         ToIntPosition(Players[i].PlayerPosition), mine.Position
                         ) == true)
                 {
-                    //Remaining capacity of a player
-                    int capacity = MaximumItemCount - Players[i].EmeraldCount;
-
-                    //Value of an ore
-                    int value = mine.OreKind switch
-                    {
-                        IMine.OreKindType.IronIngot => 1,
-                        IMine.OreKindType.GoldIngot => 4,
-                        IMine.OreKindType.Diamond => 16,
-                        _ => throw new ArgumentOutOfRangeException(nameof(mine.OreKind), "No such ore kind.")
-                    };
-
-                    //Collected ore count
-                    int collectedOre = Math.Min(capacity / value, mine.AccumulatedOreCount);
-
-                    Players[i].EmeraldAdd(collectedOre * value);
-                    // Invoke the event
-                    Players[i].PickUpEventInvoker(mine.OreKind, collectedOre, mine.MineId.ToString());
-
-                    mine.PickUpOre(collectedOre);
+                    existingPlayerId.Add(Players[i].PlayerId);
                 }
+            }
+
+            // Collect ore only if there is just one player.
+            if (existingPlayerId.Count == 1)
+            {
+                int playerId = existingPlayerId[0];
+                //Remaining capacity of a player
+                int capacity = MaximumItemCount - Players[playerId].EmeraldCount;
+
+                //Value of an ore
+                int value = mine.OreKind switch
+                {
+                    IMine.OreKindType.IronIngot => 1,
+                    IMine.OreKindType.GoldIngot => 4,
+                    IMine.OreKindType.Diamond => 16,
+                    _ => throw new ArgumentOutOfRangeException(nameof(mine.OreKind), "No such ore kind.")
+                };
+
+                //Collected ore count
+                int collectedOre = Math.Min(capacity / value, mine.AccumulatedOreCount);
+
+                Players[playerId].EmeraldAdd(collectedOre * value);
+                // Invoke the event
+                Players[playerId].PickUpEventInvoker(mine.OreKind, collectedOre, mine.MineId.ToString());
+
+                mine.PickUpOre(collectedOre);
             }
         }
     }

@@ -17,6 +17,7 @@ public interface ISerialPortWrapper : IDisposable
     event EventHandler<AfterReceiveEventArgs> AfterReceive;
 
     string PortName { get; }
+    int BaudRate { get; }
 
     void Close();
     void Open();

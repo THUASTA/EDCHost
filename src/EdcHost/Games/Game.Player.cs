@@ -7,7 +7,7 @@ partial class Game : IGame
     /// <summary>
     /// Maximum count of same type of items a player can hold.
     /// </summary>
-    public const int MaximumItemCount = 64;
+    public const int MaximumItemCount = 128;
 
     /// <summary>
     /// The damage which will kill a player instantly.

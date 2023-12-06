@@ -10,6 +10,7 @@ public class CameraServer : ICameraServer
     readonly ILogger _logger = Log.Logger.ForContext("Component", "CameraServers");
 
     public List<int> AvailableCameraIndexes => _cameraFactory.CameraIndexes;
+    public List<int> OpenCameraIndexes => _cameras.Select(x => x.CameraIndex).ToList();
     bool _isRunning = false;
 
     public CameraServer(ICameraFactory cameraFactory)

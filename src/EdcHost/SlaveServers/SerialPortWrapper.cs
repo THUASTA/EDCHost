@@ -9,6 +9,7 @@ class SerialPortWrapper : ISerialPortWrapper
     public event EventHandler<ISerialPortWrapper.AfterReceiveEventArgs>? AfterReceive;
 
     public string PortName => _serialPort.PortName;
+    public int BaudRate => _serialPort.BaudRate;
 
     const int FrequencyOfReceiving = 20;
     readonly Serilog.ILogger _logger = Serilog.Log.Logger.ForContext("Component", "SlaveServers");

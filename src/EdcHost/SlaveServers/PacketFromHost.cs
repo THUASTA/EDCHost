@@ -25,10 +25,10 @@ public class PacketFromHost : IPacketFromHost
         int datalength = (
            1 +                  //GameStage
            4 +                  //ElapsedTime
-           1 * ChunkCount + //HeightOfChunk
+           1 * ChunkCount +     //HeightOfChunk
            1 +                  //HasBed
            1 +                  //HasBedOpponet
-           4 * 4 +                // Position 
+           4 * 4 +                // Position
            1 * 6                 //agility health maxHealth strength emeraldCount woolCount
         );
 
@@ -109,7 +109,7 @@ public class PacketFromHost : IPacketFromHost
            1 * ChunkCount + //HeightOfChunk
            1 +                  //HasBed
            1 +                  //HasBedOpponet
-           4 * 4 +                // Position 
+           4 * 4 +                // Position
            1 * 6                 //agility health maxHealth strength emeraldCount woolCount
         );
 

@@ -1,7 +1,7 @@
 asyncapi: "2.6.0"
 info:
   title: Viewer API
-  version: "0.1.0"
+  version: ""
 channels:
   /competition/control:
     subscribe:
@@ -204,98 +204,24 @@ components:
         required:
           - messageType
           - token
-          - players
+          - configuration
         properties:
           messageType:
             type: string
             const: HOST_CONFIGURATION_FROM_CLIENT
           token:
             type: string
-          players:
-            type: array
-            items:
-              type: object
-              additionalProperties: false
-              required:
-                - playerId
-              properties:
-                playerId:
-                  type: integer
-                camera:
-                  type: object
-                  additionalProperties: false
-                  required:
-                    - cameraId
-                    - recognition
-                  properties:
-                    cameraId:
-                      type: integer
-                    calibration:
-                      type: object
-                      additionalProperties: false
-                      required:
-                        - topLeft
-                        - topRight
-                        - bottomLeft
-                        - bottomRight
-                      properties:
-                        topLeft:
-                          $ref: "#/components/schemas/Position"
-                        topRight:
-                          $ref: "#/components/schemas/Position"
-                        bottomLeft:
-                          $ref: "#/components/schemas/Position"
-                        bottomRight:
-                          $ref: "#/components/schemas/Position"
-                    recognition:
-                      type: object
-                      additionalProperties: false
-                      required:
-                        - hueCenter
-                        - hueRange
-                        - saturationCenter
-                        - saturationRange
-                        - valueCenter
-                        - valueRange
-                        - minArea
-                        - showMask
-                      properties:
-                        hueCenter:
-                          type: number
-                        hueRange:
-                          type: number
-                        saturationCenter:
-                          type: number
-                        saturationRange:
-                          type: number
-                        valueCenter:
-                          type: number
-                        valueRange:
-                          type: number
-                        minArea:
-                          type: number
-                        showMask:
-                          type: boolean
-                serialPort:
-                  type: object
-                  additionalProperties: false
-                  required:
-                    - portName
-                    - baudRate
-                  properties:
-                    portName:
-                      type: string
-                    baudRate:
-                      type: integer
+          configuration:
+            $ref: "#/components/schemas/HostConfiguration"
     HostConfigurationFromServer:
       payload:
         type: object
         additionalProperties: false
         required:
           - messageType
-          - availabelCameraIds
-          - availableSerialPortNames
-          - players
+          - availableCameras
+          - availableSerialPorts
+          - configuration
         properties:
           messageType:
             type: string
@@ -308,105 +234,9 @@ components:
             type: array
             items:
               type: string
-          players:
-            type: array
-            items:
-              type: object
-              additionalProperties: false
-              required:
-                - playerId
-              properties:
-                playerId:
-                  type: integer
-                camera:
-                  type: object
-                  additionalProperties: false
-                  required:
-                    - cameraId
-                    - recognition
-                  properties:
-                    cameraId:
-                      type: integer
-                    calibration:
-                      type: object
-                      additionalProperties: false
-                      required:
-                        - topLeft
-                        - topRight
-                        - bottomLeft
-                        - bottomRight
-                      properties:
-                        topLeft:
-                          $ref: "#/components/schemas/Position"
-                        topRight:
-                          $ref: "#/components/schemas/Position"
-                        bottomLeft:
-                          $ref: "#/components/schemas/Position"
-                        bottomRight:
-                          $ref: "#/components/schemas/Position"
-                    recognition:
-                      type: object
-                      additionalProperties: false
-                      required:
-                        - hueCenter
-                        - hueRange
-                        - saturationCenter
-                        - saturationRange
-                        - valueCenter
-                        - valueRange
-                        - minArea
-                        - showMask
-                      properties:
-                        hueCenter:
-                          type: number
-                        hueRange:
-                          type: number
-                        saturationCenter:
-                          type: number
-                        saturationRange:
-                          type: number
-                        valueCenter:
-                          type: number
-                        valueRange:
-                          type: number
-                        minArea:
-                          type: number
-                        showMask:
-                          type: boolean
-                serialPort:
-                  type: object
-                  additionalProperties: false
-                  required:
-                    - portName
-                    - baudRate
-                  properties:
-                    portName:
-                      type: string
-                    baudRate:
-                      type: integer
+          configuration:
+            $ref: "#/components/schemas/HostConfiguration"
   schemas:
-    Position:
-      type: object
-      additionalProperties: false
-      required:
-        - x
-        - y
-      properties:
-        x:
-          type: number
-        y:
-          type: number
-    PositionInt:
-      type: object
-      additionalProperties: false
-      required:
-        - x
-        - y
-      properties:
-        x:
-          type: integer
-        y:
-          type: integer
     PlayerAttackEvent:
       type: object
       additionalProperties: false
@@ -509,3 +339,163 @@ components:
           type: integer
         targetChunk:
           type: integer
+    Position:
+      type: object
+      additionalProperties: false
+      required:
+        - x
+        - y
+      properties:
+        x:
+          type: number
+        y:
+          type: number
+    PositionInt:
+      type: object
+      additionalProperties: false
+      required:
+        - x
+        - y
+      properties:
+        x:
+          type: integer
+        y:
+          type: integer
+    HostConfiguration:
+      type: object
+      additionalProperties: false
+      required:
+        - cameras
+        - players
+        - serialPorts
+      properties:
+        cameras:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required:
+              - cameraId
+            properties:
+              cameraId:
+                type: integer
+              calibration:
+                type: object
+                additionalProperties: false
+                required:
+                  - topLeft
+                  - topRight
+                  - bottomLeft
+                  - bottomRight
+                properties:
+                  topLeft:
+                    $ref: "#/components/schemas/Position"
+                  topRight:
+                    $ref: "#/components/schemas/Position"
+                  bottomLeft:
+                    $ref: "#/components/schemas/Position"
+                  bottomRight:
+                    $ref: "#/components/schemas/Position"
+              properties:
+                type: object
+                additionalProperties: false
+                properties:
+                  frameWidth:
+                    type: number
+                  frameHeight:
+                    type: number
+                  fps:
+                    type: number
+                  brightness:
+                    type: number
+                  contrast:
+                    type: number
+                  saturation:
+                    type: number
+                  hue:
+                    type: number
+                  gain:
+                    type: number
+                  exposure:
+                    type: number
+                  monocrome:
+                    type: number
+                  sharpness:
+                    type: number
+                  autoExposure:
+                    type: number
+                  gamma:
+                    type: number
+                  temperature:
+                    type: number
+                  whiteBalanceRedV:
+                    type: number
+                  zoom:
+                    type: number
+                  focus:
+                    type: number
+                  isoSpeed:
+                    type: number
+                  iris:
+                    type: number
+                  autofocus:
+                    type: number
+                  autoWb:
+                    type: number
+                  wbTemperature:
+                    type: number
+              recognition:
+                type: object
+                additionalProperties: false
+                required:
+                  - hueCenter
+                  - hueRange
+                  - saturationCenter
+                  - saturationRange
+                  - valueCenter
+                  - valueRange
+                  - minArea
+                  - showMask
+                properties:
+                  hueCenter:
+                    type: number
+                  hueRange:
+                    type: number
+                  saturationCenter:
+                    type: number
+                  saturationRange:
+                    type: number
+                  valueCenter:
+                    type: number
+                  valueRange:
+                    type: number
+                  minArea:
+                    type: number
+                  showMask:
+                    type: boolean
+        players:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required:
+              - playerId
+            properties:
+              playerId:
+                type: integer
+              camera:
+                type: integer
+              serialPort:
+                type: string
+        serialPorts:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required:
+              - portName
+            properties:
+              portName:
+                type: string
+              baudRate:
+                type: integer

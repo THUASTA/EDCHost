@@ -16,7 +16,7 @@ partial class Game : IGame
 
     IPosition<float> ToFloatPosition(IPosition<int> intPosition)
     {
-        float offset = 0.4f;
+        float offset = 0.5f;
         return new Position<float>(offset + (float)intPosition.X, offset + (float)intPosition.Y);
     }
 
