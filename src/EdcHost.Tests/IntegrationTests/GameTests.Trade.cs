@@ -34,7 +34,7 @@ public partial class GameTests
             game.Tick();
         }
         game.Tick();
-        Assert.StrictEqual(MaximumItemCount, game.Players[0].EmeraldCount);
+        Assert.StrictEqual(64, game.Players[0].EmeraldCount);
 
         // Act2 Trade for health, EmeraldCount = 28
 
