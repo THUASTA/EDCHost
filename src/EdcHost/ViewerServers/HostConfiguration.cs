@@ -157,10 +157,6 @@ public record HostConfiguration
             [JsonRequired]
             public float MinArea { get; init; } = 0;
 
-            [JsonPropertyName("maxArea")]
-            [JsonRequired]
-            public float MaxArea { get; init; } = 0;
-
             [JsonPropertyName("showMask")]
             [JsonRequired]
             public bool ShowMask { get; init; } = false;

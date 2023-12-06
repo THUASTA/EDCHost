@@ -59,6 +59,8 @@ partial class EdcHost : IEdcHost
         _slaveServer.PlayerTryPlaceBlockEvent += HandlePlayerTryPlaceBlockEvent;
 
         _viewerServer.AfterMessageReceiveEvent += HandleAfterMessageReceiveEvent;
+
+        _game.Players.ForEach(player => _playerHardwareInfo.GetOrAdd(player.PlayerId, new PlayerHardwareInfo()));
     }
 
     public void Start()
