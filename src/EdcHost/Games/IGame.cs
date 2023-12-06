@@ -24,7 +24,6 @@ public interface IGame
         Running,
         Battling,
         Finished,
-        Ended,
     }
 
     event EventHandler<AfterGameStartEventArgs>? AfterGameStartEvent;

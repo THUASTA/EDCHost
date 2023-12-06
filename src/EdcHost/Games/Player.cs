@@ -29,6 +29,7 @@ class Player : IPlayer
 
     public event EventHandler<PlayerDigEventArgs> OnDig = delegate { };
     public event EventHandler<PlayerPickUpEventArgs> OnPickUp = delegate { };
+    public event EventHandler<PlayerTradeEventArgs> OnTrade = delegate { };
 
 
     public void PickUpEventInvoker(IMine.OreKindType mineType, int count, string mineId)
@@ -143,64 +144,42 @@ class Player : IPlayer
                 break;
         }
     }
-    public bool Trade(IPlayer.CommodityKindType commodityKind)
+    public void Trade(IPlayer.CommodityKindType commodityKind)
     {
-        int price = commodityKind switch
-        {
-            IPlayer.CommodityKindType.AgilityBoost => 32,
-            IPlayer.CommodityKindType.HealthBoost => 32,
-            IPlayer.CommodityKindType.StrengthBoost => 64,
-            IPlayer.CommodityKindType.Wool => 2,
-            IPlayer.CommodityKindType.HealthPotion => 4,
-            _ => throw new ArgumentOutOfRangeException(
-                $"No commodity {commodityKind}."
-            )
-        };
+        OnTrade?.Invoke(this, new PlayerTradeEventArgs(this, commodityKind));
+    }
 
-        if (EmeraldCount < price)
+    public void HandlePlayerTradeCallbackEvent(object? sender, PlayerTradeEventCallbackArgs e)
+    {
+        if ((e.Succeed == false) || (e.Player.PlayerId != PlayerId))
         {
-            Serilog.Log.Error(
-                $"Failed to trade: Player {PlayerId} doesn't have enough emerald."
-            );
-            return false;
+            return;
         }
 
-        switch (commodityKind)
+        switch (e.CommodityKind)
         {
             case IPlayer.CommodityKindType.AgilityBoost:
-                EmeraldCount -= price;
                 ActionPoints += 1;
-                return true;
+                return;
             case IPlayer.CommodityKindType.HealthBoost:
-                EmeraldCount -= price;
                 MaxHealth += 3;
                 Health += 3;
-                return true;
+                return;
             case IPlayer.CommodityKindType.HealthPotion:
-                EmeraldCount -= price;
                 if (Health < MaxHealth)
                 {
                     Health += 1;
                 }
-                return true;
+                return;
             case IPlayer.CommodityKindType.StrengthBoost:
-                EmeraldCount -= price;
                 Strength += 1;
-                return true;
+                return;
             case IPlayer.CommodityKindType.Wool:
-                if (WoolCount >= Game.MaximumItemCount)
-                {
-                    Serilog.Log.Error(
-                        $"Failed to trade: Player {PlayerId} cannot hold more wools."
-                    );
-                    return false;
-                }
-                EmeraldCount -= price;
                 WoolCount += 1;
-                return true;
+                return;
             default:
                 throw new ArgumentOutOfRangeException(
-                    $"No commodity {commodityKind}."
+                    $"No commodity {e.CommodityKind}."
                 );
         }
     }

@@ -219,4 +219,60 @@ partial class Game : IGame
 
         }
     }
+
+    void HandlePlayerTradeEvent(object? sender, PlayerTradeEventArgs e)
+    {
+        bool succeed = false;
+
+        if (Players[e.Player.PlayerId].IsAlive == false)
+        {
+            _logger.Error($"Failed to trade: player {e.Player.PlayerId} is dead.");
+        }
+        else if (IsSamePosition(
+            Players[e.Player.PlayerId].SpawnPoint, ToIntPosition(Players[e.Player.PlayerId].PlayerPosition)
+            ) == false)
+        {
+            _logger.Error($"Failed to trade: Player {e.Player.PlayerId} is not at home.");
+        }
+        else if (CurrentStage != IGame.Stage.Running)
+        {
+            _logger.Error($"Failed to trade: Player can only trade at stage {IGame.Stage.Running}");
+        }
+        else if (e.CommodityKind == IPlayer.CommodityKindType.Wool
+            &&Players[e.Player.PlayerId].WoolCount >= MaximumItemCount)
+        {
+            _logger.Error($"Failed to trade: Player {e.Player.PlayerId} cannot hold more wools.");
+        }
+
+        else
+        {
+            int price = e.CommodityKind switch
+            {
+                IPlayer.CommodityKindType.AgilityBoost => 32,
+                IPlayer.CommodityKindType.HealthBoost => 32,
+                IPlayer.CommodityKindType.StrengthBoost => 64,
+                IPlayer.CommodityKindType.Wool => 2,
+                IPlayer.CommodityKindType.HealthPotion => 4,
+                _ => throw new ArgumentOutOfRangeException(
+                    $"No commodity {e.CommodityKind}."
+                )
+            };
+
+            if (Players[e.Player.PlayerId].EmeraldCount < price)
+            {
+                _logger.Error(
+                    $"Failed to trade: Player {e.Player.PlayerId} doesn't have enough emerald."
+                );
+            }
+            else
+            {
+                Players[e.Player.PlayerId].EmeraldAdd(-price);
+                succeed = true;
+            }
+        }
+
+        PlayerTradeEventCallback?.Invoke(
+            this, new PlayerTradeEventCallbackArgs(Players[e.Player.PlayerId], e.CommodityKind, succeed)
+        );
+    }
 }

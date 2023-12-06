@@ -329,7 +329,6 @@ partial class EdcHost : IEdcHost
                     {
                         Games.IGame.Stage.Ready => ViewerServers.CompetitionUpdateMessage.Info.Stage.Ready,
                         Games.IGame.Stage.Running => ViewerServers.CompetitionUpdateMessage.Info.Stage.Running,
-                        Games.IGame.Stage.Ended => ViewerServers.CompetitionUpdateMessage.Info.Stage.Ended,
                         Games.IGame.Stage.Finished => ViewerServers.CompetitionUpdateMessage.Info.Stage.Finished,
                         Games.IGame.Stage.Battling => ViewerServers.CompetitionUpdateMessage.Info.Stage.Battling,
                         _ => throw new NotImplementedException($"{_game.CurrentStage} is not implemented")

@@ -299,26 +299,23 @@ public class PlayerTests
         player.EmeraldAdd(64);
 
         // Act
-        bool result = player.Trade(IPlayer.CommodityKindType.AgilityBoost);
+        player.Trade(IPlayer.CommodityKindType.AgilityBoost);
 
         // Assert
-        Assert.True(result);
         Assert.Equal(32, player.EmeraldCount);
         Assert.Equal(1, player.ActionPoints);
 
         // Act
-        result = player.Trade(IPlayer.CommodityKindType.AgilityBoost);
+        player.Trade(IPlayer.CommodityKindType.AgilityBoost);
 
         // Assert
-        Assert.True(result);
         Assert.Equal(0, player.EmeraldCount);
         Assert.Equal(2, player.ActionPoints);
 
         // Act
-        result = player.Trade(IPlayer.CommodityKindType.AgilityBoost);
+        player.Trade(IPlayer.CommodityKindType.AgilityBoost);
 
         // Assert
-        Assert.False(result);
         Assert.Equal(0, player.EmeraldCount);
         Assert.Equal(2, player.ActionPoints);
     }
@@ -331,26 +328,23 @@ public class PlayerTests
         player.EmeraldAdd(64);
 
         // Act
-        bool result = player.Trade(IPlayer.CommodityKindType.HealthBoost);
+        player.Trade(IPlayer.CommodityKindType.HealthBoost);
 
         // Assert
-        Assert.True(result);
         Assert.Equal(32, player.EmeraldCount);
         Assert.Equal(23, player.MaxHealth);
 
         // Act
-        result = player.Trade(IPlayer.CommodityKindType.HealthBoost);
+        player.Trade(IPlayer.CommodityKindType.HealthBoost);
 
         // Assert
-        Assert.True(result);
         Assert.Equal(0, player.EmeraldCount);
         Assert.Equal(26, player.MaxHealth);
 
         // Act
-        result = player.Trade(IPlayer.CommodityKindType.HealthBoost);
+        player.Trade(IPlayer.CommodityKindType.HealthBoost);
 
         // Assert
-        Assert.False(result);
         Assert.Equal(0, player.EmeraldCount);
         Assert.Equal(26, player.MaxHealth);
     }
@@ -364,18 +358,16 @@ public class PlayerTests
         player.Hurt(10);
 
         // Act
-        bool result = player.Trade(IPlayer.CommodityKindType.HealthPotion);
+        player.Trade(IPlayer.CommodityKindType.HealthPotion);
 
         // Assert
-        Assert.True(result);
         Assert.Equal(1, player.EmeraldCount);
         Assert.Equal(11, player.Health);
 
         // Act
-        result = player.Trade(IPlayer.CommodityKindType.HealthPotion);
+        player.Trade(IPlayer.CommodityKindType.HealthPotion);
 
         // Assert
-        Assert.False(result);
         Assert.Equal(1, player.EmeraldCount);
         Assert.Equal(11, player.Health);
     }

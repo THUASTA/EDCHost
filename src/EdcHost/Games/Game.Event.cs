@@ -13,7 +13,12 @@ partial class Game : IGame
     public event EventHandler<AfterGameTickEventArgs>? AfterGameTickEvent;
 
     /// <summary>
-    /// Raised after judjement.
+    /// Raised after judgement.
     /// </summary>
     public event EventHandler<AfterJudgementEventArgs>? AfterJudgementEvent;
+
+    /// <summary>
+    /// Raised after a player tries to trade.
+    /// </summary>
+    public event EventHandler<PlayerTradeEventCallbackArgs>? PlayerTradeEventCallback;
 }
