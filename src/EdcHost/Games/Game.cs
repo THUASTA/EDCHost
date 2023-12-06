@@ -110,8 +110,6 @@ partial class Game : IGame
             Players[i].OnAttack += HandlePlayerAttackEvent;
             Players[i].OnPlace += HandlePlayerPlaceEvent;
             Players[i].OnDie += HandlePlayerDieEvent;
-            Players[i].OnTrade += HandlePlayerTradeEvent;
-            PlayerTradeEventCallback += Players[i].HandlePlayerTradeCallbackEvent;
         }
 
         for (int i = 0; i < PlayerNum; i++)
@@ -137,7 +135,7 @@ partial class Game : IGame
 
         if (CurrentStage != IGame.Stage.Ready)
         {
-            throw new InvalidOperationException($"The game is already at stage {CurrentStage}");
+            throw new InvalidOperationException("the game has already started");
         }
 
         CurrentStage = IGame.Stage.Running;
@@ -155,7 +153,7 @@ partial class Game : IGame
             throw new InvalidOperationException("the game is not running");
         }
 
-        CurrentStage = IGame.Stage.Finished;
+        CurrentStage = IGame.Stage.Ended;
 
         _logger.Information("Ended.");
     }
@@ -247,8 +245,7 @@ partial class Game : IGame
     {
         foreach (IMine mine in Mines)
         {
-            if (CurrentStage == IGame.Stage.Running
-                && ElapsedTicks - mine.LastOreGeneratedTick >= mine.AccumulateOreInterval)
+            if (ElapsedTicks - mine.LastOreGeneratedTick >= mine.AccumulateOreInterval)
             {
                 mine.GenerateOre(ElapsedTicks);
             }

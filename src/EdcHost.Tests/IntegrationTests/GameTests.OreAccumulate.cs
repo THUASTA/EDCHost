@@ -74,8 +74,7 @@ public partial class GameTests
             Assert.StrictEqual(10 - 2 * i, game.Players[0].EmeraldCount);
             Assert.StrictEqual(i + 1, game.Players[0].WoolCount);
         }
-        game.Players[0].Trade(IPlayer.CommodityKindType.Wool);
-        Assert.StrictEqual(6, game.Players[0].WoolCount);
+        Assert.False(game.Players[0].Trade(IPlayer.CommodityKindType.Wool));
 
         //Act4 Valid Placement and Accumulate gold and diamond
         IPosition<int> position1 = new MockPosition { X = 1, Y = 0 };
