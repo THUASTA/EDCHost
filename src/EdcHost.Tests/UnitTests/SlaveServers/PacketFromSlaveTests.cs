@@ -44,7 +44,7 @@ public class PacketFromSlaverTests
     [InlineData(8, 8)]
     public void PacketFromSlave_CorrectlyInitilized(int exp_actionType, int exp_param)
     {
-        PacketFromSlave packet = new PacketFromSlave(exp_actionType, exp_param);
+        PacketFromSlave packet = new(exp_actionType, exp_param);
         Assert.Equal(exp_actionType, packet.ActionType);
         Assert.Equal(exp_param, packet.Param);
     }
@@ -54,7 +54,7 @@ public class PacketFromSlaverTests
     {
         int exp_actionType = 1;
         int exp_param = 2;
-        PacketFromSlave packet = new PacketFromSlave(exp_actionType, exp_param);
+        PacketFromSlave packet = new(exp_actionType, exp_param);
         byte[] result = packet.ToBytes();
         byte[] expectedBytes = new byte[]
         {

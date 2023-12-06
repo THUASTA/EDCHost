@@ -59,6 +59,8 @@ partial class EdcHost : IEdcHost
         _slaveServer.PlayerTryPlaceBlockEvent += HandlePlayerTryPlaceBlockEvent;
 
         _viewerServer.AfterMessageReceiveEvent += HandleAfterMessageReceiveEvent;
+
+        _game.Players.ForEach(player => _playerHardwareInfo.GetOrAdd(player.PlayerId, new PlayerHardwareInfo()));
     }
 
     public void Start()
@@ -153,9 +155,9 @@ partial class EdcHost : IEdcHost
                 Tuple<float, float>? location = camera.TargetLocation;
                 Games.IPosition<float>? position = location is null ? null : new Games.Position<float>(location.Item1 * MapWidth, location.Item2 * MapHeight);
 
-                // TODO: position may be null but legal.
                 if (position is null)
                 {
+                    // This is a magic number that means the player is not found.
                     player.Move(float.MinValue, float.MinValue);
                 }
                 else
@@ -255,7 +257,6 @@ partial class EdcHost : IEdcHost
                 }
             }
 
-
             // Events for this tick;
             List<ViewerServers.CompetitionUpdateMessage.Event> currentEvents = new();
             while (!_playerEventQueue.IsEmpty)
@@ -292,7 +293,6 @@ partial class EdcHost : IEdcHost
                                 playerPlaceBlockEvent = new()
                                 {
                                     playerId = placeEvent.Player.PlayerId
-                                    // TODO: finish the event param
                                 }
                             };
                             break;
@@ -353,7 +353,6 @@ partial class EdcHost : IEdcHost
                 {
                     playerId = (player.PlayerId),
 
-                    // TODO: Find the correspondence between the camera and the player
                     cameraId = player.PlayerId,
 
                     attributes = new()

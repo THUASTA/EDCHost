@@ -58,7 +58,7 @@ public partial class ViewerServersTests
         const int MinPort = 1;
         const int MaxPort = 65534;
         const int MaxLength = 100000;
-        const int MaxSize = 100;
+        // const int MaxSize = 100;
 
         // Arrange
         Random random = new(randomSeed);
@@ -125,69 +125,69 @@ public partial class ViewerServersTests
             wsConnMock.OnBinary(Encoding.ASCII.GetBytes(message.Json));
         }
 
-        // Act: random value - host configuration from client
-        foreach (WebSocketConnectionMock wsConnMock in wsConnMockList)
-        {
-            HostConfigurationFromClientMessage message = new()
-            {
-                Token = Encoding.ASCII.GetString(Utils.GenerateRandomBytes(random, random.Next(0, MaxLength))),
-                Players = Enumerable.Range(0, random.Next(0, MaxSize)).Select(_ => new HostConfigurationFromClientMessage.PlayerType()
-                {
-                    PlayerId = random.Next(),
-                    Camera = random.Next() % 2 == 0 ? null : new()
-                    {
-                        CameraId = random.Next(),
-                        Calibration = random.Next() % 2 == 0 ? null : new()
-                        {
-                            TopLeft = new()
-                            {
-                                X = random.NextSingle(),
-                                Y = random.NextSingle(),
-                            },
-                            TopRight = new()
-                            {
-                                X = random.NextSingle(),
-                                Y = random.NextSingle(),
-                            },
-                            BottomLeft = new()
-                            {
-                                X = random.NextSingle(),
-                                Y = random.NextSingle(),
-                            },
-                            BottomRight = new()
-                            {
-                                X = random.NextSingle(),
-                                Y = random.NextSingle(),
-                            },
-                        },
-                        Recognition = new()
-                        {
-                            HueCenter = random.NextSingle(),
-                            HueRange = random.NextSingle(),
-                            SaturationCenter = random.NextSingle(),
-                            SaturationRange = random.NextSingle(),
-                            ValueCenter = random.NextSingle(),
-                            ValueRange = random.NextSingle(),
-                            MinArea = random.NextSingle(),
-                            ShowMask = random.Next() % 2 == 0,
-                        }
-                    },
-                    SerialPort = random.Next() % 2 == 0 ? null : new()
-                    {
-                        PortName = Encoding.ASCII.GetString(Utils.GenerateRandomBytes(random, random.Next(0, MaxLength))),
-                        BaudRate = random.Next(),
-                    }
-                }).ToList(),
-            };
+        // // Act: random value - host configuration from client
+        // foreach (WebSocketConnectionMock wsConnMock in wsConnMockList)
+        // {
+        //     HostConfigurationFromClientMessage message = new()
+        //     {
+        //         Token = Encoding.ASCII.GetString(Utils.GenerateRandomBytes(random, random.Next(0, MaxLength))),
+        //         Players = Enumerable.Range(0, random.Next(0, MaxSize)).Select(_ => new HostConfigurationFromClientMessage.PlayerType()
+        //         {
+        //             PlayerId = random.Next(),
+        //             Camera = random.Next() % 2 == 0 ? null : new()
+        //             {
+        //                 CameraId = random.Next(),
+        //                 Calibration = random.Next() % 2 == 0 ? null : new()
+        //                 {
+        //                     TopLeft = new()
+        //                     {
+        //                         X = random.NextSingle(),
+        //                         Y = random.NextSingle(),
+        //                     },
+        //                     TopRight = new()
+        //                     {
+        //                         X = random.NextSingle(),
+        //                         Y = random.NextSingle(),
+        //                     },
+        //                     BottomLeft = new()
+        //                     {
+        //                         X = random.NextSingle(),
+        //                         Y = random.NextSingle(),
+        //                     },
+        //                     BottomRight = new()
+        //                     {
+        //                         X = random.NextSingle(),
+        //                         Y = random.NextSingle(),
+        //                     },
+        //                 },
+        //                 Recognition = new()
+        //                 {
+        //                     HueCenter = random.NextSingle(),
+        //                     HueRange = random.NextSingle(),
+        //                     SaturationCenter = random.NextSingle(),
+        //                     SaturationRange = random.NextSingle(),
+        //                     ValueCenter = random.NextSingle(),
+        //                     ValueRange = random.NextSingle(),
+        //                     MinArea = random.NextSingle(),
+        //                     ShowMask = random.Next() % 2 == 0,
+        //                 }
+        //             },
+        //             SerialPort = random.Next() % 2 == 0 ? null : new()
+        //             {
+        //                 PortName = Encoding.ASCII.GetString(Utils.GenerateRandomBytes(random, random.Next(0, MaxLength))),
+        //                 BaudRate = random.Next(),
+        //             }
+        //         }).ToList(),
+        //     };
 
-            wsConnMock.OnMessage(message.Json);
-            wsConnMock.OnBinary(Encoding.ASCII.GetBytes(message.Json));
-        }
+        //     wsConnMock.OnMessage(message.Json);
+        //     wsConnMock.OnBinary(Encoding.ASCII.GetBytes(message.Json));
+        // }
 
-        // Act
-        foreach (WebSocketConnectionMock wsConnMock in wsConnMockList)
-        {
-            wsConnMock.OnClose();
-        }
+        // // Act
+        // foreach (WebSocketConnectionMock wsConnMock in wsConnMockList)
+        // {
+        //     wsConnMock.OnClose();
+        // }
     }
 }

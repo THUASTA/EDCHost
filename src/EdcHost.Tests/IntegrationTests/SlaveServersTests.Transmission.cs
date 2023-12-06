@@ -40,7 +40,7 @@ public partial class SlaveServersTests
         int emeraldCount = 5;
         int woolCount = 6;
 
-        PacketFromHost packet = new PacketFromHost(
+        PacketFromHost packet = new(
             gameStage, elapsedTime,
             heightOfChunks,
             hasBed, hasBedOpponent,
