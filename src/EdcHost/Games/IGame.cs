@@ -75,10 +75,4 @@ public interface IGame
 
     void Tick();
 
-    /// <summary>
-    /// Try to perform trade action.
-    /// </summary>
-    /// <param name="player">The player.</param>
-    /// <param name="commodityKind">The commodity kind.</param>
-    void TryTrade(IPlayer player, IPlayer.CommodityKindType commodityKind);
 }

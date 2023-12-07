@@ -3,11 +3,20 @@ namespace EdcHost.Games;
 partial class Game : IGame
 {
     /// <summary>
+    /// Enqueue a event.
+    /// </summary>
+    /// <param name="sender"Sender of the event></param>
+    /// <param name="e">Event args</param>
+    void EnqueueEvent(object? sender, EventArgs e)
+    {
+        _playerEventQueue.Enqueue(e);
+    }
+
+    /// <summary>
     /// Handle PlayerMoveEvent
     /// </summary>
-    /// <param name="sender">Sender of the event</param>
     /// <param name="e">Event args</param>
-    void HandlePlayerMoveEvent(object? sender, PlayerMoveEventArgs e)
+    void HandlePlayerMoveEvent(PlayerMoveEventArgs e)
     {
         if (CurrentStage != IGame.Stage.Running && CurrentStage != IGame.Stage.Battling)
         {
@@ -49,9 +58,8 @@ partial class Game : IGame
     /// <summary>
     /// Handle PlayerAttackEvent
     /// </summary>
-    /// <param name="sender">Sender of the event</param>
     /// <param name="e">Event args</param>
-    void HandlePlayerAttackEvent(object? sender, PlayerAttackEventArgs e)
+    void HandlePlayerAttackEvent(PlayerAttackEventArgs e)
     {
         if (CurrentStage != IGame.Stage.Running && CurrentStage != IGame.Stage.Battling)
         {
@@ -134,9 +142,8 @@ partial class Game : IGame
     /// <summary>
     /// Handle PlayerPlaceEvent
     /// </summary>
-    /// <param name="sender">Sender of the event</param>
     /// <param name="e">Event args</param>
-    void HandlePlayerPlaceEvent(object? sender, PlayerPlaceEventArgs e)
+    void HandlePlayerPlaceEvent(PlayerPlaceEventArgs e)
     {
         if (CurrentStage != IGame.Stage.Running && CurrentStage != IGame.Stage.Battling)
         {
@@ -188,9 +195,8 @@ partial class Game : IGame
     /// <summary>
     /// Handle PlayerDieEvent
     /// </summary>
-    /// <param name="sender">Sender of the event</param>
     /// <param name="e">Event args</param>
-    void HandlePlayerDieEvent(object? sender, PlayerDieEventArgs e)
+    void HandlePlayerDieEvent(PlayerDieEventArgs e)
     {
         if (CurrentStage != IGame.Stage.Running && CurrentStage != IGame.Stage.Battling)
         {
@@ -204,5 +210,43 @@ partial class Game : IGame
         }
 
         _playerDeathTickList[e.Player.PlayerId] = ElapsedTicks;
+    }
+
+    /// <summary>
+    /// Handle PlayerTradeEvent
+    /// </summary>
+    /// <param name="e">Event args</param>
+    void HandlePlayerTradeEvent(PlayerTradeEventArgs e)
+    {
+        if (CurrentStage != IGame.Stage.Running)
+        {
+            _logger.Error($"Failed to trade: Trade is allowed at stage Running");
+            return;
+        }
+        if (Players[e.Player.PlayerId].IsAlive == false)
+        {
+            _logger.Error($"Failed to trade: Player {e.Player.PlayerId} is dead.");
+            return;
+        }
+        if (IsSamePosition(
+            ToIntPosition(Players[e.Player.PlayerId].PlayerPosition), Players[e.Player.PlayerId].SpawnPoint
+            ) == false)
+        {
+            _logger.Error($"Failed to trade: Player {e.Player.PlayerId} is not at spawn point");
+            return;
+        }
+
+        try
+        {
+            bool result = Players[e.Player.PlayerId].Trade(e.CommodityKind);
+            if (result == false)
+            {
+                _logger.Error($"Failed to trade: Player {e.Player.PlayerId} cannot buy {e.CommodityKind}");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.Error($"Failed to trade: {ex}");
+        }
     }
 }

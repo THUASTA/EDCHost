@@ -96,6 +96,9 @@ partial class Game : IGame
             _playerDeathTickList.Add(null);
         }
 
+        _playerEventQueue = new();
+        _playerEventQueue.Clear();
+
         Mines = new();
         GenerateMines(
             diamondMines: diamondMines,
@@ -109,10 +112,11 @@ partial class Game : IGame
 
         for (int i = 0; i < PlayerNum; i++)
         {
-            Players[i].OnMove += HandlePlayerMoveEvent;
-            Players[i].OnAttack += HandlePlayerAttackEvent;
-            Players[i].OnPlace += HandlePlayerPlaceEvent;
-            Players[i].OnDie += HandlePlayerDieEvent;
+            Players[i].OnMove += EnqueueEvent;
+            Players[i].OnAttack += EnqueueEvent;
+            Players[i].OnPlace += EnqueueEvent;
+            Players[i].OnDie += EnqueueEvent;
+            Players[i].OnTrade += EnqueueEvent;
         }
 
         for (int i = 0; i < PlayerNum; i++)
@@ -167,6 +171,8 @@ partial class Game : IGame
         {
             lock (_gameLocker)
             {
+                HandlePlayerEvents();
+
                 if (IsFinished())
                 {
                     Judge();
@@ -209,6 +215,38 @@ partial class Game : IGame
         catch (Exception ex)
         {
             _logger.Fatal($"An unhandled exception occurred at tick {ElapsedTicks}: {ex}");
+        }
+    }
+
+    void HandlePlayerEvents()
+    {
+        while (_playerEventQueue.IsEmpty == false)
+        {
+            if (_playerEventQueue.TryDequeue(out EventArgs? playerEvent) && playerEvent is not null)
+            {
+                switch (playerEvent)
+                {
+                    case PlayerAttackEventArgs attackEvent:
+                        HandlePlayerAttackEvent(attackEvent);
+                        break;
+                    case PlayerMoveEventArgs moveEvent:
+                        HandlePlayerMoveEvent(moveEvent);
+                        break;
+                    case PlayerPlaceEventArgs placeEvent:
+                        HandlePlayerPlaceEvent(placeEvent);
+                        break;
+                    case PlayerDieEventArgs dieEvent:
+                        HandlePlayerDieEvent(dieEvent);
+                        break;
+                    case PlayerTradeEventArgs tradeEvent:
+                        HandlePlayerTradeEvent(tradeEvent);
+                        break;
+
+                    default:
+                        _logger.Error($"Unknown event: {playerEvent}");
+                        break;
+                }
+            }
         }
     }
 
