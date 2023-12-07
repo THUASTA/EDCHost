@@ -56,6 +56,11 @@ partial class Game : IGame
         new Position<int>(7, 7)
     };
 
+    /// <summary>
+    /// Used to lock some blocks.
+    /// </summary>
+    readonly object _gameLocker = new();
+
     readonly ILogger _logger = Log.Logger.ForContext("Component", "Games");
 
     public Game(
@@ -149,7 +154,7 @@ partial class Game : IGame
             throw new InvalidOperationException("the game is not running");
         }
 
-        CurrentStage = IGame.Stage.Ended;
+        CurrentStage = IGame.Stage.Finished;
 
         _logger.Information("Ended.");
     }
@@ -158,46 +163,53 @@ partial class Game : IGame
     {
         ++ElapsedTicks;
 
-        lock (this)
+        try
         {
-            if (IsFinished())
+            lock (_gameLocker)
             {
-                Judge();
-                CurrentStage = IGame.Stage.Finished;
-                return;
-            }
-
-            if (ElapsedTicks > TickBattlingModeStart && CurrentStage == IGame.Stage.Running)
-            {
-                CurrentStage = IGame.Stage.Battling;
-            }
-
-            if (CurrentStage == IGame.Stage.Battling)
-            {
-                if (_isAllBedsDestroyed == false)
+                if (IsFinished())
                 {
-                    for (int i = 0; i < PlayerNum; i++)
-                    {
-                        Players[i].DestroyBed();
-                    }
-                    _isAllBedsDestroyed = true;
+                    Judge();
+                    CurrentStage = IGame.Stage.Finished;
+                    return;
                 }
 
-                if ((ElapsedTicks - TickBattlingModeStart) % TicksBattlingDamageInterval == 0)
+                if (ElapsedTicks > TickBattlingModeStart && CurrentStage == IGame.Stage.Running)
                 {
-                    for (int i = 0; i < PlayerNum; i++)
+                    CurrentStage = IGame.Stage.Battling;
+                }
+
+                if (CurrentStage == IGame.Stage.Battling)
+                {
+                    if (_isAllBedsDestroyed == false)
                     {
-                        Players[i].Hurt(BattlingDamage);
+                        for (int i = 0; i < PlayerNum; i++)
+                        {
+                            Players[i].DestroyBed();
+                        }
+                        _isAllBedsDestroyed = true;
+                    }
+
+                    if ((ElapsedTicks - TickBattlingModeStart) % TicksBattlingDamageInterval == 0)
+                    {
+                        for (int i = 0; i < PlayerNum; i++)
+                        {
+                            Players[i].Hurt(BattlingDamage);
+                        }
                     }
                 }
+
+                UpdatePlayerInfo();
+                UpdateMines();
             }
 
-            UpdatePlayerInfo();
-            UpdateMines();
+            AfterGameTickEvent?.Invoke(
+                this, new AfterGameTickEventArgs(this, ElapsedTicks));
         }
-
-        AfterGameTickEvent?.Invoke(
-            this, new AfterGameTickEventArgs(this, ElapsedTicks));
+        catch (Exception ex)
+        {
+            _logger.Fatal($"An unhandled exception occurred at tick {ElapsedTicks}: {ex}");
+        }
     }
 
     void UpdatePlayerInfo()
@@ -241,7 +253,8 @@ partial class Game : IGame
     {
         foreach (IMine mine in Mines)
         {
-            if (ElapsedTicks - mine.LastOreGeneratedTick >= mine.AccumulateOreInterval)
+            if (CurrentStage == IGame.Stage.Running
+                && ElapsedTicks - mine.LastOreGeneratedTick >= mine.AccumulateOreInterval)
             {
                 mine.GenerateOre(ElapsedTicks);
             }

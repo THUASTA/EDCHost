@@ -55,7 +55,7 @@ public interface IPlayer
     void PickUpEventInvoker(IMine.OreKindType mineType, int count, string mineId);
 
     /// <summary>
-    /// The Id of  the player 
+    /// The Id of  the player
     /// </summary>
     int PlayerId { get; }
     /// <summary>

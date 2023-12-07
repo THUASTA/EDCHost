@@ -38,6 +38,45 @@ partial class Game : IGame
     readonly List<int?> _playerDeathTickList;
     readonly List<int> _playerLastAttackTickList;
 
+    /// <summary>
+    /// Try to perform trade action.
+    /// </summary>
+    /// <param name="player">The player.</param>
+    /// <param name="commodityKind">The commodity kind.</param>
+    public void TryTrade(IPlayer player, IPlayer.CommodityKindType commodityKind)
+    {
+        if (CurrentStage != IGame.Stage.Running)
+        {
+            _logger.Error($"Failed to trade: Trade is allowed at stage Running");
+            return;
+        }
+        if (Players[player.PlayerId].IsAlive == false)
+        {
+            _logger.Error($"Failed to trade: Player {player.PlayerId} is dead.");
+            return;
+        }
+        if (IsSamePosition(
+            ToIntPosition(Players[player.PlayerId].PlayerPosition), Players[player.PlayerId].SpawnPoint
+            ) == false)
+        {
+            _logger.Error($"Failed to trade: Player {player.PlayerId} is not at spawn point");
+            return;
+        }
+
+        try
+        {
+            bool result = Players[player.PlayerId].Trade(commodityKind);
+            if (result == false)
+            {
+                _logger.Error($"Failed to trade: Player {player.PlayerId} cannot buy {commodityKind}");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.Error($"Failed to trade: {ex}");
+        }
+    }
+
     int AttackTickInterval(IPlayer player)
     {
         return (int)(Math.Max(8.5 - 0.25 * player.ActionPoints, 0.5) * TicksPerSecondExpected);
