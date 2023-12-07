@@ -23,8 +23,8 @@ public partial class GamesTests
             Assert.StrictEqual(game.Players[1].MaxHealth - i * game.Players[0].Strength, game.Players[1].Health);
             for (int j = 1; j < AttackTickInterval; j++)
             {
-                game.Tick();
                 game.Players[0].Attack((int)game.Players[1].PlayerPosition.X, (int)game.Players[1].PlayerPosition.Y);
+                game.Tick();
                 Assert.StrictEqual(game.Players[1].MaxHealth - i * game.Players[0].Strength, game.Players[1].Health);
             }
             game.Tick();
