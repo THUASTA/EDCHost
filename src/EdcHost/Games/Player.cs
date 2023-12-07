@@ -29,7 +29,7 @@ class Player : IPlayer
 
     public event EventHandler<PlayerDigEventArgs> OnDig = delegate { };
     public event EventHandler<PlayerPickUpEventArgs> OnPickUp = delegate { };
-
+    public event EventHandler<PlayerTradeEventArgs> OnTrade = delegate { };
 
     public void PickUpEventInvoker(IMine.OreKindType mineType, int count, string mineId)
     {
@@ -142,6 +142,10 @@ class Player : IPlayer
                 /// Handle unknown action types
                 break;
         }
+    }
+    public void SendTradeRequest(IPlayer.CommodityKindType commodityKind)
+    {
+        OnTrade?.Invoke(this, new PlayerTradeEventArgs(this, commodityKind));
     }
     public bool Trade(IPlayer.CommodityKindType commodityKind)
     {
