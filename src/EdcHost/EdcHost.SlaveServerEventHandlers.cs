@@ -83,23 +83,23 @@ partial class EdcHost : IEdcHost
             switch ((ItemKind)e.Item)
             {
                 case ItemKind.AgilityBoost:
-                    _game.Players[playerId.Value].Trade(IPlayer.CommodityKindType.AgilityBoost);
+                    _game.Players[playerId.Value].SendTradeRequest(IPlayer.CommodityKindType.AgilityBoost);
                     break;
 
                 case ItemKind.HealthBoost:
-                    _game.Players[playerId.Value].Trade(IPlayer.CommodityKindType.HealthBoost);
+                    _game.Players[playerId.Value].SendTradeRequest(IPlayer.CommodityKindType.HealthBoost);
                     break;
 
                 case ItemKind.StrengthBoost:
-                    _game.Players[playerId.Value].Trade(IPlayer.CommodityKindType.StrengthBoost);
+                    _game.Players[playerId.Value].SendTradeRequest(IPlayer.CommodityKindType.StrengthBoost);
                     break;
 
                 case ItemKind.Wool:
-                    _game.Players[playerId.Value].Trade(IPlayer.CommodityKindType.Wool);
+                    _game.Players[playerId.Value].SendTradeRequest(IPlayer.CommodityKindType.Wool);
                     break;
 
                 case ItemKind.PotionOfHealing:
-                    _game.Players[playerId.Value].Trade(IPlayer.CommodityKindType.HealthPotion);
+                    _game.Players[playerId.Value].SendTradeRequest(IPlayer.CommodityKindType.HealthPotion);
                     break;
 
                 default:

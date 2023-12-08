@@ -41,6 +41,7 @@ public interface IPlayer
     event EventHandler<PlayerDieEventArgs> OnDie;
     event EventHandler<PlayerDigEventArgs> OnDig;
     event EventHandler<PlayerPickUpEventArgs> OnPickUp;
+    event EventHandler<PlayerTradeEventArgs> OnTrade;
 
     void EmeraldAdd(int count);
     void Move(float newX, float newY);
@@ -55,7 +56,7 @@ public interface IPlayer
     void PickUpEventInvoker(IMine.OreKindType mineType, int count, string mineId);
 
     /// <summary>
-    /// The Id of  the player 
+    /// The Id of  the player
     /// </summary>
     int PlayerId { get; }
     /// <summary>
@@ -95,6 +96,11 @@ public interface IPlayer
     /// </summary>
     /// <param name="actionKind">The action kind.</param>
     void PerformActionPosition(ActionKindType actionKind, int X, int Y);
+    /// <summary>
+    /// Send a trade request.
+    /// </summary>
+    /// <param name="commodityKind">The commodity kind.</param>
+    void SendTradeRequest(CommodityKindType commodityKind);
     /// <summary>
     /// Trades a commodity.
     /// </summary>

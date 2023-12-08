@@ -24,7 +24,6 @@ public interface IGame
         Running,
         Battling,
         Finished,
-        Ended,
     }
 
     event EventHandler<AfterGameStartEventArgs>? AfterGameStartEvent;
@@ -75,4 +74,5 @@ public interface IGame
     void End();
 
     void Tick();
+
 }

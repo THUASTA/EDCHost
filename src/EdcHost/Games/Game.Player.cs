@@ -1,3 +1,5 @@
+using System.Collections.Concurrent;
+
 namespace EdcHost.Games;
 
 partial class Game : IGame
@@ -18,7 +20,7 @@ partial class Game : IGame
     /// This means a player hasn't done something (for example, Attack) yet
     /// after game started.
     /// </summary>
-    const int Never = -3939;
+    const int Never = -10000;
 
     /// <summary>
     /// Number of players.
@@ -37,6 +39,8 @@ partial class Game : IGame
 
     readonly List<int?> _playerDeathTickList;
     readonly List<int> _playerLastAttackTickList;
+
+    readonly ConcurrentQueue<EventArgs> _playerEventQueue;
 
     int AttackTickInterval(IPlayer player)
     {
