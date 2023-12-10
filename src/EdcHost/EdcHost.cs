@@ -222,10 +222,26 @@ partial class EdcHost : IEdcHost
                             heightOfChunks: heightOfChunks,
                             hasBed: _game.Players[i].HasBed,
                             hasBedOpponent: _game.Players.Any(player => player.HasBed && player.PlayerId != _game.Players[i].PlayerId),
-                            positionX: _game.Players[i].PlayerPosition.X,
-                            positionY: _game.Players[i].PlayerPosition.Y,
-                            positionOpponentX: _game.Players[(i == 0) ? 1 : 0].PlayerPosition.X,
-                            positionOpponentY: _game.Players[(i == 0) ? 1 : 0].PlayerPosition.Y,
+                            positionX: (
+                                _game.Players[i].IsAlive == true ?
+                                _game.Players[i].PlayerPosition.X :
+                                float.MinValue
+                            ),
+                            positionY: (
+                                _game.Players[i].IsAlive == true ?
+                                _game.Players[i].PlayerPosition.Y :
+                                float.MinValue
+                            ),
+                            positionOpponentX: (
+                                _game.Players[(i == 0) ? 1 : 0].IsAlive == true ?
+                                _game.Players[(i == 0) ? 1 : 0].PlayerPosition.X :
+                                float.MinValue
+                            ),
+                            positionOpponentY: (
+                                _game.Players[(i == 0) ? 1 : 0].IsAlive == true ?
+                                _game.Players[(i == 0) ? 1 : 0].PlayerPosition.Y :
+                                float.MinValue
+                            ),
                             agility: _game.Players[i].ActionPoints,
                             health: _game.Players[i].Health,
                             maxHealth: _game.Players[i].MaxHealth,
