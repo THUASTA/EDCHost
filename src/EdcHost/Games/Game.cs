@@ -143,6 +143,8 @@ partial class Game : IGame
             throw new InvalidOperationException("the game has already started");
         }
 
+        _playerEventQueue.Clear();
+
         CurrentStage = IGame.Stage.Running;
         AfterGameStartEvent?.Invoke(this, new AfterGameStartEventArgs(this));
 
