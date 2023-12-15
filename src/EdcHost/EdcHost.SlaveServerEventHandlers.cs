@@ -25,9 +25,9 @@ partial class EdcHost : IEdcHost
             }
 
             IPosition<float> current = _game.Players[playerId.Value].PlayerPosition;
-            _game.Players[playerId.Value].Attack(e.TargetChunkId / MapWidth, e.TargetChunkId % MapWidth);
+            _game.Players[playerId.Value].Attack(e.TargetChunkId % MapWidth, e.TargetChunkId / MapWidth);
 
-            _logger.Information($"Player {playerId} attacked ({e.TargetChunkId / MapWidth}, {e.TargetChunkId % MapWidth})");
+            _logger.Information($"Player {playerId} attempted to attack ({e.TargetChunkId % MapWidth}, {e.TargetChunkId / MapWidth})");
         }
         catch (Exception ex)
         {
@@ -55,9 +55,9 @@ partial class EdcHost : IEdcHost
             }
 
             IPosition<float> current = _game.Players[playerId.Value].PlayerPosition;
-            _game.Players[playerId.Value].Place(e.TargetChunkId / MapWidth, e.TargetChunkId % MapWidth);
+            _game.Players[playerId.Value].Place(e.TargetChunkId % MapWidth, e.TargetChunkId / MapWidth);
 
-            _logger.Information($"Player {playerId} placed a block at ({e.TargetChunkId / MapWidth}, {e.TargetChunkId % MapWidth})");
+            _logger.Information($"Player {playerId} attempted to place a block at ({e.TargetChunkId % MapWidth}, {e.TargetChunkId / MapWidth})");
         }
         catch (Exception ex)
         {
@@ -111,7 +111,7 @@ partial class EdcHost : IEdcHost
                     break;
             }
 
-            _logger.Information($"Player {playerId} bought a item of {(ItemKind)e.Item}");
+            _logger.Information($"Player {playerId} attempted to buy a item of {(ItemKind)e.Item}");
         }
         catch (Exception ex)
         {
