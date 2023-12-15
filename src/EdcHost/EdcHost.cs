@@ -248,7 +248,7 @@ partial class EdcHost : IEdcHost
                     }
                     catch (Exception e)
                     {
-                        _logger.Error($"failed to publish to slave: ${e.Message}");
+                        _logger.Error($"failed to publish to slave via port {portName}: {e.Message}");
                     }
                 }
             }
