@@ -9,6 +9,10 @@ partial class Game : IGame
     /// <param name="e">Event args</param>
     void EnqueueEvent(object? sender, EventArgs e)
     {
+        if (CurrentStage != IGame.Stage.Running && CurrentStage != IGame.Stage.Battling) {
+            return;
+        }
+
         _playerEventQueue.Enqueue(e);
     }
 
