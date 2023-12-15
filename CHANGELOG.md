@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.5] - 2023-12-15
+
+### Fixed
+
+- The x,y of the map is incorrect 
+
 ## [0.3.4] - 2023-12-15
 
 ### Fixed
@@ -60,7 +66,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Initial release.
 
-[unreleased]: https://github.com/THUASTA/EDCHost/compare/v0.3.3...HEAD
+[unreleased]: https://github.com/THUASTA/EDCHost/compare/v0.3.5...HEAD
+[0.3.4]: https://github.com/THUASTA/EDCHost/compare/v0.3.4...v0.3.5
 [0.3.4]: https://github.com/THUASTA/EDCHost/compare/v0.3.3...v0.3.4
 [0.3.3]: https://github.com/THUASTA/EDCHost/compare/v0.3.2...v0.3.3
 [0.3.2]: https://github.com/THUASTA/EDCHost/compare/v0.3.1...v0.3.2
