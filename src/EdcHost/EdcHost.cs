@@ -223,14 +223,10 @@ partial class EdcHost : IEdcHost
                             hasBed: _game.Players[i].HasBed,
                             hasBedOpponent: _game.Players.Any(player => player.HasBed && player.PlayerId != _game.Players[i].PlayerId),
                             positionX: (
-                                _game.Players[i].IsAlive == true ?
-                                _game.Players[i].PlayerPosition.X :
-                                float.MinValue
+                                _game.Players[i].PlayerPosition.X
                             ),
                             positionY: (
-                                _game.Players[i].IsAlive == true ?
-                                _game.Players[i].PlayerPosition.Y :
-                                float.MinValue
+                                _game.Players[i].PlayerPosition.Y
                             ),
                             positionOpponentX: (
                                 _game.Players[(i == 0) ? 1 : 0].IsAlive == true ?
