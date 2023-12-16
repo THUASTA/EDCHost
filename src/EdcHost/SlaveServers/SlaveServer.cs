@@ -35,8 +35,6 @@ public class SlaveServer : ISlaveServer
         GC.SuppressFinalize(this);
     }
 
-
-
     public void OpenPort(string portName, int baudRate)
     {
         if (_isRunning is false)
@@ -44,8 +42,10 @@ public class SlaveServer : ISlaveServer
             throw new InvalidOperationException("not running");
         }
 
+        _logger.Information($"Opening port {portName}...");
         if (_serialPorts.Any(x => x.PortName.Equals(portName)))
         {
+            _logger.Error($"Port {portName} is opened before.");
             return;
         }
 
@@ -62,8 +62,8 @@ public class SlaveServer : ISlaveServer
             }
         };
 
-        serialPort.Open();
         _serialPorts.Add(serialPort);
+        serialPort.Open();
     }
 
     public void ClosePort(string portName)
@@ -73,12 +73,13 @@ public class SlaveServer : ISlaveServer
             throw new InvalidOperationException("not running");
         }
 
+        _logger.Information($"Closing port {portName}");
         ISerialPortWrapper? serialPort = _serialPorts.Find(x => x.PortName.Equals(portName)) ??
             throw new ArgumentException($"port name does not exist: {portName}");
 
+        _serialPorts.Remove(serialPort);
         serialPort.Close();
         serialPort.Dispose();
-        _serialPorts.Remove(serialPort);
     }
 
     public ISlaveServer.PortInfo? GetPortInfo(string portName)

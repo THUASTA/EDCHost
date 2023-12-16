@@ -149,7 +149,7 @@ partial class EdcHost : IEdcHost
                 foreach (Games.IPlayer player in _game.Players)
                 {
                     // Skip if no hardware info is found
-                    if (_playerHardwareInfo.TryGetValue(player.PlayerId, out PlayerHardwareInfo playerHardwareInfo) is false)
+                    if (_playerHardwareInfo.TryGetValue(player.PlayerId, out PlayerHardwareInfo? playerHardwareInfo) is false)
                     {
                         continue;
                     }
@@ -208,7 +208,7 @@ partial class EdcHost : IEdcHost
 
                 for (int i = 0; i < 2; i++)
                 {
-                    string? portName = _playerHardwareInfo.GetValueOrDefault(_game.Players[i].PlayerId).PortName;
+                    string? portName = _playerHardwareInfo.GetValueOrDefault(_game.Players[i].PlayerId)?.PortName;
                     if (portName is null)
                     {
                         continue;

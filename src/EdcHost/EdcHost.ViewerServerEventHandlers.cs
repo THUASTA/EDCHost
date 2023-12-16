@@ -378,30 +378,56 @@ partial class EdcHost : IEdcHost
                 }
             }
 
+            foreach (KeyValuePair<int, PlayerHardwareInfo> kvp in _playerHardwareInfo)
+            {
+                _playerHardwareInfo.AddOrUpdate(
+                    kvp.Key,
+                    new PlayerHardwareInfo() {
+                        CameraIndex = kvp.Value.CameraIndex,
+                        PortName = null
+                    },
+                    (_, _) => new PlayerHardwareInfo() {
+                        CameraIndex = kvp.Value.CameraIndex,
+                        PortName = null
+                    }
+                );
+            }
+
+            foreach (string port in _slaveServer.OpenPortNames)
+            {
+                try
+                {
+                    _slaveServer.ClosePort(port);
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error($"Failed to close port {port}: {ex}");
+                }
+            }
+
             foreach (ViewerServers.HostConfiguration.SerialPortType serialPort in message.Configuration.SerialPorts)
             {
-                if (!_slaveServer.OpenPortNames.Contains(serialPort.PortName))
-                {
-                    _logger.Information($"Opening serial port {serialPort.PortName}...");
-                    _slaveServer.OpenPort(serialPort.PortName, serialPort.BaudRate);
-                }
+                /// <remark>
+                /// When the hardware disconnets, serial port is closed but not removed from OpenSerialPorts.
+                /// Therefore, we are not going to check whether a serial port is in OpenSerialPorts.
+                /// Instead, we will try to open a serial port which throws exception if failed.
+                /// </remark>
+                _slaveServer.OpenPort(serialPort.PortName, serialPort.BaudRate);
             }
 
             foreach (ViewerServers.HostConfiguration.PlayerType player in message.Configuration.Players)
             {
                 // Do not need to check if a player exists because we do not care.
 
-                if (_playerHardwareInfo.TryGetValue(player.PlayerId, out PlayerHardwareInfo oldPlayerHardwareInfo))
-                {
-                    string? oldPortName = oldPlayerHardwareInfo.PortName;
-                    int? oldCameraIndex = oldPlayerHardwareInfo.CameraIndex;
-                }
-
                 PlayerHardwareInfo playerHardwareInfo = new()
                 {
                     CameraIndex = player.Camera,
                     PortName = player.SerialPort
                 };
+
+                _logger.Information($"Setting playerHardwareInfo of player {player.PlayerId}:");
+                _logger.Information($"Camera: {playerHardwareInfo.CameraIndex}");
+                _logger.Information($"Serial port: {playerHardwareInfo.PortName}");
 
                 _playerHardwareInfo.AddOrUpdate(player.PlayerId, playerHardwareInfo, (_, _) => playerHardwareInfo);
             }
