@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using EdcHost.SlaveServers;
 using Emgu.CV.CvEnum;
 
 namespace EdcHost;
@@ -379,12 +378,6 @@ partial class EdcHost : IEdcHost
                 }
             }
 
-            List<string> oldOpenedPortNames = new(_slaveServer.OpenPortNames);
-            foreach (string portName in oldOpenedPortNames)
-            {
-                _slaveServer.ClosePort(portName);
-            }
-
             foreach (ViewerServers.HostConfiguration.SerialPortType serialPort in message.Configuration.SerialPorts)
             {
                 if (!_slaveServer.OpenPortNames.Contains(serialPort.PortName))
@@ -397,6 +390,12 @@ partial class EdcHost : IEdcHost
             foreach (ViewerServers.HostConfiguration.PlayerType player in message.Configuration.Players)
             {
                 // Do not need to check if a player exists because we do not care.
+
+                if (_playerHardwareInfo.TryGetValue(player.PlayerId, out PlayerHardwareInfo oldPlayerHardwareInfo))
+                {
+                    string? oldPortName = oldPlayerHardwareInfo.PortName;
+                    int? oldCameraIndex = oldPlayerHardwareInfo.CameraIndex;
+                }
 
                 PlayerHardwareInfo playerHardwareInfo = new()
                 {
