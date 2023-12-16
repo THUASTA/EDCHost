@@ -79,6 +79,9 @@ partial class EdcHost : IEdcHost
     {
         try
         {
+            _logger.Information("Reloading config...");
+            Config newConfig = ReLoadConfig();
+
             _logger.Information("Resetting Game...");
             if (_gameRunner.IsRunning)
             {
@@ -87,9 +90,9 @@ partial class EdcHost : IEdcHost
             }
 
             _game = Games.IGame.Create(
-                diamondMines: _config.Game.DiamondMines,
-                goldMines: _config.Game.GoldMines,
-                ironMines: _config.Game.IronMines
+                diamondMines: newConfig.Game.DiamondMines,
+                goldMines: newConfig.Game.GoldMines,
+                ironMines: newConfig.Game.IronMines
             );
             _gameRunner = Games.IGameRunner.Create(_game);
 
@@ -387,6 +390,12 @@ partial class EdcHost : IEdcHost
             foreach (ViewerServers.HostConfiguration.PlayerType player in message.Configuration.Players)
             {
                 // Do not need to check if a player exists because we do not care.
+
+                if (_playerHardwareInfo.TryGetValue(player.PlayerId, out PlayerHardwareInfo oldPlayerHardwareInfo))
+                {
+                    string? oldPortName = oldPlayerHardwareInfo.PortName;
+                    int? oldCameraIndex = oldPlayerHardwareInfo.CameraIndex;
+                }
 
                 PlayerHardwareInfo playerHardwareInfo = new()
                 {

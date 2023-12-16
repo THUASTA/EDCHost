@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Text.Json;
 using Serilog;
 
 namespace EdcHost;
@@ -419,5 +420,35 @@ partial class EdcHost : IEdcHost
                 _logger.Fatal($"An unhandled exception occurred while sending to viewer: {ex}");
             }
         }
+    }
+
+    Config ReLoadConfig()
+    {
+        Config config = new();
+        string path = Path.Combine(Directory.GetCurrentDirectory(), "config.json");
+        if (!File.Exists(path))
+        {
+            Log.Warning($"Config file not found at {path}, creating default config file...");
+            File.WriteAllText(path, JsonSerializer.Serialize(config, new JsonSerializerOptions { WriteIndented = true }));
+        }
+        else
+        {
+            try
+            {
+                config = JsonSerializer.Deserialize<Config>(File.ReadAllText(path))!;
+            }
+            catch (JsonException)
+            {
+                Log.Error($"Error parsing config file at {path}");
+
+#if DEBUG
+                throw;
+#else
+                Log.Information($"Using default config.");
+#endif
+            }
+        }
+
+        return config;
     }
 }
