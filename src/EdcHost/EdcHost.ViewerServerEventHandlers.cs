@@ -382,11 +382,13 @@ partial class EdcHost : IEdcHost
             {
                 _playerHardwareInfo.AddOrUpdate(
                     kvp.Key,
-                    new PlayerHardwareInfo() {
+                    new PlayerHardwareInfo()
+                    {
                         CameraIndex = kvp.Value.CameraIndex,
                         PortName = null
                     },
-                    (_, _) => new PlayerHardwareInfo() {
+                    (_, _) => new PlayerHardwareInfo()
+                    {
                         CameraIndex = kvp.Value.CameraIndex,
                         PortName = null
                     }
