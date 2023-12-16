@@ -30,14 +30,17 @@ In a packet, the first 5 bytes are the header and the later bytes are the data.
 | actionType | integer | The action type. 0: ATTACK 1: PLACE_BLOCK 2: TRADE                     | allowed (`0`, `1`, `2`) | format (`int8`) | -                                         |
 | param      | integer | The parameter. Chunk id for ATTACK and PLACE_BLOCK. Item id for TRADE. | -                       | format (`int8`) | -                                         |
 
-> Examples of payload _(generated)_
+The ID of the top-left chunk is 0 and the ID of the bottom-right chunk is 63. The chunk ID increases first from left to right and then from top to down. For example, chunk (0, 0) has ID 0, and chunk (1, 0) has ID 1.
 
-```json
-{
-  "actionType": 0,
-  "param": 0
-}
-```
+The item IDs are defined as belows:
+
+| Item ID | Item |
+|---|---|
+| 0 | AgilityBoost |
+| 1 | HealthBoost |
+| 2 | StrengthBoost |
+| 3 | Wool |
+| 4 | PotionOfHealing |
 
 ### SUB `main` Operation
 
@@ -64,90 +67,3 @@ In a packet, the first 5 bytes are the header and the later bytes are the data.
 | strength                     | integer        | The strength point.                                        | -     | format (`int8`)  | -                                         |
 | emeraldCount                 | integer        | The emerald count.                                         | -     | format (`int8`)  | -                                         |
 | woolCount                    | integer        | The wool count.                                            | -     | format (`int8`)  | -                                         |
-
-> Examples of payload _(generated)_
-
-```json
-{
-  "gameStage": 0,
-  "elapsedTicks": 0,
-  "heightOfChunks": [
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
-  ],
-  "hasBed": true,
-  "hasBedOpponent": true,
-  "positionX": 0,
-  "positionY": 0,
-  "positionOpponentX": 0,
-  "positionOpponentY": 0,
-  "agility": 0,
-  "health": 0,
-  "maxHealth": 0,
-  "strength": 0,
-  "emeraldCount": 0,
-  "woolCount": 0
-}
-```

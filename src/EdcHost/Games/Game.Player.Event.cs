@@ -73,25 +73,25 @@ partial class Game : IGame
 
         if (e.Player.IsAlive == false)
         {
-            _logger.Error($"Player {e.Player.PlayerId} is dead. Action rejected.");
+            _logger.Error($"Player {e.Player.PlayerId} is dead. PlayerAttack rejected.");
             return;
         }
         if (ElapsedTicks - _playerLastAttackTickList[e.Player.PlayerId] < AttackTickInterval(e.Player))
         {
             _logger.Error(@$"Player {e.Player.PlayerId} has already attacked recently.
-                Action rejected.");
+                PlayerAttack rejected.");
             return;
         }
         if (IsAdjacent(ToIntPosition(e.Player.PlayerPosition), e.Position) == false)
         {
             _logger.Error(@$"Position ({e.Position.X}, {e.Position.Y})
-                is not adjacent to player {e.Player.PlayerId}. Action rejected.");
+                is not adjacent to player {e.Player.PlayerId}. PlayerAttack rejected.");
             return;
         }
         if (IsValidPosition(e.Position) == false)
         {
             _logger.Error(@$"Position ({e.Position.X}, {e.Position.Y}) is not valid.
-                Action rejected.");
+                PlayerAttack rejected.");
             return;
         }
 
@@ -115,7 +115,7 @@ partial class Game : IGame
         {
             if (GameMap.GetChunkAt(e.Position).CanRemoveBlock == false)
             {
-                _logger.Error("Target chunk is empty. Action rejected.");
+                _logger.Error("Target chunk is empty. PlayerAttack rejected.");
                 return;
             }
 
@@ -157,23 +157,23 @@ partial class Game : IGame
 
         if (e.Player.IsAlive == false)
         {
-            _logger.Error($"Player {e.Player.PlayerId} is dead. Action rejected.");
+            _logger.Error($"Player {e.Player.PlayerId} is dead. PlayerPlace rejected.");
             return;
         }
         if (e.Player.WoolCount <= 0)
         {
-            _logger.Error($"Player {e.Player.PlayerId} doesn't have enough wool. Action rejected.");
+            _logger.Error($"Player {e.Player.PlayerId} doesn't have enough wool. PlayerPlace rejected.");
         }
         if (IsAdjacent(ToIntPosition(e.Player.PlayerPosition), e.Position) == false)
         {
             _logger.Error(@$"Position ({e.Position.X}, {e.Position.Y})
-                is not adjecant to player {e.Player.PlayerId}. Action rejected.");
+                is not adjecant to player {e.Player.PlayerId}. PlayerPlace rejected.");
             return;
         }
         if (IsValidPosition(e.Position) == false)
         {
             _logger.Error(@$"Position ({e.Position.X}, {e.Position.Y}) is not valid.
-                Action rejected.");
+                PlayerPlace rejected.");
             return;
         }
 
@@ -187,7 +187,7 @@ partial class Game : IGame
             else
             {
                 _logger.Error(@$"The chunk at position ({e.Position.X}, {e.Position.Y})
-                    has already reached its maximum height. Action rejected.");
+                    has already reached its maximum height. PlayerPlace rejected.");
             }
         }
         catch (Exception exception)
@@ -210,7 +210,7 @@ partial class Game : IGame
 
         if (_playerDeathTickList[e.Player.PlayerId] is not null)
         {
-            _logger.Error($"Player {e.Player.PlayerId} is already dead. Action rejected.");
+            _logger.Error($"Player {e.Player.PlayerId} is already dead. PlayerDie rejected.");
             return;
         }
 
