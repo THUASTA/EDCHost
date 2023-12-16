@@ -20,6 +20,9 @@ class Program
 
         SetupLogging(config.LoggingLevel);
 
+        Version version = typeof(Program).Assembly.GetName().Version ?? new Version(0, 0, 0, 0);
+        Log.Information($"EDCHost version: {version.Major}.{version.Minor}.{version.Build}");
+
         SetupAndRunEdcHost(config);
 
         // Wait forever
