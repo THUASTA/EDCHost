@@ -15,6 +15,7 @@ class SerialPortWrapper : ISerialPortWrapper
     readonly Serilog.ILogger _logger = Serilog.Log.Logger.ForContext("Component", "SlaveServers");
     readonly ConcurrentQueue<byte[]> _queueOfBytesToSend = new();
     readonly SerialPort _serialPort;
+    bool _shouldOpen = false;
     Task? _taskForReceiving = null;
     Task? _taskForSending = null;
 
@@ -35,13 +36,22 @@ class SerialPortWrapper : ISerialPortWrapper
         Debug.Assert(_taskForReceiving != null);
         Debug.Assert(_taskForSending != null);
 
-        _serialPort.Close();
+        _shouldOpen = false;
 
         _taskForReceiving.Wait();
         _taskForSending.Wait();
 
         _taskForSending.Dispose();
         _taskForReceiving.Dispose();
+
+        try
+        {
+            _serialPort.Close();
+        }
+        catch (Exception)
+        {
+            _logger.Error("Wtf");
+        }
     }
 
     public void Dispose()
@@ -58,6 +68,7 @@ class SerialPortWrapper : ISerialPortWrapper
             throw new InvalidOperationException("port is already open");
         }
 
+        _shouldOpen = true;
         _serialPort.Open();
 
         _taskForReceiving = Task.Run(TaskForReceivingFunc);
@@ -78,7 +89,7 @@ class SerialPortWrapper : ISerialPortWrapper
     {
         DateTime lastTickStartTime = DateTime.Now;
 
-        while (_serialPort.IsOpen)
+        while (_shouldOpen == true && _serialPort.IsOpen)
         {
             // Wait for next tick
             DateTime currentTickStartTime = lastTickStartTime.AddMilliseconds(
@@ -114,7 +125,7 @@ class SerialPortWrapper : ISerialPortWrapper
 
     private void TaskForSendingFunc()
     {
-        while (_serialPort.IsOpen)
+        while (_shouldOpen == true && _serialPort.IsOpen)
         {
             try
             {

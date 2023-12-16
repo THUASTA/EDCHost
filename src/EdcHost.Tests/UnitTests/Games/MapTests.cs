@@ -25,8 +25,8 @@ public class IMapTests
         Assert.Equal(64, map.Chunks.Count);
         for (int i = 0; i < 64; i++)
         {
-            Assert.Equal(i / 8, map.Chunks[i].Position.X);
-            Assert.Equal(i % 8, map.Chunks[i].Position.Y);
+            Assert.Equal(i % 8, map.Chunks[i].Position.X);
+            Assert.Equal(i / 8, map.Chunks[i].Position.Y);
         }
         Assert.Equal(0, map.Chunks[0].Height);
         Assert.Equal(0, map.Chunks[20].Height);
@@ -41,7 +41,7 @@ public class IMapTests
     {
         IMap map = IMap.Create(spawnPoints);
         MockPosition positionMock = new() { X = 2, Y = 3 };
-        IChunk expectedChunk = map.Chunks[19];
+        IChunk expectedChunk = map.Chunks[26];
         IChunk actualChunk = map.GetChunkAt(positionMock);
         Assert.Equal(expectedChunk, actualChunk);
     }

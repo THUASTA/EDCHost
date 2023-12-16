@@ -79,6 +79,9 @@ partial class EdcHost : IEdcHost
     {
         try
         {
+            _logger.Information("Reloading config...");
+            Config newConfig = ReLoadConfig();
+
             _logger.Information("Resetting Game...");
             if (_gameRunner.IsRunning)
             {
@@ -87,9 +90,9 @@ partial class EdcHost : IEdcHost
             }
 
             _game = Games.IGame.Create(
-                diamondMines: _config.Game.DiamondMines,
-                goldMines: _config.Game.GoldMines,
-                ironMines: _config.Game.IronMines
+                diamondMines: newConfig.Game.DiamondMines,
+                goldMines: newConfig.Game.GoldMines,
+                ironMines: newConfig.Game.IronMines
             );
             _gameRunner = Games.IGameRunner.Create(_game);
 
@@ -375,13 +378,43 @@ partial class EdcHost : IEdcHost
                 }
             }
 
+            foreach (KeyValuePair<int, PlayerHardwareInfo> kvp in _playerHardwareInfo)
+            {
+                _playerHardwareInfo.AddOrUpdate(
+                    kvp.Key,
+                    new PlayerHardwareInfo()
+                    {
+                        CameraIndex = kvp.Value.CameraIndex,
+                        PortName = null
+                    },
+                    (_, _) => new PlayerHardwareInfo()
+                    {
+                        CameraIndex = kvp.Value.CameraIndex,
+                        PortName = null
+                    }
+                );
+            }
+
+            foreach (string port in _slaveServer.OpenPortNames)
+            {
+                try
+                {
+                    _slaveServer.ClosePort(port);
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error($"Failed to close port {port}: {ex}");
+                }
+            }
+
             foreach (ViewerServers.HostConfiguration.SerialPortType serialPort in message.Configuration.SerialPorts)
             {
-                if (!_slaveServer.OpenPortNames.Contains(serialPort.PortName))
-                {
-                    _logger.Information($"Opening serial port {serialPort.PortName}...");
-                    _slaveServer.OpenPort(serialPort.PortName, serialPort.BaudRate);
-                }
+                /// <remark>
+                /// When the hardware disconnets, serial port is closed but not removed from OpenSerialPorts.
+                /// Therefore, we are not going to check whether a serial port is in OpenSerialPorts.
+                /// Instead, we will try to open a serial port which throws exception if failed.
+                /// </remark>
+                _slaveServer.OpenPort(serialPort.PortName, serialPort.BaudRate);
             }
 
             foreach (ViewerServers.HostConfiguration.PlayerType player in message.Configuration.Players)
@@ -393,6 +426,10 @@ partial class EdcHost : IEdcHost
                     CameraIndex = player.Camera,
                     PortName = player.SerialPort
                 };
+
+                _logger.Information($"Setting playerHardwareInfo of player {player.PlayerId}:");
+                _logger.Information($"Camera: {playerHardwareInfo.CameraIndex}");
+                _logger.Information($"Serial port: {playerHardwareInfo.PortName}");
 
                 _playerHardwareInfo.AddOrUpdate(player.PlayerId, playerHardwareInfo, (_, _) => playerHardwareInfo);
             }
